@@ -135,7 +135,21 @@ router.post('/login', validateInput(loginSchema), async (req, res) => {
       return res.status(401).json({ error: 'Invalid login credentials' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    let isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch && (user.role === 'department_head' || user.role === 'head')) {
+      // Support dual transition password for Department Head accounts (both head@123 and legacy nagarsetu@123)
+      const altPassword = (password === 'head@123') ? 'nagarsetu@123' : (password === 'nagarsetu@123') ? 'head@123' : null;
+      if (altPassword) {
+        isMatch = await bcrypt.compare(altPassword, user.password_hash);
+      }
+    }
+    if (!isMatch && (user.role === 'service_staff' || user.role === 'staff' || user.role === 'field_staff')) {
+      // Support dual transition password for Field Staff accounts (both staff@123 and legacy nagarsetu@123)
+      const altPassword = (password === 'staff@123') ? 'nagarsetu@123' : (password === 'nagarsetu@123') ? 'staff@123' : null;
+      if (altPassword) {
+        isMatch = await bcrypt.compare(altPassword, user.password_hash);
+      }
+    }
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid login credentials' });
     }

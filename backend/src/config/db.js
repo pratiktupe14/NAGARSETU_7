@@ -91,6 +91,7 @@ function initDatabase() {
             const { supabase } = require('./supabaseStorage');
             if (supabase) {
               console.log('[DATABASE] Verified Supabase client active as production database handler.');
+              pgPool = null;
               return onInitSuccess();
             }
             if (isProduction) {
@@ -893,8 +894,11 @@ async function querySupabase(sql, params = []) {
       if (upper.includes('MOBILE')) {
         const mobParam = params.find(p => typeof p === 'string' && /\d{8,}/.test(p)) || params[0];
         const mob = String(mobParam || '').trim();
-        const normMob = mob.slice(-10);
-        const { data, error } = await supabase.from('users').select('*').or(`mobile.eq.${mob},mobile.eq.${normMob}`).limit(1);
+        const rawDigits = mob.replace(/\D/g, '');
+        const normMob = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits;
+        const variants = [normMob, `+91${normMob}`, `+91 ${normMob}`, `+91-${normMob}`, `0${normMob}`];
+        const orClause = variants.map(v => `mobile.eq."${v}"`).join(',');
+        const { data, error } = await supabase.from('users').select('*').or(orClause).limit(1);
         if (!error && data && data.length > 0) return { rows: data };
       }
       if (upper.includes('WHERE ID =')) {
