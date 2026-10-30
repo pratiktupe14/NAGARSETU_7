@@ -17,8 +17,9 @@ function getSqlite3() {
 let pgPool = null;
 let sqliteDb = null;
 let useSqlite = false;
+let isSupabaseActive = false;
 
-const DB_TYPE = process.env.DB_TYPE || 'sqlite'; // 'postgres' or 'sqlite'
+const DB_TYPE = process.env.DB_TYPE || (process.env.NODE_ENV === 'production' ? 'postgres' : 'sqlite'); // 'postgres' or 'sqlite'
 
 let isSeeding = false;
 let seeded = false;
@@ -92,6 +93,7 @@ function initDatabase() {
             if (supabase) {
               console.log('[DATABASE] Verified Supabase client active as production database handler.');
               pgPool = null;
+              isSupabaseActive = true;
               return onInitSuccess();
             }
             if (isProduction) {
@@ -116,6 +118,8 @@ function initDatabase() {
         const { supabase } = require('./supabaseStorage');
         if (supabase) {
           console.log('[DATABASE] Verified Supabase client active following pool init exception.');
+          pgPool = null;
+          isSupabaseActive = true;
           return onInitSuccess();
         }
         if (isProduction) {
@@ -890,6 +894,7 @@ async function querySupabase(sql, params = []) {
         const email = String(emailParam || '').toLowerCase().trim();
         const { data, error } = await supabase.from('users').select('*').ilike('email', email).limit(1);
         if (!error && data && data.length > 0) return { rows: data };
+        if (!error && data && data.length === 0) return { rows: [] };
       }
       if (upper.includes('MOBILE')) {
         const mobParam = params.find(p => typeof p === 'string' && /\d{8,}/.test(p)) || params[0];
@@ -900,11 +905,13 @@ async function querySupabase(sql, params = []) {
         const orClause = variants.map(v => `mobile.eq."${v}"`).join(',');
         const { data, error } = await supabase.from('users').select('*').or(orClause).limit(1);
         if (!error && data && data.length > 0) return { rows: data };
+        if (!error && data && data.length === 0) return { rows: [] };
       }
       if (upper.includes('WHERE ID =')) {
         const id = params[0];
         const { data, error } = await supabase.from('users').select('*').eq('id', id).limit(1);
         if (!error && data && data.length > 0) return { rows: data };
+        if (!error && data && data.length === 0) return { rows: [] };
       }
       // General fallback lookup by identifier
       if (params.length > 0) {
@@ -1033,14 +1040,39 @@ async function querySupabase(sql, params = []) {
 
     // 3. Departments
     if (upper.includes('FROM DEPARTMENTS')) {
+      if (upper.includes('WHERE ID =') || upper.includes('WHERE ID = ?') || upper.includes('CODE =')) {
+        const idOrCode = params[0];
+        if (idOrCode) {
+          const { data, error } = await supabase.from('departments').select('*').or(`id.eq.${idOrCode},code.eq.${idOrCode}`).limit(1);
+          if (!error && data) return { rows: data };
+        }
+      }
       const { data, error } = await supabase.from('departments').select('*');
       if (!error && data) return { rows: data };
     }
 
     // 4. Department Heads
     if (upper.includes('FROM DEPARTMENT_HEADS')) {
-      const { data, error } = await supabase.from('department_heads').select('*');
-      if (!error && data) return { rows: data };
+      let queryBuilder = supabase.from('department_heads').select('*, departments(name)');
+      if (params.length > 0) {
+        const userId = params.find(p => typeof p === 'number' || (typeof p === 'string' && /^\d+$/.test(p)));
+        const email = params.find(p => typeof p === 'string' && p.includes('@'));
+        if (userId && email) {
+          queryBuilder = queryBuilder.or(`user_id.eq.${userId},email.ilike.${email}`);
+        } else if (userId) {
+          queryBuilder = queryBuilder.eq('user_id', userId);
+        } else if (email) {
+          queryBuilder = queryBuilder.ilike('email', email);
+        }
+      }
+      const { data, error } = await queryBuilder.limit(10);
+      if (!error && data) {
+        const formatted = data.map(dh => ({
+          ...dh,
+          dept_name: dh.departments?.name || dh.dept_name
+        }));
+        return { rows: formatted };
+      }
     }
 
     // 5. Notifications
@@ -1060,13 +1092,18 @@ async function querySupabase(sql, params = []) {
 
 // Universal query runner wrapper
 async function query(sql, params = []) {
+  const isProduction = process.env.NODE_ENV === 'production';
   const currentDbType = (process.env.DB_TYPE || DB_TYPE || '').toLowerCase();
 
-  // If DB_TYPE is explicitly supabase and pgPool is not connected, use Supabase REST adapter directly
-  if (currentDbType === 'supabase' && !pgPool) {
+  // If Supabase is active, or DB_TYPE is explicitly supabase, or in production when pgPool is absent:
+  if (isSupabaseActive || currentDbType === 'supabase' || (isProduction && !pgPool)) {
     const supaRes = await querySupabase(sql, params);
     if (supaRes) {
       return supaRes;
+    }
+    if (isProduction && !pgPool) {
+      console.warn('[SUPABASE ADAPTER UNHANDLED QUERY IN PRODUCTION]', sql);
+      return { rows: [], rowCount: 0 };
     }
   }
 
