@@ -111,3 +111,4 @@ The authentication issues on Vercel have been resolved at every layer:
 3. **Connection Layer:** Failover from direct PostgreSQL to Supabase REST client stabilized.
 4. **Phone Formatting:** Robust regex normalization and quoted PostgREST filtering added.
 5. **Testing:** All 269 backend tests and frontend production builds pass without errors.
+

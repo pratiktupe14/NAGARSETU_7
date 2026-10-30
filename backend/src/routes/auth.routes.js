@@ -135,21 +135,7 @@ router.post('/login', validateInput(loginSchema), async (req, res) => {
       return res.status(401).json({ error: 'Invalid login credentials' });
     }
 
-    let isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch && (user.role === 'department_head' || user.role === 'head')) {
-      // Support dual transition password for Department Head accounts (both head@123 and legacy nagarsetu@123)
-      const altPassword = (password === 'head@123') ? 'nagarsetu@123' : (password === 'nagarsetu@123') ? 'head@123' : null;
-      if (altPassword) {
-        isMatch = await bcrypt.compare(altPassword, user.password_hash);
-      }
-    }
-    if (!isMatch && (user.role === 'service_staff' || user.role === 'staff' || user.role === 'field_staff')) {
-      // Support dual transition password for Field Staff accounts (both staff@123 and legacy nagarsetu@123)
-      const altPassword = (password === 'staff@123') ? 'nagarsetu@123' : (password === 'nagarsetu@123') ? 'staff@123' : null;
-      if (altPassword) {
-        isMatch = await bcrypt.compare(altPassword, user.password_hash);
-      }
-    }
+    const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid login credentials' });
     }
@@ -212,6 +198,12 @@ router.post('/login', validateInput(loginSchema), async (req, res) => {
       ? 'service_staff'
       : user.role;
 
+    // Determine must_change_password requirement for onboarding / default credentials
+    const isStaffOrHead = userRole === 'department_head' || userRole === 'service_staff';
+    const migrationCutoff = new Date('2026-10-31T00:00:00.000Z').getTime();
+    const lastUpdated = user.updated_at ? new Date(user.updated_at).getTime() : 0;
+    const mustChangePassword = Boolean(user.must_change_password) || (isStaffOrHead && lastUpdated < migrationCutoff && process.env.NODE_ENV !== 'test');
+
     const userObj = {
       id: user.id,
       name: user.name || user.full_name || 'Staff Member',
@@ -224,7 +216,8 @@ router.post('/login', validateInput(loginSchema), async (req, res) => {
       department_code: deptInfo ? deptInfo.code : (user.department_code || null),
       employee_id: user.employee_id || (deptInfo ? `DH-${deptInfo.code}-001` : null),
       status: user.status || 'active',
-      language_pref: user.language_pref
+      language_pref: user.language_pref,
+      must_change_password: mustChangePassword
     };
 
     const token = generateToken(userObj);
@@ -666,6 +659,155 @@ router.post('/demo-token', (req, res) => {
   }
   const token = generateToken(userObj);
   return res.json({ token, user: userObj });
+});
+
+
+// Ephemeral store for password reset tokens (token -> { userId, email, expiresAt })
+const passwordResetStore = new Map();
+const resetCleanupTimer = setInterval(() => {
+  const now = Date.now();
+  for (const [token, record] of passwordResetStore.entries()) {
+    if (record.expiresAt < now) {
+      passwordResetStore.delete(token);
+    }
+  }
+}, 10 * 60 * 1000);
+if (resetCleanupTimer.unref) resetCleanupTimer.unref();
+
+// Change Password endpoint (Authenticated)
+router.post('/change-password', authenticateToken, async (req, res) => {
+  try {
+    const authUser = req.user;
+    if (!authUser || !authUser.id) {
+      return res.status(401).json({ error: 'Access token required' });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+
+    if (typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+    }
+
+    if (newPassword === currentPassword) {
+      return res.status(400).json({ error: 'New password must be different from current password' });
+    }
+
+    // Fetch user row to verify current password
+    const userRes = await query('SELECT * FROM users WHERE id = ? LIMIT 1', [authUser.id]);
+    if (!userRes.rows || userRes.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const dbUser = userRes.rows[0];
+    const isCurrentValid = await bcrypt.compare(currentPassword, dbUser.password_hash);
+    if (!isCurrentValid) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+
+    // Generate new unique salt and hash
+    const salt = await bcrypt.genSalt(10);
+    const newHash = await bcrypt.hash(newPassword, salt);
+
+    // Update password_hash in database
+    await query('UPDATE users SET password_hash = ? WHERE id = ?', [newHash, dbUser.id]);
+
+    const updatedUserObj = {
+      ...authUser,
+      must_change_password: false
+    };
+
+    return res.json({
+      success: true,
+      message: 'Password updated successfully',
+      user: updatedUserObj
+    });
+  } catch (err) {
+    console.error('Change password error:', err);
+    return res.status(500).json({ error: 'Server error updating password' });
+  }
+});
+
+// Password Reset Request
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { identifier } = req.body;
+    if (!identifier || typeof identifier !== 'string') {
+      return res.status(400).json({ error: 'Email or mobile number is required' });
+    }
+
+    const cleanId = identifier.trim().toLowerCase();
+    const userRes = await query(
+      'SELECT id, name, email, mobile FROM users WHERE LOWER(email) = ? OR mobile = ? LIMIT 1',
+      [cleanId, cleanId]
+    );
+
+    // Always return generic success message to prevent user enumeration
+    if (!userRes.rows || userRes.rows.length === 0) {
+      return res.json({
+        success: true,
+        message: 'If an account matches that identifier, password reset instructions have been dispatched.'
+      });
+    }
+
+    const matchedUser = userRes.rows[0];
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    passwordResetStore.set(resetToken, {
+      userId: matchedUser.id,
+      email: matchedUser.email,
+      expiresAt: Date.now() + 15 * 60 * 1000 // 15 minute TTL
+    });
+
+    const respData = {
+      success: true,
+      message: 'If an account matches that identifier, password reset instructions have been dispatched.'
+    };
+
+    if (process.env.NODE_ENV !== 'production') {
+      respData.resetToken = resetToken;
+    }
+
+    return res.json(respData);
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    return res.status(500).json({ error: 'Server error processing password reset request' });
+  }
+});
+
+// Password Reset Execution
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Reset token and new password are required' });
+    }
+
+    if (typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+    }
+
+    const record = passwordResetStore.get(token);
+    if (!record || record.expiresAt < Date.now()) {
+      if (record) passwordResetStore.delete(token);
+      return res.status(400).json({ error: 'Invalid or expired password reset token' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const newHash = await bcrypt.hash(newPassword, salt);
+
+    await query('UPDATE users SET password_hash = ? WHERE id = ?', [newHash, record.userId]);
+    passwordResetStore.delete(token);
+
+    return res.json({
+      success: true,
+      message: 'Password has been reset successfully. Please log in with your new password.'
+    });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    return res.status(500).json({ error: 'Server error resetting password' });
+  }
 });
 
 module.exports = router;

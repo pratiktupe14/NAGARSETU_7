@@ -925,6 +925,40 @@ async function querySupabase(sql, params = []) {
       if (!error && data) return { rows: data };
     }
 
+    // 1b. Users update (Password change or profile update)
+    if (upper.startsWith('UPDATE USERS')) {
+      if (upper.includes('SET PASSWORD_HASH =')) {
+        const passHash = params[0];
+        const userId = params[params.length - 1];
+        if (userId && passHash) {
+          const { data, error } = await supabase
+            .from('users')
+            .update({ password_hash: passHash, updated_at: new Date().toISOString() })
+            .eq('id', userId)
+            .select();
+          if (!error) {
+            return { rows: data || [], rowCount: (data && data.length) ? data.length : 1 };
+          }
+        }
+      }
+      if (upper.includes('SET NAME =')) {
+        const userId = params[params.length - 1];
+        const name = params[0];
+        const lang = params[1];
+        const updateData = { updated_at: new Date().toISOString() };
+        if (name) updateData.name = name;
+        if (lang) updateData.language_pref = lang;
+        const { data, error } = await supabase
+          .from('users')
+          .update(updateData)
+          .eq('id', userId)
+          .select();
+        if (!error) {
+          return { rows: data || [], rowCount: (data && data.length) ? data.length : 1 };
+        }
+      }
+    }
+
     // 2. Complaints queries
     if (upper.includes('FROM COMPLAINTS')) {
       if (upper.includes('SELECT COUNT')) {
