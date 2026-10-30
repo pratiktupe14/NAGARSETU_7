@@ -5,6 +5,21 @@ const path = require('path');
 const FormData = require('form-data');
 const { query, initDatabase } = require('../src/config/db');
 const { resolveDepartmentByCode } = require('../src/services/departmentService');
+const { generateToken } = require('../src/middleware/auth');
+
+const createdComplaintIds = [];
+
+async function deleteComplaintSafely(cid) {
+  if (!cid) return;
+  try { await query('DELETE FROM feedback WHERE complaint_id = ?', [cid]); } catch {}
+  try { await query('DELETE FROM assignments WHERE complaint_id = ?', [cid]); } catch {}
+  try { await query('DELETE FROM complaint_status_history WHERE complaint_id = ?', [cid]); } catch {}
+  try { await query('DELETE FROM notifications WHERE complaint_id = ?', [cid]); } catch {}
+  try { await query('DELETE FROM recurring_issue_links WHERE root_complaint_id = ? OR child_complaint_id = ?', [cid, cid]); } catch {}
+  try { await query('DELETE FROM complaint_evidence_versions WHERE complaint_id = ?', [cid]); } catch {}
+  try { await query("DELETE FROM blockchain_transactions WHERE entity_type = 'complaint' AND (entity_id = ? OR entity_id = ?)", [String(cid), Number(cid)]); } catch {}
+  try { await query('DELETE FROM complaints WHERE id = ?', [cid]); } catch {}
+}
 
 const app = require('../src/app');
 let server;
@@ -31,6 +46,18 @@ test.before(async () => {
   await initDatabase();
   const seedServiceStaff = require('../src/scripts/seedServiceStaff');
   await seedServiceStaff();
+
+  // Preemptively purge test complaints from previous uncleaned test runs
+  try {
+    const staleRes = await query(`
+      SELECT id FROM complaints 
+      WHERE citizen_id IN ('drn-cit-case2-003', 'drn-cit-case3-004', 'drn-cit-lifecycle-007', 'drn-test-cit')
+         OR title IN ('Blocked Drain', 'Blocked Drain / Gutter', 'Damaged Drain / Broken Slab', 'Severe Municipal Drain Clog', 'Isolated DRN Complaint')
+    `);
+    for (const row of staleRes.rows || []) {
+      await deleteComplaintSafely(row.id);
+    }
+  } catch (e) {}
 
   let backendRunning = false;
   try {
@@ -99,6 +126,9 @@ test.before(async () => {
 });
 
 test.after(async () => {
+  for (const cid of createdComplaintIds) {
+    await deleteComplaintSafely(cid);
+  }
   if (mockAiServer) {
     await new Promise((resolve) => mockAiServer.close(resolve));
   }
@@ -170,8 +200,15 @@ test('3. CASE 2: Real Blocked Drain -> DRN Routing -> DB Persistence -> Staff As
   assert.ok(aiData.confidence >= 0.70, `Confidence should be strong (got ${aiData.confidence})`);
 
   // Citizen creates complaint via /api/complaints/submit
-  const uniqueLat = 18.5204 + (Math.random() * 0.02);
-  const uniqueLng = 73.8567 + (Math.random() * 0.02);
+  // Deterministic coordinates: Pune Central (18.520400, 73.856700)
+  const drnCase2CitizenToken = generateToken({
+    id: 'drn-cit-case2-003',
+    name: 'DRN Case 2 Citizen',
+    mobile: '919999887701',
+    role: 'citizen'
+  });
+  const uniqueLat = 18.520400;
+  const uniqueLng = 73.856700;
 
   const compPayload = {
     title: aiData.title || aiData.complaint?.title || 'Blocked Drain / Gutter',
@@ -194,7 +231,7 @@ test('3. CASE 2: Real Blocked Drain -> DRN Routing -> DB Persistence -> Staff As
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer demo-token-citizen'
+      'Authorization': `Bearer ${drnCase2CitizenToken}`
     },
     body: JSON.stringify(compPayload)
   });
@@ -204,6 +241,7 @@ test('3. CASE 2: Real Blocked Drain -> DRN Routing -> DB Persistence -> Staff As
   assert.ok(createData.complaint, 'Response should contain complaint object');
   const complaintId = createData.complaint.id;
   assert.ok(complaintId, 'Complaint should have an ID');
+  createdComplaintIds.push(complaintId);
 
   // Verify in SQLite database
   const dbCompRes = await query(
@@ -273,15 +311,22 @@ test('4. CASE 3: Real Damaged Drain (Broken Slab) -> DRN Routing -> High Severit
   assert.strictEqual(aiData.severity, 'High');
   assert.ok(aiData.confidence >= 0.70);
 
-  // Persistence check via submit (isolated coordinates outside duplicate window)
-  const uniqueLat = 18.6500 + (Math.random() * 0.02);
-  const uniqueLng = 73.6500 + (Math.random() * 0.02);
+  // Persistence check via submit
+  // Deterministic coordinates: Mumbai Colaba (18.906700, 72.814700) — ~120 km away from Pune
+  const drnCase3CitizenToken = generateToken({
+    id: 'drn-cit-case3-004',
+    name: 'DRN Case 3 Citizen',
+    mobile: '919999887702',
+    role: 'citizen'
+  });
+  const uniqueLat = 18.906700;
+  const uniqueLng = 72.814700;
 
   const createRes = await fetch(`${BASE_URL}/api/complaints/submit`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer demo-token-citizen'
+      'Authorization': `Bearer ${drnCase3CitizenToken}`
     },
     body: JSON.stringify({
       title: 'Damaged Drain / Broken Slab',
@@ -303,6 +348,7 @@ test('4. CASE 3: Real Damaged Drain (Broken Slab) -> DRN Routing -> High Severit
 
   assert.strictEqual(createRes.status, 201);
   const created = await createRes.json();
+  createdComplaintIds.push(created.complaint.id);
   const dbRes = await query('SELECT department_id FROM complaints WHERE id = ?', [created.complaint.id]);
   assert.strictEqual(dbRes.rows[0].department_id, DRN_CANONICAL_UUID);
 });
@@ -354,13 +400,25 @@ test('6. CASE 5: Ambiguous / Low Contrast Image Safety (Manual Review)', async (
 });
 
 test('7. CASE 6: Cross-Department Security & Dashboard Isolation', async () => {
-  // Query a DRN complaint
+  // Query a DRN complaint, or create an isolated one if running independently
+  let drnCompId;
   const drnCompRes = await query(
     `SELECT id FROM complaints WHERE department_id = ? ORDER BY id DESC LIMIT 1`,
     [DRN_CANONICAL_UUID]
   );
-  assert.ok(drnCompRes.rows && drnCompRes.rows.length > 0, 'Should have at least 1 DRN complaint');
-  const drnCompId = drnCompRes.rows[0].id;
+  if (drnCompRes.rows && drnCompRes.rows.length > 0) {
+    drnCompId = drnCompRes.rows[0].id;
+  } else {
+    const res = await query(`
+      INSERT INTO complaints (complaint_number, citizen_id, title, description, category, priority, status, latitude, longitude, department_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      `TEST-DRN-ISO-${Date.now()}`, 'drn-test-cit', 'Isolated DRN Complaint', 'Test isolation fallback',
+      'Drainage', 'Medium', 'Submitted', 18.5204, 73.8567, DRN_CANONICAL_UUID, new Date().toISOString(), new Date().toISOString()
+    ]);
+    drnCompId = res.rows[0].id;
+    createdComplaintIds.push(drnCompId);
+  }
 
   // 1. Fetch complaints as PWD Head: Must NOT show DRN complaints
   const pwdHeadRes = await fetch(`${BASE_URL}/api/department/complaints`, {
@@ -411,15 +469,21 @@ test('7. CASE 6: Cross-Department Security & Dashboard Isolation', async () => {
 });
 
 test('8. CASE 7: Full Complete DRN Lifecycle (Reported -> Assigned -> In Progress -> Resolved -> Verified)', async () => {
-  // Step A: Citizen submits blocked drain complaint (isolated coordinates outside duplicate window)
-  const uniqueLat = 18.8500 + (Math.random() * 0.02);
-  const uniqueLng = 73.9500 + (Math.random() * 0.02);
+  // Step A: Dedicated citizen identity and deterministic coordinates: Nashik (19.997500, 73.789800) — ~160 km away from Pune
+  const drnCitizenToken = generateToken({
+    id: 'drn-cit-lifecycle-007',
+    name: 'DRN Lifecycle Citizen',
+    mobile: '919999887711',
+    role: 'citizen'
+  });
+  const uniqueLat = 19.997500;
+  const uniqueLng = 73.789800;
 
   const subRes = await fetch(`${BASE_URL}/api/complaints/submit`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer demo-token-citizen'
+      'Authorization': `Bearer ${drnCitizenToken}`
     },
     body: JSON.stringify({
       category: 'Drainage',
@@ -442,6 +506,7 @@ test('8. CASE 7: Full Complete DRN Lifecycle (Reported -> Assigned -> In Progres
   assert.strictEqual(subRes.status, 201);
   const compData = await subRes.json();
   const compId = compData.complaint.id;
+  createdComplaintIds.push(compId);
 
   // Step B: DRN Head assigns Sunil Patil (DRN-STF-001)
   const drnStaffRes7 = await query(`SELECT id FROM users WHERE employee_id = 'DRN-STF-001' OR email = 'sunil.patil@nagarsetu.gov.in' LIMIT 1`);
@@ -504,7 +569,7 @@ test('8. CASE 7: Full Complete DRN Lifecycle (Reported -> Assigned -> In Progres
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer demo-token-citizen'
+      'Authorization': `Bearer ${drnCitizenToken}`
     },
     body: JSON.stringify({
       complaint_id: Number(compId),
