@@ -4,7 +4,8 @@
 **Branch:** `main`  
 **Failed Workflow Run:** CI/CD Pipeline #15 (`39603273109`)  
 **Failed Commit:** `7602c66b9131e7365a583f6b9b065802cfaaccda` (`7602c66`)  
-**Repaired Workflow Runs:** CI/CD Pipeline #16 (`39610425537`), #17 (`41073251011`), and Follow-up Verification Run  
+**Workflow File:** `.github/workflows/ci.yml`  
+**Repaired Verification Runs:** Run `39610425537`, Run `41073251011`, and Run `41077533036` (triggered on repair push)  
 
 ---
 
@@ -44,14 +45,14 @@ In CI/CD Pipeline run #15 (commit `7602c66`), both Node.js matrix test jobs fail
      expected: 1
      actual: 0
    ```
-   Identical failure in Node 22.x:
+   Identical failure occurred in Node 22.x:
    ```text
    Test Backend & Build Frontend (Node 22.x)
    not ok 5 - 5. Authorized event generation succeeds
      location: '/home/runner/work/Nagarsetu-Ai/Nagarsetu-Ai/backend/tests/blockchain_integrity.test.js:153:3'
      error: 0 !== 1
    ```
-   Total failed tests: **28 failed** out of 269 across suites:
+   Total failed tests in run #15: **28 failed** out of 269 across suites:
    - `NAGARSETU 3.1 — Blockchain Data Integrity & Privacy Protection (17 Focused Tests)` (Suite 24)
    - `NAGARSETU 3.1 — Master Blockchain Production & Privacy Suite` (Suite 25)
    - `NAGARSETU 3.1 — Citizen Feedback With Visible Name Integration` (Suite 26)
@@ -59,7 +60,7 @@ In CI/CD Pipeline run #15 (commit `7602c66`), both Node.js matrix test jobs fail
 ### 1.2 Underlying Root Causes
 
 #### A. Database Connection & Worker Process Isolation in Node.js Test Runner
-* In `backend/tests/run_tests.js`, the main process initializes the shared SQLite database file via `await initDatabase()` (`setupSqlite()`) and spawns the in-process Express HTTP server on port 5000.
+* In `backend/tests/run_tests.js`, the main runner process initializes the shared SQLite database file via `await initDatabase()` (`setupSqlite()`) and spawns the in-process Express HTTP server on port 5000.
 * However, when Node's native test runner (`node --test`) launches individual test files, it runs them in separate child worker processes.
 * In `backend/src/config/db.js` prior to the repair:
   ```javascript
@@ -87,6 +88,12 @@ In CI/CD Pipeline run #15 (commit `7602c66`), both Node.js matrix test jobs fail
 #### C. AI Microservice Port Binding Resiliency
 * In `backend/tests/run_tests.js`, if port 8000 encountered a lingering socket or conflict, starting the mock AI microservice could fail or cause race conditions. Adding port failover logic and dynamically configuring `PYTHON_AI_URL` ensured reliable testing.
 
+#### D. Intermittent 500-Meter Duplicate Collision in `drainage_ai_production_integration.test.js`
+* In `backend/tests/drainage_ai_production_integration.test.js`, Test 3, Test 4, and Test 8 were all using coordinates around `18.5204`, `18.5300`, and `18.5400` with `+ (Math.random() * 0.05)`.
+* Because `0.01` degree latitude is only ~1.1 km and the random jitter was up to 0.05 degrees (~5.5 km), the coordinates for Test 4 and Test 8 had a 4 km overlapping window.
+* When two complaints were submitted under the same citizen token (`demo-token-citizen`) with the same category (`Drainage`) within 500 meters of each other, the complaint submission endpoint triggered the active SLA duplicate check rule and returned `409 Conflict` instead of `201 Created` (`409 !== 201`).
+* Fix: Explicitly separated the coordinate domains (>10 km apart: `18.52`, `18.65`, `18.85`), eliminating false-positive duplicate collisions.
+
 ---
 
 ## 2. Files Modified & Fixes Implemented
@@ -112,6 +119,12 @@ In CI/CD Pipeline run #15 (commit `7602c66`), both Node.js matrix test jobs fail
 ### 2.3 `backend/tests/run_tests.js`
 * Added dynamic health check and port fallback (port 8000 -> 8008) for the mock Python AI microservice.
 * Exported dynamic `PYTHON_AI_URL` to child test runner processes.
+
+### 2.4 `backend/tests/drainage_ai_production_integration.test.js`
+* Isolated coordinates for Test 3, Test 4, and Test 8 to prevent geographical collision within the 500m duplicate radius:
+  - Test 3: `18.5204 + (Math.random() * 0.02)`
+  - Test 4: `18.6500 + (Math.random() * 0.02)`
+  - Test 8: `18.8500 + (Math.random() * 0.02)`
 
 ---
 
@@ -150,9 +163,6 @@ In CI/CD Pipeline run #15 (commit `7602c66`), both Node.js matrix test jobs fail
 | **39610425537** (Run #16) | `41fdcb6` | ✅ PASSED | ✅ PASSED | ✅ PASSED | **SUCCESS** |
 | **41073251011** (Run #17) | `2f12b7b` | ✅ PASSED | ✅ PASSED | ✅ PASSED | **SUCCESS** |
 | *(Latest Push)* | *(Latest)* | ✅ PASSED | ✅ PASSED | ✅ PASSED | **SUCCESS** |
-
-### GitHub Actions Run URL
-* **Current Authoritative Green Run:** https://github.com/pratiktupe14/NAGARSETU_7/actions/runs/41073251011
 
 ---
 

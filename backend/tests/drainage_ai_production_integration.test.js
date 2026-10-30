@@ -170,8 +170,8 @@ test('3. CASE 2: Real Blocked Drain -> DRN Routing -> DB Persistence -> Staff As
   assert.ok(aiData.confidence >= 0.70, `Confidence should be strong (got ${aiData.confidence})`);
 
   // Citizen creates complaint via /api/complaints/submit
-  const uniqueLat = 18.5204 + (Math.random() * 0.05);
-  const uniqueLng = 73.8567 + (Math.random() * 0.05);
+  const uniqueLat = 18.5204 + (Math.random() * 0.02);
+  const uniqueLng = 73.8567 + (Math.random() * 0.02);
 
   const compPayload = {
     title: aiData.title || aiData.complaint?.title || 'Blocked Drain / Gutter',
@@ -273,9 +273,9 @@ test('4. CASE 3: Real Damaged Drain (Broken Slab) -> DRN Routing -> High Severit
   assert.strictEqual(aiData.severity, 'High');
   assert.ok(aiData.confidence >= 0.70);
 
-  // Persistence check via submit
-  const uniqueLat = 18.5300 + (Math.random() * 0.05);
-  const uniqueLng = 73.8600 + (Math.random() * 0.05);
+  // Persistence check via submit (isolated coordinates outside duplicate window)
+  const uniqueLat = 18.6500 + (Math.random() * 0.02);
+  const uniqueLng = 73.6500 + (Math.random() * 0.02);
 
   const createRes = await fetch(`${BASE_URL}/api/complaints/submit`, {
     method: 'POST',
@@ -411,9 +411,9 @@ test('7. CASE 6: Cross-Department Security & Dashboard Isolation', async () => {
 });
 
 test('8. CASE 7: Full Complete DRN Lifecycle (Reported -> Assigned -> In Progress -> Resolved -> Verified)', async () => {
-  // Step A: Citizen submits blocked drain complaint
-  const uniqueLat = 18.5400 + (Math.random() * 0.05);
-  const uniqueLng = 73.8700 + (Math.random() * 0.05);
+  // Step A: Citizen submits blocked drain complaint (isolated coordinates outside duplicate window)
+  const uniqueLat = 18.8500 + (Math.random() * 0.02);
+  const uniqueLng = 73.9500 + (Math.random() * 0.02);
 
   const subRes = await fetch(`${BASE_URL}/api/complaints/submit`, {
     method: 'POST',
