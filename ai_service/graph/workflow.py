@@ -1,4 +1,5 @@
 from typing import Literal, Dict, Any
+from typing import Literal, Dict, Any
 from langgraph.graph import StateGraph, START, END
 from ai_service.graph.state import CivicVisionState
 from ai_service.graph.nodes import (

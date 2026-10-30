@@ -507,6 +507,11 @@ CREATE POLICY "Complaints update policy" ON public.complaints
     OR (current_user_role() = 'service_staff' AND assigned_staff_id = auth.uid())
   );
 
+-- DELETE: Only city_admin, admin, or super_admin can permanently delete complaints
+CREATE POLICY "Complaints delete policy" ON public.complaints
+  FOR DELETE TO authenticated
+  USING (current_user_role() IN ('city_admin', 'admin', 'super_admin'));
+
 -- Task Assignments:
 -- SELECT: Staff own assignments, city_admin, department_head for department complaints
 CREATE POLICY "Task assignments select policy" ON public.task_assignments
@@ -610,6 +615,10 @@ CREATE POLICY "Complaint status history select policy" ON public.complaint_statu
         )
     )
   );
+
+CREATE POLICY "Complaint status history delete policy" ON public.complaint_status_history
+  FOR DELETE TO authenticated
+  USING (current_user_role() IN ('city_admin', 'admin', 'super_admin'));
 
 -- 18. Idempotent Realtime Publications
 DO $$

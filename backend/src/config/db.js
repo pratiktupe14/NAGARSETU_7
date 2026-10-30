@@ -978,7 +978,7 @@ async function querySupabase(sql, params = []) {
             .or(`id.eq.${idParam},complaint_number.eq.${idParam}`)
             .select();
           if (!error) {
-            return { rows: data || [], rowCount: (data && data.length) ? data.length : 1 };
+            return { rows: data || [], rowCount: (data && data.length) ? data.length : 0 };
           }
         }
       }
@@ -1022,7 +1022,7 @@ async function querySupabase(sql, params = []) {
       if (idParam) {
         const { data, error } = await supabase.from('complaints').delete().eq('id', idParam).select();
         if (!error) {
-          return { rows: data || [], rowCount: (data && data.length) ? data.length : 1 };
+          return { rows: data || [], rowCount: (data && data.length) ? data.length : 0 };
         }
       }
     }
