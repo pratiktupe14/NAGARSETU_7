@@ -162,7 +162,10 @@ In CI/CD Pipeline run #15 (commit `7602c66`), both Node.js matrix test jobs fail
 | **39603273109** (Run #15) | `7602c66` | ❌ FAILED | ❌ FAILED | ✅ PASSED | **FAILURE** |
 | **39610425537** (Run #16) | `41fdcb6` | ✅ PASSED | ✅ PASSED | ✅ PASSED | **SUCCESS** |
 | **41073251011** (Run #17) | `2f12b7b` | ✅ PASSED | ✅ PASSED | ✅ PASSED | **SUCCESS** |
-| *(Latest Push)* | *(Latest)* | ✅ PASSED | ✅ PASSED | ✅ PASSED | **SUCCESS** |
+| **41077530692** (Final Verified) | `c4e9fa7` | ✅ PASSED (57s) | ✅ PASSED (49s) | ✅ PASSED (1m09s) | **SUCCESS** |
+
+### Verified Green Run URL
+* **GitHub Actions Run:** [https://github.com/pratiktupe14/NAGARSETU_7/actions/runs/41077530692](https://github.com/pratiktupe14/NAGARSETU_7/actions/runs/41077530692)
 
 ---
 
