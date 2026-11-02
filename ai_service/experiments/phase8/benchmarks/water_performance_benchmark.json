@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 8,
+  "task": "Task 7 - Performance Benchmark",
+  "iterations": 50,
+  "warmup": 10,
+  "test_resolution": "768x768 RGB",
+  "benchmarks": {
+    "baseline_whole": {
+      "name": "Production Baseline (Whole-Image)",
+      "cold_load_ms": 97.78,
+      "file_size_bytes": 6221217,
+      "file_size_mb": 5.93,
+      "peak_memory_kb": 309.43,
+      "timing_breakdown": {
+        "mean_preprocess_ms": 5.1,
+        "mean_patch_gen_ms": 0.0,
+        "mean_forward_pass_ms": 25.18,
+        "mean_aggregation_ms": 0.1
+      },
+      "end_to_end_latency": {
+        "mean_ms": 30.41,
+        "median_ms": 28.59,
+        "p95_ms": 39.91,
+        "min_ms": 22.2,
+        "max_ms": 81.93,
+        "std_ms": 8.84
+      }
+    },
+    "cand_fp32_whole": {
+      "name": "Candidate v5 FP32 (Whole-Image)",
+      "cold_load_ms": 100.05,
+      "file_size_bytes": 6219191,
+      "file_size_mb": 5.93,
+      "peak_memory_kb": 306.68,
+      "timing_breakdown": {
+        "mean_preprocess_ms": 5.32,
+        "mean_patch_gen_ms": 0.0,
+        "mean_forward_pass_ms": 25.28,
+        "mean_aggregation_ms": 0.1
+      },
+      "end_to_end_latency": {
+        "mean_ms": 30.71,
+        "median_ms": 27.55,
+        "p95_ms": 41.0,
+        "min_ms": 22.3,
+        "max_ms": 91.5,
+        "std_ms": 11.81
+      }
+    },
+    "cand_int8_whole": {
+      "name": "Candidate v5 INT8 (Whole-Image)",
+      "cold_load_ms": 171.87,
+      "file_size_bytes": 4447195,
+      "file_size_mb": 4.24,
+      "peak_memory_kb": 312.03,
+      "timing_breakdown": {
+        "mean_preprocess_ms": 4.86,
+        "mean_patch_gen_ms": 0.0,
+        "mean_forward_pass_ms": 24.64,
+        "mean_aggregation_ms": 0.11
+      },
+      "end_to_end_latency": {
+        "mean_ms": 29.61,
+        "median_ms": 27.57,
+        "p95_ms": 44.42,
+        "min_ms": 23.32,
+        "max_ms": 66.0,
+        "std_ms": 7.55
+      }
+    },
+    "calibrated_patch_v2": {
+      "name": "Candidate v5 + Calibrated Patch v2",
+      "cold_load_ms": 100.05,
+      "file_size_bytes": 6219191,
+      "file_size_mb": 5.93,
+      "peak_memory_kb": 309.9,
+      "timing_breakdown": {
+        "mean_preprocess_ms": 4.74,
+        "mean_patch_gen_ms": 1.1,
+        "mean_forward_pass_ms": 108.99,
+        "mean_aggregation_ms": 0.24
+      },
+      "end_to_end_latency": {
+        "mean_ms": 115.09,
+        "median_ms": 112.31,
+        "p95_ms": 146.48,
+        "min_ms": 83.05,
+        "max_ms": 177.11,
+        "std_ms": 17.26
+      }
+    }
+  }
+}

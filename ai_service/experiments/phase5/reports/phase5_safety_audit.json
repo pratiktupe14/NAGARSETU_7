@@ -1,0 +1,126 @@
+{
+  "timestamp": "2026-11-02T23:45:00",
+  "overall_status": "COMPLIANT",
+  "production_models_audit": {
+    "civicmodel.pt": {
+      "status": "VERIFIED_INTACT",
+      "actual_sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+      "expected_sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+      "matches": true,
+      "size_bytes": 22519594
+    },
+    "best.pt": {
+      "status": "VERIFIED_INTACT",
+      "actual_sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+      "expected_sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+      "matches": true,
+      "size_bytes": 22543854
+    },
+    "water_pipe_model.pt": {
+      "status": "VERIFIED_INTACT",
+      "actual_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+      "expected_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+      "matches": true,
+      "size_bytes": 6221217
+    },
+    "drainage_model.pt": {
+      "status": "VERIFIED_INTACT",
+      "actual_sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+      "expected_sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+      "matches": true,
+      "size_bytes": 6220717
+    }
+  },
+  "tracked_files_modified_count": 0,
+  "tracked_modifications": [],
+  "model_manager_configuration": {
+    "civicmodel_default": true,
+    "best_default": true,
+    "water_pipe_default": true,
+    "drainage_default": true,
+    "no_phase5_candidate_import": true
+  },
+  "phase5_isolated_files_count": 20,
+  "phase5_file_inventory": [
+    {
+      "path": "drainage_reconciliation\\drainage_reconciliation_report.md",
+      "size_bytes": 9698
+    },
+    {
+      "path": "drainage_reconciliation\\reconciled_drainage_manifest.json",
+      "size_bytes": 53036
+    },
+    {
+      "path": "drainage_reconciliation\\reconcile_drainage_dataset.py",
+      "size_bytes": 8822
+    },
+    {
+      "path": "drainage_training\\drainage_expansion_audit.json",
+      "size_bytes": 1092
+    },
+    {
+      "path": "evaluation\\compare_water_models.py",
+      "size_bytes": 7952
+    },
+    {
+      "path": "evaluation\\dataset_quality_gate_audit.json",
+      "size_bytes": 7089
+    },
+    {
+      "path": "evaluation\\evaluate_dataset_quality_gates.py",
+      "size_bytes": 8603
+    },
+    {
+      "path": "evaluation\\water_model_comparison.json",
+      "size_bytes": 1912
+    },
+    {
+      "path": "reports\\audit_phase5_safety.py",
+      "size_bytes": 5127
+    },
+    {
+      "path": "reports\\build_candidate_registry.py",
+      "size_bytes": 8066
+    },
+    {
+      "path": "reports\\candidate_model_registry.json",
+      "size_bytes": 5193
+    },
+    {
+      "path": "road_training\\Directory_Structure_CRDDC_RDD2022.txt",
+      "size_bytes": 1161
+    },
+    {
+      "path": "road_training\\label_map.pbtxt",
+      "size_bytes": 127
+    },
+    {
+      "path": "road_training\\road_dataset_acquisition_report.json",
+      "size_bytes": 2497
+    },
+    {
+      "path": "road_training\\voc_to_yolo_converter.py",
+      "size_bytes": 4289
+    },
+    {
+      "path": "waste_training\\waste_dataset_quality_audit.json",
+      "size_bytes": 1595
+    },
+    {
+      "path": "water_training\\training_metrics_v5.json",
+      "size_bytes": 3960
+    },
+    {
+      "path": "water_training\\train_water_pipe_candidate_v5.py",
+      "size_bytes": 13561
+    },
+    {
+      "path": "water_training\\water_dataset_manifest.json",
+      "size_bytes": 2326
+    },
+    {
+      "path": "water_training\\water_pipe_candidate_v5.pt",
+      "size_bytes": 6219191
+    }
+  ]
+}

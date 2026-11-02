@@ -1,0 +1,652 @@
+[
+  {
+    "sample_id": "ANON_FROZ_001",
+    "batch": "frozen_held_out_test",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.911,
+        0.0624,
+        0.0265
+      ],
+      "latency_ms": 29.02
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.911,
+        0.2215,
+        0.0477
+      ],
+      "latency_ms": 63.85
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_002",
+    "batch": "frozen_held_out_test",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.866,
+        0.0604,
+        0.0736
+      ],
+      "latency_ms": 18.11
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.866,
+        0.5265,
+        0.3659
+      ],
+      "latency_ms": 44.84
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_003",
+    "batch": "frozen_held_out_test",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.9661,
+        0.0275,
+        0.0064
+      ],
+      "latency_ms": 19.95
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.9661,
+        0.3057,
+        0.0835
+      ],
+      "latency_ms": 46.03
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_004",
+    "batch": "frozen_held_out_test",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.9969,
+        0.0017,
+        0.0014
+      ],
+      "latency_ms": 25.06
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.9969,
+        0.2805,
+        0.7137
+      ],
+      "latency_ms": 99.53
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_005",
+    "batch": "frozen_held_out_test",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.9867,
+        0.0036,
+        0.0096
+      ],
+      "latency_ms": 21.29
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.9867,
+        0.6514,
+        0.2448
+      ],
+      "latency_ms": 66.37
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_006",
+    "batch": "frozen_held_out_test",
+    "true_label": 1,
+    "class_name": "damaged_or_leaking_pipe",
+    "global_inference": {
+      "prediction": 1,
+      "probabilities": [
+        0.0167,
+        0.8073,
+        0.1759
+      ],
+      "latency_ms": 38.98
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.0167,
+        0.8462,
+        0.518
+      ],
+      "latency_ms": 98.44
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_007",
+    "batch": "frozen_held_out_test",
+    "true_label": 1,
+    "class_name": "damaged_or_leaking_pipe",
+    "global_inference": {
+      "prediction": 1,
+      "probabilities": [
+        0.1681,
+        0.2297,
+        0.6023
+      ],
+      "latency_ms": 28.16
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.1681,
+        0.3422,
+        0.6976
+      ],
+      "latency_ms": 105.34
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_008",
+    "batch": "frozen_held_out_test",
+    "true_label": 1,
+    "class_name": "damaged_or_leaking_pipe",
+    "global_inference": {
+      "prediction": 1,
+      "probabilities": [
+        0.1935,
+        0.7834,
+        0.0231
+      ],
+      "latency_ms": 19.28
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.1935,
+        0.9308,
+        0.0652
+      ],
+      "latency_ms": 53.32
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_009",
+    "batch": "frozen_held_out_test",
+    "true_label": 1,
+    "class_name": "damaged_or_leaking_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.6539,
+        0.0416,
+        0.3045
+      ],
+      "latency_ms": 21.31
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.6539,
+        0.7112,
+        0.7603
+      ],
+      "latency_ms": 71.47
+    },
+    "disagreement_detected": true
+  },
+  {
+    "sample_id": "ANON_FROZ_010",
+    "batch": "frozen_held_out_test",
+    "true_label": 1,
+    "class_name": "damaged_or_leaking_pipe",
+    "global_inference": {
+      "prediction": 1,
+      "probabilities": [
+        0.072,
+        0.5834,
+        0.3445
+      ],
+      "latency_ms": 18.15
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.072,
+        0.7923,
+        0.5821
+      ],
+      "latency_ms": 51.85
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_011",
+    "batch": "frozen_held_out_test",
+    "true_label": 1,
+    "class_name": "damaged_or_leaking_pipe",
+    "global_inference": {
+      "prediction": 1,
+      "probabilities": [
+        0.0013,
+        0.987,
+        0.0116
+      ],
+      "latency_ms": 35.25
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.0013,
+        0.987,
+        0.6377
+      ],
+      "latency_ms": 144.33
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_012",
+    "batch": "frozen_held_out_test",
+    "true_label": 1,
+    "class_name": "damaged_or_leaking_pipe",
+    "global_inference": {
+      "prediction": 1,
+      "probabilities": [
+        0.2412,
+        0.5116,
+        0.2472
+      ],
+      "latency_ms": 29.66
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.2412,
+        0.8916,
+        0.688
+      ],
+      "latency_ms": 132.75
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_013",
+    "batch": "frozen_held_out_test",
+    "true_label": 1,
+    "class_name": "damaged_or_leaking_pipe",
+    "global_inference": {
+      "prediction": 1,
+      "probabilities": [
+        0.0174,
+        0.1394,
+        0.8432
+      ],
+      "latency_ms": 39.24
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.0174,
+        0.7026,
+        0.8432
+      ],
+      "latency_ms": 179.51
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_014",
+    "batch": "frozen_held_out_test",
+    "true_label": 1,
+    "class_name": "damaged_or_leaking_pipe",
+    "global_inference": {
+      "prediction": 1,
+      "probabilities": [
+        0.0135,
+        0.8703,
+        0.1162
+      ],
+      "latency_ms": 20.79
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.0135,
+        0.8703,
+        0.4318
+      ],
+      "latency_ms": 56.07
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_FROZ_015",
+    "batch": "frozen_held_out_test",
+    "true_label": 1,
+    "class_name": "damaged_or_leaking_pipe",
+    "global_inference": {
+      "prediction": 1,
+      "probabilities": [
+        0.0097,
+        0.9807,
+        0.0096
+      ],
+      "latency_ms": 70.11
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.0097,
+        0.9807,
+        0.5761
+      ],
+      "latency_ms": 268.36
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_OFFL_001",
+    "batch": "offline_extended_validation",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.9521,
+        0.0326,
+        0.0153
+      ],
+      "latency_ms": 46.54
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.9521,
+        0.8723,
+        0.6208
+      ],
+      "latency_ms": 109.71
+    },
+    "disagreement_detected": true
+  },
+  {
+    "sample_id": "ANON_OFFL_002",
+    "batch": "offline_extended_validation",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.9973,
+        0.0023,
+        0.0004
+      ],
+      "latency_ms": 20.07
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.9973,
+        0.0376,
+        0.0093
+      ],
+      "latency_ms": 46.98
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_OFFL_003",
+    "batch": "offline_extended_validation",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.5294,
+        0.4026,
+        0.068
+      ],
+      "latency_ms": 19.09
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 1,
+      "prediction_calibrated": 1,
+      "probabilities": [
+        0.5294,
+        0.7746,
+        0.2101
+      ],
+      "latency_ms": 44.91
+    },
+    "disagreement_detected": true
+  },
+  {
+    "sample_id": "ANON_OFFL_004",
+    "batch": "offline_extended_validation",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.5412,
+        0.381,
+        0.0778
+      ],
+      "latency_ms": 19.11
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.5412,
+        0.6403,
+        0.2354
+      ],
+      "latency_ms": 46.78
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_OFFL_005",
+    "batch": "offline_extended_validation",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.9868,
+        0.0075,
+        0.0056
+      ],
+      "latency_ms": 18.17
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.9868,
+        0.034,
+        0.0873
+      ],
+      "latency_ms": 47.0
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_OFFL_006",
+    "batch": "offline_extended_validation",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.9739,
+        0.0114,
+        0.0147
+      ],
+      "latency_ms": 19.37
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.9739,
+        0.1796,
+        0.348
+      ],
+      "latency_ms": 46.3
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_OFFL_007",
+    "batch": "offline_extended_validation",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.8435,
+        0.1187,
+        0.0378
+      ],
+      "latency_ms": 18.82
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.8435,
+        0.216,
+        0.4303
+      ],
+      "latency_ms": 46.67
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_OFFL_008",
+    "batch": "offline_extended_validation",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.7144,
+        0.2215,
+        0.0641
+      ],
+      "latency_ms": 19.49
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.7144,
+        0.4246,
+        0.1408
+      ],
+      "latency_ms": 44.75
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_OFFL_009",
+    "batch": "offline_extended_validation",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.738,
+        0.0836,
+        0.1785
+      ],
+      "latency_ms": 18.8
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.738,
+        0.3473,
+        0.2972
+      ],
+      "latency_ms": 42.03
+    },
+    "disagreement_detected": false
+  },
+  {
+    "sample_id": "ANON_OFFL_010",
+    "batch": "offline_extended_validation",
+    "true_label": 0,
+    "class_name": "normal_pipe",
+    "global_inference": {
+      "prediction": 0,
+      "probabilities": [
+        0.9976,
+        0.0009,
+        0.0015
+      ],
+      "latency_ms": 16.99
+    },
+    "patch_inference": {
+      "prediction_uncalibrated": 0,
+      "prediction_calibrated": 0,
+      "probabilities": [
+        0.9976,
+        0.0208,
+        0.0189
+      ],
+      "latency_ms": 57.43
+    },
+    "disagreement_detected": false
+  }
+]

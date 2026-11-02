@@ -1,0 +1,74 @@
+{
+  "domain": "water_pipeline_damage_detection",
+  "phase": 5,
+  "total_images": 84,
+  "unique_images": 83,
+  "class_distribution": {
+    "leaking": 56,
+    "normal": 28
+  },
+  "duplicate_clusters": {
+    "cd5e0b3a816e043b7114da211e305661f62c08d10db2e8c0a02d41ed5982335b": [
+      [
+        "leaking",
+        "images (19).jpg"
+      ],
+      [
+        "leaking",
+        "images (21).jpg"
+      ]
+    ]
+  },
+  "sample_records": [
+    {
+      "filename": "8gpfpaywtj6a1.jpg",
+      "label": "leaking",
+      "path": "D:\\NAGARSETU\\leaking pipes\\8gpfpaywtj6a1.jpg",
+      "sha256": "69b9e1834290031e8ad77922eee5855482abdefb70d8d9996b7960f23aa5b51e",
+      "size_bytes": 2350809,
+      "width": 3024,
+      "height": 4032,
+      "format": "JPEG"
+    },
+    {
+      "filename": "broken-water-pipe-leaking-out-soil-underground-leak-274565016.webp",
+      "label": "leaking",
+      "path": "D:\\NAGARSETU\\leaking pipes\\broken-water-pipe-leaking-out-soil-underground-leak-274565016.webp",
+      "sha256": "1d3a0d32597307059dc5a7daf8f48c07a47c5b1fda99f88084062ea9f03378aa",
+      "size_bytes": 132342,
+      "width": 600,
+      "height": 900,
+      "format": "WEBP"
+    },
+    {
+      "filename": "burst-water-pipe.jpg",
+      "label": "leaking",
+      "path": "D:\\NAGARSETU\\leaking pipes\\burst-water-pipe.jpg",
+      "sha256": "d4b3141659cfa7fcd2a58d274cf43f71bc3704609ae98c35db17d809fd4e0f79",
+      "size_bytes": 105873,
+      "width": 800,
+      "height": 500,
+      "format": "JPEG"
+    },
+    {
+      "filename": "d61a7dc982b5917636a694051817fb09.webp",
+      "label": "leaking",
+      "path": "D:\\NAGARSETU\\leaking pipes\\d61a7dc982b5917636a694051817fb09.webp",
+      "sha256": "394b3edd15813a4b0bf163a2bfbb089a113373602c603bdb1a53802fdb0ca9fc",
+      "size_bytes": 46666,
+      "width": 600,
+      "height": 400,
+      "format": "WEBP"
+    },
+    {
+      "filename": "damaged-concrete-drain-cover-broken-260nw-2718087129.jpg",
+      "label": "leaking",
+      "path": "D:\\NAGARSETU\\leaking pipes\\damaged-concrete-drain-cover-broken-260nw-2718087129.jpg",
+      "sha256": "bdedc8956efd92c2f10b9f3c38d3a5ecaab46838c6bb74599367ccff5a99573a",
+      "size_bytes": 40052,
+      "width": 347,
+      "height": 261,
+      "format": "JPEG"
+    }
+  ]
+}

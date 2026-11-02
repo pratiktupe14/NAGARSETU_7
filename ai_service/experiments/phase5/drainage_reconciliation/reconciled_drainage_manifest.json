@@ -1,0 +1,1484 @@
+{
+  "title": "NagarSetu Phase 5 Reconciled Drainage Dataset Manifest",
+  "generated_by": "ai_service/experiments/phase5/drainage_reconciliation/reconcile_drainage_dataset.py",
+  "summary": {
+    "total_files_in_catalog": 102,
+    "total_files_in_reviewed_json": 106,
+    "total_files_on_disk": 101,
+    "exact_duplicate_pairs_count": 4,
+    "total_unique_images": 109,
+    "discrepancy_explanation": "Phase 4 reported 14 normal drains based on raw unreviewed drainage_catalog.json counts. Phase 3 reported 6 normal drains based on human-reviewed drainage_annotations_reviewed.json where 8 images originally labeled NORMAL_DRAIN were reclassified into blocked_drain or damaged_drain. In addition, 4 exact duplicate files inflate the raw file count.",
+    "counts_comparison": {
+      "raw_catalog_counts": {
+        "DAMAGED_DRAIN": 48,
+        "BLOCKED_DRAIN": 37,
+        "DRAIN_OVERFLOW": 3,
+        "NORMAL_DRAIN": 14
+      },
+      "reviewed_metadata_counts": {
+        "normal_drain": 6,
+        "blocked_drain": 49,
+        "damaged_drain": 51,
+        "overflow_drain": 9
+      },
+      "verified_unique_reviewed_counts": {
+        "damaged_drain": 50,
+        "blocked_drain": 49,
+        "normal_drain": 6
+      }
+    }
+  },
+  "exact_duplicates": [
+    {
+      "duplicate_file": "09d2afff-c9e6-4a0b-b06c-b0ac78a8c516_1790499968874 (1).jpg",
+      "canonical_file": "09d2afff-c9e6-4a0b-b06c-b0ac78a8c516_1790499968874 (1) - Copy.jpg",
+      "sha256": "abc05790a0f150419d2fca66a0e919966e14cb0f825a2da0807ed776e3b198ac"
+    },
+    {
+      "duplicate_file": "images (45).jpg",
+      "canonical_file": "images (13).jpg",
+      "sha256": "0583fedb91f3f6bafc0c9fdb6b002a7c9461f71e44f84d5caf5bcbb02372420e"
+    },
+    {
+      "duplicate_file": "images (18).jpg",
+      "canonical_file": "images (16).jpg",
+      "sha256": "d44bf3eb12e3b943e21d3badf0615404f60df51e8d384725614bcd8fa9baa4e5"
+    },
+    {
+      "duplicate_file": "images (50).jpg",
+      "canonical_file": "images (42).jpg",
+      "sha256": "f3d5f272d70ea934ffbda72c23ba0241b031278c5d542dafdc064f1b377d3f76"
+    }
+  ],
+  "disputed_normal_drain_records": [
+    {
+      "filename": "Screenshot 2026-10-09 005711.png",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "reason": "Catalog had 'NORMAL_DRAIN', manual review classified as 'blocked_drain'",
+      "duplicate_of": null
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.33 AM (1).jpeg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "reason": "Catalog had 'NORMAL_DRAIN', manual review classified as 'blocked_drain'",
+      "duplicate_of": null
+    },
+    {
+      "filename": "dbcl_169054508064c3abb8201fb_1690531846342.jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "reason": "Catalog had 'NORMAL_DRAIN', manual review classified as 'blocked_drain'",
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (16).jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "damaged_drain",
+      "reason": "Catalog had 'NORMAL_DRAIN', manual review classified as 'damaged_drain'",
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (52).jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "damaged_drain",
+      "reason": "Catalog had 'NORMAL_DRAIN', manual review classified as 'damaged_drain'",
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (6).jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "reason": "Catalog had 'NORMAL_DRAIN', manual review classified as 'blocked_drain'",
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (8).jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "damaged_drain",
+      "reason": "Catalog had 'NORMAL_DRAIN', manual review classified as 'damaged_drain'",
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (9).jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "damaged_drain",
+      "reason": "Catalog had 'NORMAL_DRAIN', manual review classified as 'damaged_drain'",
+      "duplicate_of": null
+    },
+    {
+      "filename": "photo.avif",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "damaged_drain",
+      "reason": "Catalog had 'NORMAL_DRAIN', manual review classified as 'damaged_drain'",
+      "duplicate_of": null
+    }
+  ],
+  "all_reclassified_records": [
+    {
+      "filename": "56694397.avif",
+      "catalog_label": "DRAIN_OVERFLOW",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": true,
+      "duplicate_of": null
+    },
+    {
+      "filename": "Screenshot 2026-10-09 005711.png",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.31 AM.jpeg",
+      "catalog_label": "DRAIN_OVERFLOW",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": true,
+      "duplicate_of": null
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.32 AM (1).jpeg",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.32 AM (3).jpeg",
+      "catalog_label": "DRAIN_OVERFLOW",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": true,
+      "duplicate_of": null
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.32 AM.jpeg",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": true,
+      "duplicate_of": null
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.33 AM (1).jpeg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "dbcl_169054508064c3abb8201fb_1690531846342.jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "eabd595c-aa40-40f9-9349-fc01156b4727_1791169668662.jpg",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (16).jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "damaged_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (33).jpg",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (51).jpg",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": true,
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (52).jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "damaged_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (6).jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "blocked_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (8).jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "damaged_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "images (9).jpg",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "damaged_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    },
+    {
+      "filename": "photo.avif",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_label": "damaged_drain",
+      "is_overflow": false,
+      "duplicate_of": null
+    }
+  ],
+  "dataset_records": [
+    {
+      "filename": "09d2afff-c9e6-4a0b-b06c-b0ac78a8c516_1790499968874 (1) - Copy.jpg",
+      "exists_on_disk": true,
+      "sha256": "abc05790a0f150419d2fca66a0e919966e14cb0f825a2da0807ed776e3b198ac",
+      "catalog_label": null,
+      "reviewed_assigned_label": null,
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "09d2afff-c9e6-4a0b-b06c-b0ac78a8c516_1790499968874 (1).jpg",
+      "exists_on_disk": true,
+      "sha256": "abc05790a0f150419d2fca66a0e919966e14cb0f825a2da0807ed776e3b198ac",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": true,
+      "duplicate_of": "09d2afff-c9e6-4a0b-b06c-b0ac78a8c516_1790499968874 (1) - Copy.jpg",
+      "reclassified": false
+    },
+    {
+      "filename": "09d2afff-c9e6-4a0b-b06c-b0ac78a8c516_1790499968874.jpg",
+      "exists_on_disk": true,
+      "sha256": "a8c175bcb6025deeb0f192b40269827e8951498386f98a14f598f3b299f9adc5",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "121658674.avif",
+      "exists_on_disk": false,
+      "sha256": "fe494016743dc83e680e8c15d5da8362500110d691e5f5d28cb02db6bf46ba58",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "124484822.avif",
+      "exists_on_disk": false,
+      "sha256": "af7df1a2e8dbfdcb316372c3311f22a29768cbe8705a1199f31d04c9d0ec1fdd",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "128926359.avif",
+      "exists_on_disk": false,
+      "sha256": "dedec252ab695428930127aff3bc3a70e4072b0226e5dbf09128e3227d4c8783",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "54c49313-8a19-4bf9-93e8-1c4db27ea3cd_1789962940981.jpg",
+      "exists_on_disk": true,
+      "sha256": "cacd2f7ef037706b6645837dcccf062521055c255f76bf0d5eb224a0b9d5f4bb",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "56694397.avif",
+      "exists_on_disk": false,
+      "sha256": "c56009050fb85c45f03af633487ef97101bdafb4cc42259ae7a867d5e6ea19dd",
+      "catalog_label": "DRAIN_OVERFLOW",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": true,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "7we0y7hj7hyf1.jpg",
+      "exists_on_disk": true,
+      "sha256": "7f739ed44ae5742c9c409368e3e3b2e9e4fbfe0333441e58ebeae2e31a731193",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "8eafe9d5-6d92-4fbe-b831-50e80a38fea6_1789109089366.jpg",
+      "exists_on_disk": true,
+      "sha256": "99ca730a300b94553dc9234cf9733b40eaf9b55bb35768b247700fbc867e96bf",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "920c9b8a-2cfa-4222-bb6b-8ba65f9ceefc-577x1024.jpg",
+      "exists_on_disk": true,
+      "sha256": "10ae0ea8a0e61d9c3c1403e1880deb52b73ec96c855dc8eff028be859360c250",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "IMG_A_section_of_TrustPu_2_1_9PA8Q3JP.jpg",
+      "exists_on_disk": true,
+      "sha256": "bf3e665c5c2460e98d7ef56fbb391fd7549e5560587daaa807708766b2507096",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "Repaired Drain on a Busy Neighborhood Street.png",
+      "exists_on_disk": true,
+      "sha256": "91e6509c4f03fce1b2ff28a5161c05026df86457da8a634e13250a70ece0a523",
+      "catalog_label": null,
+      "reviewed_assigned_label": "normal_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "Screenshot 2026-10-09 005711.png",
+      "exists_on_disk": true,
+      "sha256": "59ba1423da18061ba0b6d4666aac0dc54b671aa8d7310bd5804554c81d048d89",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "Screenshot 2026-10-09 005723.png",
+      "exists_on_disk": true,
+      "sha256": "1950cea784526ad7e1427ee8d80c87055553e72ae54045fe3903da47aa35d986",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "Screenshot 2026-10-09 145124.png",
+      "exists_on_disk": true,
+      "sha256": "5e29aa998ee22a96007fef3bb4ba3069091a02979792c53332101e1ef71bb176",
+      "catalog_label": null,
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "Screenshot 2026-10-09 145425.png",
+      "exists_on_disk": true,
+      "sha256": "2b17aaf1a01dabd2486b64bd1557c5f77caed8c267530e1856792fb532d899b2",
+      "catalog_label": null,
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.05.04 PM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "c35443d0cc0fa80d27587b436eb22d3446e3fb6c1a708b980a53cef77f3a4207",
+      "catalog_label": null,
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.30 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "5c978cfde87998df6513e7fb0403dbca7dcbf3d0d655184744ef66ab36912a1e",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": true,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.31 AM (1).jpeg",
+      "exists_on_disk": true,
+      "sha256": "30fd4d3865c139703d687eae02054f770df2bd846d3781bba0489009a6026b16",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.31 AM (2).jpeg",
+      "exists_on_disk": true,
+      "sha256": "95731a1bddf036835d22dcf36ba5fb778bd01792d310a69e673b0cce16af4db4",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": true,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.31 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "0c5f188e50a0b5c876330488febec8f81d64e2b6fef81667a9b1ea3fafc55d9c",
+      "catalog_label": "DRAIN_OVERFLOW",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": true,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.32 AM (1).jpeg",
+      "exists_on_disk": true,
+      "sha256": "f874e3d63e4b4199dcc861bb84b11c7c2a8cebb6fa582b7644f3e91a647b2aa0",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.32 AM (2).jpeg",
+      "exists_on_disk": true,
+      "sha256": "e93db969b4ecad4ecbafdd50cd5e719b90f27da7be9fd30ec87296478031bfcc",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": true,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.32 AM (3).jpeg",
+      "exists_on_disk": true,
+      "sha256": "494890ea0e255efbd85ecd53b50d62e5d28c270bac8af401155754f826021689",
+      "catalog_label": "DRAIN_OVERFLOW",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": true,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.32 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "39de21f83ad4dbaa0181cd706b49a2a7441a4e87a1e95c3a1d428cb02a1a3c2f",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": true,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.33 AM (1).jpeg",
+      "exists_on_disk": true,
+      "sha256": "171b3404a54a4fd62564d31258a4c1eba60ef79f69736547b9d689e6c1e60d4e",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.33 AM (2).jpeg",
+      "exists_on_disk": true,
+      "sha256": "0125de45f1527012b2c7f741e79d2796ba046edfb20a064c1bce8443e916f056",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.33 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "b64c2d5dcdd222dc4fbab5f8cd29265877fbd7ea19bad2730dde5f82bf64afaf",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.34 AM (1).jpeg",
+      "exists_on_disk": true,
+      "sha256": "7ed19a9b54bd8e8f3b8472492a40d158f1f663a36af5700ae8abf86615d55a6d",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.40.34 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "161727e7fc39589eccd71526208654b95f20f86f6865edbb8d74e6ab5defcd0a",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.45.54 AM (1).jpeg",
+      "exists_on_disk": true,
+      "sha256": "f1e8a40151b0d4053a6f4be5ba91d1f88f8ffb822bfe518b67e913e17ccbf60a",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.45.54 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "e8ed2a6ffb7e254003b840c981c4dc4d15335476c6a104c57b1771c5c90b7c88",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.51.01 AM (1).jpeg",
+      "exists_on_disk": true,
+      "sha256": "0108930e7bc70fc0c20d7b826cc38c41a8fdf8b1ccc177dd276cde11d1b125ab",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.51.01 AM (2).jpeg",
+      "exists_on_disk": true,
+      "sha256": "a9f9ec0a93c627e040d1638caca79b1cb0bda8688d36c7b8d956788723b4498c",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.51.01 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "88099124d33b05e0347a467c916bfb603b4f0abbff0fc55595fb6d6cac8202de",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.51.02 AM (1).jpeg",
+      "exists_on_disk": true,
+      "sha256": "68f28228831766a0914a200c1678ad7658dc9d2ae24a903c2234eaafdc6f8996",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.51.02 AM (2).jpeg",
+      "exists_on_disk": true,
+      "sha256": "5d25be813bc9873e21ccb5306a9279ab91c2ddf6718f393ef9ef4ef4b2485fc2",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.51.02 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "d7bce077645993fcc523770ccb6757e966d5ba8697a0cbfd82fe521ab2a25eb3",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.53.59 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "8c6db7c36612d7f7b4596eb66cd40aca8626ac13e7cbe3348071f7285ae8c267",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.54.36 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "8f63030a01b868520f9a7daf7359b1a9c6a4efd61c0a06a1a0d2300ace9095d9",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 12.59.17 AM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "51c4a7a001bdf5db36b786419db7b8c3d6a15620832d3702c972459554a81bd6",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 2.42.08 PM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "de539f795c83753f0b59ea3e7105405b3cc1e8e2cf70d668c841aaa8d8fee2ea",
+      "catalog_label": null,
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 2.42.12 PM (1).jpeg",
+      "exists_on_disk": true,
+      "sha256": "669f6880086ec97d114ab2120c4dda208e6d57826c2fe2ee1bb76c31bc94251e",
+      "catalog_label": null,
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "WhatsApp Image 2026-10-09 at 2.42.12 PM.jpeg",
+      "exists_on_disk": true,
+      "sha256": "55fbd4297a6e3145e4e48e1e2cc260627422de9efece78873da9812a57bdceb3",
+      "catalog_label": null,
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "a-close-up-view-of-a-damaged-urban-street-surface-showing-a-metal-storm-drain-grate-positioned-at-the-edge-of-a-large-deep-pothole-or-sinkhole-the-3F9P90R.jpg",
+      "exists_on_disk": true,
+      "sha256": "d45a37e110323c6934a807d1a94ac5266d9f88ef810d257653e8e5fea81717d7",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "an-old-broken-storm-grate-in-the-middle-of-cracked-asphalt-3BC5NPC.jpg",
+      "exists_on_disk": false,
+      "sha256": null,
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": null,
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "damaged-concrete-drain-cover-broken-260nw-2718087129.webp",
+      "exists_on_disk": false,
+      "sha256": null,
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": null,
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "dangerous-broken-concrete-drain-cover-creating-hole-sidewalk-damaged-collapsed-red-drainage-leaves-hazardous-open-465823045.webp",
+      "exists_on_disk": false,
+      "sha256": "54a2ead9bc31ccf26bd94b5b0cc3758d5b754857a4b11b4783850e48ef72d130",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "dbcl_169054508064c3abb8201fb_1690531846342.jpg",
+      "exists_on_disk": true,
+      "sha256": "51d0e2c1366d8ff2fab35fdd306ab06646b930d60027e0be9b3bcf78ab44388e",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "dt-next_2026-06-12_l9o65836_1-1.avif",
+      "exists_on_disk": false,
+      "sha256": "5b33d52df0548fd95d3c10b6a3cc6d51427e8f0ae89451d77b9f458403594a62",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "e79a6b6c-026b-4d14-98fd-ed8e8ad3d4f7_1791026121021.jpg",
+      "exists_on_disk": true,
+      "sha256": "ad77585d566ea8611df59e50ffe7510008be0bb5ed6e4fe4360f0bee38141a6c",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "eabd595c-aa40-40f9-9349-fc01156b4727_1791169668662.jpg",
+      "exists_on_disk": true,
+      "sha256": "bdbed7f27221762e43caaafb98767ae651b2b172fccee0558c9b90d6cf38d934",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "images (1).jpg",
+      "exists_on_disk": true,
+      "sha256": "2821121aade88166f6b0802d450740ee8e91792038a370aa5a7bbccfdbadfca0",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (10).jpg",
+      "exists_on_disk": true,
+      "sha256": "a3e9086b186074ca53334ee13bf933f72ebe118dfbe2680a1d3bacaf51283d38",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "normal_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (11).jpg",
+      "exists_on_disk": true,
+      "sha256": "7c5ff6c36f69bdbe0e7f8b0ad4ad3d42d4be34904a3b5535ad4c1cea310a2dd4",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "normal_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (12).jpg",
+      "exists_on_disk": true,
+      "sha256": "ac3dbec99da00024ae7a3b81eaebf8add9800ed48ae78d077af2a53f87ab8cf1",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (13).jpg",
+      "exists_on_disk": true,
+      "sha256": "0583fedb91f3f6bafc0c9fdb6b002a7c9461f71e44f84d5caf5bcbb02372420e",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (14).jpg",
+      "exists_on_disk": true,
+      "sha256": "0670ead3703994af0316f37498bddfae17d2aee8cd24f29864b817551517c929",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (15).jpg",
+      "exists_on_disk": true,
+      "sha256": "0bf4b042f8f87818191348a785f4c21c65358fdf30a1137ee64ac31e8e1aa60b",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "normal_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (16).jpg",
+      "exists_on_disk": true,
+      "sha256": "d44bf3eb12e3b943e21d3badf0615404f60df51e8d384725614bcd8fa9baa4e5",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "images (17).jpg",
+      "exists_on_disk": true,
+      "sha256": "fcb65a19900937276a5e7a53ca481d233ad09e7f305971ec6c63b0fd0ff10116",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "normal_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (18).jpg",
+      "exists_on_disk": true,
+      "sha256": "d44bf3eb12e3b943e21d3badf0615404f60df51e8d384725614bcd8fa9baa4e5",
+      "catalog_label": null,
+      "reviewed_assigned_label": null,
+      "is_overflow": false,
+      "is_exact_duplicate": true,
+      "duplicate_of": "images (16).jpg",
+      "reclassified": false
+    },
+    {
+      "filename": "images (19).jpg",
+      "exists_on_disk": true,
+      "sha256": "91e82c19456fa594dce95416dd1e86b37acd9f3b97a08a673ca14d5363b0c454",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (2).jpg",
+      "exists_on_disk": true,
+      "sha256": "aac1bb41b4a7e6a3f8b3f9c0a7b1cea27be96880015200d95429d387bf79ec4c",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (20).jpg",
+      "exists_on_disk": true,
+      "sha256": "de779ecdc9dc22ed246c3d9d65648cf84a4277c907e36a8a37eff72e653ad6d2",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (21).jpg",
+      "exists_on_disk": true,
+      "sha256": "47921e996fe35bbd7ea4af5b447092f36118ca284f3c166f203a96eda1ddd378",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (22).jpg",
+      "exists_on_disk": true,
+      "sha256": "23102f5f43ae49f5064d0d7a5262a28d2e72b2f81406b32e39c3b8eb8c505474",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (23).jpg",
+      "exists_on_disk": true,
+      "sha256": "d5482fb9f24652e92e056f3bdce19dda9f80568833a08b5fa723a4e28bfc4b28",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (24).jpg",
+      "exists_on_disk": true,
+      "sha256": "d9a7da3d7970ccf6cc83e8bf43c8c4b0cec530b4d1b587518d96070ecf2a352c",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (25).jpg",
+      "exists_on_disk": true,
+      "sha256": "156be4cb2570dd89a549f69d2196751f4dd166fa90afcd1b767e68860713573e",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (26).jpg",
+      "exists_on_disk": true,
+      "sha256": "8e7e7d55a0f76f8bd6b2c3d03ee311510d57e3aa7c4e4b5d2cdf0e04b213e665",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (27).jpg",
+      "exists_on_disk": true,
+      "sha256": "f383b4f8edcd9fe792c47d831162f70ab00406d9d37cbeafb0df07b7ab04ba43",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (28).jpg",
+      "exists_on_disk": true,
+      "sha256": "9e70d1bb952388d64c89296337c776945adccd48daf8fde2d328cd9f69f15c6b",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (29).jpg",
+      "exists_on_disk": true,
+      "sha256": "22d17043b3fac4a76419be898fe6060e23198027c55b71b122619975cdc215f5",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (3).jpg",
+      "exists_on_disk": true,
+      "sha256": "c95b0c306bcca54b3d75f72e8ef4b4c320875d2cdaec52ad2ac7ba8dcea9c93d",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (30).jpg",
+      "exists_on_disk": true,
+      "sha256": "33ad1a1743dd3626c53faf2f27346b5a9b5a8857783c0d245a31d5b38f2125fd",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (31).jpg",
+      "exists_on_disk": false,
+      "sha256": null,
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": null,
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (32).jpg",
+      "exists_on_disk": true,
+      "sha256": "b6b8f3731fdb8bb1097870d9986d8a0e5506a499a1b2d649e6c4ed0e6fccb9ad",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (33).jpg",
+      "exists_on_disk": true,
+      "sha256": "ccab548a0f39b3381047fa8b56a46deecc5c736546faa462377ec70eec5392d1",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "images (34).jpg",
+      "exists_on_disk": true,
+      "sha256": "e9daaf8df0b0ae304479fea1a65f47d70a87830cc7c5187965472707b1f3e69f",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (35).jpg",
+      "exists_on_disk": true,
+      "sha256": "c08e65e549170888fb6ba718b16656a5cb7d52da70a53fb04b586b02a63529c7",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (36).jpg",
+      "exists_on_disk": true,
+      "sha256": "9e4419863da0fcb298ce6b9cdf09bf3a02722dff711aa2db9df7e718ab793385",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (37).jpg",
+      "exists_on_disk": true,
+      "sha256": "66aba51039969b03dfea6f8e9cf3f303132d03fc2b3da37eba71b8e05a5326c1",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (38).jpg",
+      "exists_on_disk": true,
+      "sha256": "45ba06c238cefcfa2c9cd53630e9d7e2476218a43a1d23115b3bd4c00d729884",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (39).jpg",
+      "exists_on_disk": true,
+      "sha256": "c979773384df83267e21df406e1832d3c4c2c0548394bd21b219e3f1aca2f756",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (4).jpg",
+      "exists_on_disk": true,
+      "sha256": "856afb747ea49e35b770f7ce0a8b31686eab9d8b8646a2d2c67c7654c3f9a325",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (40).jpg",
+      "exists_on_disk": true,
+      "sha256": "187f5763f320e82446b04bda1cc5a2693c1e261920f41eb8ff379c5005e31368",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (41).jpg",
+      "exists_on_disk": true,
+      "sha256": "01307512314e0d6c8bee6a59ee834de713eacd554ba50d9a02b58d2b1889c89b",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (42).jpg",
+      "exists_on_disk": true,
+      "sha256": "f3d5f272d70ea934ffbda72c23ba0241b031278c5d542dafdc064f1b377d3f76",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (43).jpg",
+      "exists_on_disk": true,
+      "sha256": "c04210ee129a8a7e59349fb77ce21f9000ee6b0e8e574bb85b49801d9bb87c4e",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (44).jpg",
+      "exists_on_disk": true,
+      "sha256": "05e059f7eae942e51546ae8fa140e5047c7a0e9ba21c942debe99f73e6af8586",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (45).jpg",
+      "exists_on_disk": true,
+      "sha256": "0583fedb91f3f6bafc0c9fdb6b002a7c9461f71e44f84d5caf5bcbb02372420e",
+      "catalog_label": null,
+      "reviewed_assigned_label": null,
+      "is_overflow": false,
+      "is_exact_duplicate": true,
+      "duplicate_of": "images (13).jpg",
+      "reclassified": false
+    },
+    {
+      "filename": "images (46).jpg",
+      "exists_on_disk": true,
+      "sha256": "860b72057e77eb4d8f7d86c23cecaa5d7368fe112d9ebf5bba316505cf5c5cb0",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (47).jpg",
+      "exists_on_disk": true,
+      "sha256": "bf8ee2b6c40fbda2a31d9bdb4718b4e7016c6a1410053ca7c2bd01264379eec1",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (48).jpg",
+      "exists_on_disk": true,
+      "sha256": "8ff76ae296bc7957b91bad5448979a149bcebef01560d31976e3173321246f01",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (49).jpg",
+      "exists_on_disk": true,
+      "sha256": "da6b04056c9d4a85263d103345f5e20576bb9791076e84e794e980909869c043",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": true,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (5).jpg",
+      "exists_on_disk": true,
+      "sha256": "0b8731d4f3f77022371f4f38c825296edff63c8959cfa51341cf6c595d293d79",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (50).jpg",
+      "exists_on_disk": true,
+      "sha256": "f3d5f272d70ea934ffbda72c23ba0241b031278c5d542dafdc064f1b377d3f76",
+      "catalog_label": null,
+      "reviewed_assigned_label": null,
+      "is_overflow": false,
+      "is_exact_duplicate": true,
+      "duplicate_of": "images (42).jpg",
+      "reclassified": false
+    },
+    {
+      "filename": "images (51).jpg",
+      "exists_on_disk": true,
+      "sha256": "e20b62d8bb0f2f8c67d15a35188609e4a42651bb76fe7461a553843be127b344",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": true,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "images (52).jpg",
+      "exists_on_disk": true,
+      "sha256": "3b453670cb73a6f177ef74dfdb8b2955f71c762b4bf07de4e2fec4eb844ee996",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "images (53).jpg",
+      "exists_on_disk": true,
+      "sha256": "16566886785f1eb4f5fbb05a56ebf45eab4d2548ac9f8b4733ef3681780ccd94",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (54).jpg",
+      "exists_on_disk": true,
+      "sha256": "d269ff8ae2439647002228cc3a4a1fd9d088faf4d03cbbbfcfaf0ac2c8dd614e",
+      "catalog_label": "DAMAGED_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (55).jpg",
+      "exists_on_disk": true,
+      "sha256": "bc86b5bca806933774a500e9bdcd4789af7ec931813d6bf542f6763ce4488f46",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (56).jpg",
+      "exists_on_disk": true,
+      "sha256": "58031db834e7989d327de93f8e6411ae2cdbd0bab672964ec6c11b92c4e5462a",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (6).jpg",
+      "exists_on_disk": true,
+      "sha256": "3bc33f725431ccc355ee73a9c34926a73aeb7d453c01ac6385f91dab897f19ca",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "images (7).jpg",
+      "exists_on_disk": true,
+      "sha256": "ce73a2bd4fc2019408a6da5ce6b11e8d4fa1ca2f264b4e63e22b5c7c569817f4",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "images (8).jpg",
+      "exists_on_disk": true,
+      "sha256": "946233169a62dde0f0d8a54c350c02ad69d37dcd174b7681cda38f12abd7b1fb",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "images (9).jpg",
+      "exists_on_disk": true,
+      "sha256": "045b2ae8cb6c821e3d645a140f00b96b0577bec3f236736b40240b6d7a7fbccc",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    },
+    {
+      "filename": "images.jpg",
+      "exists_on_disk": true,
+      "sha256": "629fe4c5dbe30d83811f1c77cc345128aba04e7dc0cbf2a7da6ac5986a06d6b9",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "indiawaterportal_import_sites_default_files_styles_image_1200x675_public_iwp-images_drain.avif",
+      "exists_on_disk": false,
+      "sha256": "284547b18d52b7d320126e5af45ff9bba94e3eccb1509c3b21b00eca4ba8cf5f",
+      "catalog_label": "BLOCKED_DRAIN",
+      "reviewed_assigned_label": "blocked_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "old-rusty-metal-drain-cover-260nw-2753251053.webp",
+      "exists_on_disk": false,
+      "sha256": "7d03e2edfe8fc661af6c035e3c53ccd6a47d5b78b289618bd6481942bd6db650",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "normal_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": false
+    },
+    {
+      "filename": "photo.avif",
+      "exists_on_disk": false,
+      "sha256": "88dfccbdb10b6380781255c227531ad3bbcaf284a10452d9395e17a7449fbd04",
+      "catalog_label": "NORMAL_DRAIN",
+      "reviewed_assigned_label": "damaged_drain",
+      "is_overflow": false,
+      "is_exact_duplicate": false,
+      "duplicate_of": null,
+      "reclassified": true
+    }
+  ]
+}

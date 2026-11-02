@@ -1,0 +1,100 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 8,
+  "task": "Task 6 - Fallback and Failure Simulation",
+  "total_scenarios": 7,
+  "all_passed": true,
+  "scenarios": [
+    {
+      "scenario_id": "SCENARIO_A",
+      "name": "Experimental Model Succeeds",
+      "description": "Candidate completes cleanly; results logged alongside authoritative baseline",
+      "baseline_authoritative": true,
+      "candidate_executed": true,
+      "candidate_output_valid": true,
+      "agreement": false,
+      "fallback_triggered": false,
+      "citizen_response_source": "PRODUCTION_BASELINE",
+      "passed": true,
+      "latency_ms": 89.4
+    },
+    {
+      "scenario_id": "SCENARIO_B",
+      "name": "Experimental Model Fails (Exception Injection)",
+      "description": "Candidate throws runtime exception; baseline output immediately returned to user",
+      "baseline_authoritative": true,
+      "candidate_executed": false,
+      "candidate_output_valid": false,
+      "error_caught": "Simulated Candidate Model Core Dump / GPU Out Of Memory",
+      "fallback_triggered": true,
+      "citizen_response_source": "PRODUCTION_BASELINE",
+      "passed": true,
+      "latency_ms": 17.06
+    },
+    {
+      "scenario_id": "SCENARIO_C",
+      "name": "Experimental Model Times Out (> SLA Limit)",
+      "description": "Candidate exceeds SLA; timeout recorded; baseline evaluation unblocked and delivered",
+      "baseline_authoritative": true,
+      "candidate_executed": false,
+      "candidate_output_valid": false,
+      "error_caught": "Candidate inference exceeded SLA budget (50.0ms > 40.0ms)",
+      "fallback_triggered": true,
+      "citizen_response_source": "PRODUCTION_BASELINE",
+      "passed": true,
+      "latency_ms": 74.38
+    },
+    {
+      "scenario_id": "SCENARIO_D",
+      "name": "Experimental Model Returns Invalid Output",
+      "description": "Candidate returns malformed JSON; schema validator rejects candidate; baseline served",
+      "baseline_authoritative": true,
+      "candidate_executed": true,
+      "candidate_output_valid": false,
+      "rejection_reason": "Schema validation failed: missing keys ['is_damaged', 'confidence', 'severity']",
+      "fallback_triggered": true,
+      "citizen_response_source": "PRODUCTION_BASELINE",
+      "passed": true,
+      "latency_ms": 15.48
+    },
+    {
+      "scenario_id": "SCENARIO_E",
+      "name": "Experimental Model Unavailable / Uninitialized",
+      "description": "Candidate checkpoint missing; harness bypasses candidate; baseline-only execution proceeds",
+      "baseline_authoritative": true,
+      "candidate_executed": false,
+      "candidate_output_valid": false,
+      "routing_action": "BASELINE_DIRECT_ROUTE",
+      "fallback_triggered": true,
+      "citizen_response_source": "PRODUCTION_BASELINE",
+      "passed": true,
+      "latency_ms": 14.0
+    },
+    {
+      "scenario_id": "SCENARIO_F",
+      "name": "Shadow Logger Fails (I/O Fault Injection)",
+      "description": "Logging layer crashes; baseline evaluation pipeline remains completely unaffected",
+      "baseline_authoritative": true,
+      "candidate_executed": true,
+      "candidate_output_valid": true,
+      "logging_error_caught": "Simulated ENOSPC: No space left on device while writing shadow log",
+      "fallback_triggered": false,
+      "citizen_response_source": "PRODUCTION_BASELINE",
+      "passed": true,
+      "latency_ms": 50.82
+    },
+    {
+      "scenario_id": "SCENARIO_G",
+      "name": "Both Models Disagree (Prediction Divergence)",
+      "description": "Candidate and baseline disagree; disagreement flagged for human review; candidate NOT auto-selected",
+      "baseline_authoritative": true,
+      "candidate_executed": true,
+      "candidate_output_valid": true,
+      "disagreement_detected": true,
+      "arbitration_policy": "FLAGGED_FOR_HUMAN_SUPERVISOR_REVIEW",
+      "citizen_response_source": "PRODUCTION_BASELINE",
+      "passed": true,
+      "latency_ms": 0.0
+    }
+  ]
+}

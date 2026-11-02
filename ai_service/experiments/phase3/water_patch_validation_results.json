@@ -1,0 +1,602 @@
+{
+  "benchmark": "Water Pipe Patch Inference Independent Validation",
+  "validation_samples_calibrated": 17,
+  "test_samples_evaluated": 15,
+  "peak_memory_mb": 3.43,
+  "strategies": {
+    "Strategy A: Global 224x224": {
+      "accuracy": 0.9333,
+      "macro_f1": 0.9283,
+      "leak_precision": 1.0,
+      "leak_recall": 0.9,
+      "normal_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.1,
+      "confusion_matrix": {
+        "TP": 9,
+        "TN": 5,
+        "FP": 0,
+        "FN": 1
+      },
+      "avg_cpu_latency_ms": 29.25,
+      "samples": [
+        {
+          "filename": "blue-industrial-water-pipe-system-with-visible-rust-near-a-corrugated-metal-wall-in-an-outdoor-setting-photo.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.911,
+            0.0624,
+            0.0265
+          ],
+          "latency_ms": 17.28
+        },
+        {
+          "filename": "istockphoto-1275396599-612x612.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.866,
+            0.0604,
+            0.0736
+          ],
+          "latency_ms": 25.72
+        },
+        {
+          "filename": "istockphoto-1410643227-612x612.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.9661,
+            0.0275,
+            0.0064
+          ],
+          "latency_ms": 20.3
+        },
+        {
+          "filename": "istockphoto-157590055-612x612.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.9969,
+            0.0017,
+            0.0014
+          ],
+          "latency_ms": 27.54
+        },
+        {
+          "filename": "istockphoto-478577114-612x612.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.9867,
+            0.0036,
+            0.0096
+          ],
+          "latency_ms": 24.09
+        },
+        {
+          "filename": "broken-water-pipe-leaking-out-soil-underground-leak-274565016.webp",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0167,
+            0.8073,
+            0.1759
+          ],
+          "latency_ms": 45.03
+        },
+        {
+          "filename": "Screenshot 2026-10-09 003238.png",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.1681,
+            0.2297,
+            0.6023
+          ],
+          "latency_ms": 33.72
+        },
+        {
+          "filename": "sentinelassam-english_2025-12-03_mru07lxm_Water-pipeline-leakage-at-Silpukhuri.avif",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.1935,
+            0.7834,
+            0.0231
+          ],
+          "latency_ms": 20.6
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.19.20 AM (1).jpeg",
+          "true_label": 1,
+          "predicted": 0,
+          "passed": false,
+          "probs": [
+            0.6539,
+            0.0416,
+            0.3045
+          ],
+          "latency_ms": 23.13
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.19.20 AM (2).jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.072,
+            0.5834,
+            0.3445
+          ],
+          "latency_ms": 23.03
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.19.20 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0013,
+            0.987,
+            0.0116
+          ],
+          "latency_ms": 35.56
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.49 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.2412,
+            0.5116,
+            0.2472
+          ],
+          "latency_ms": 29.86
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.50 AM (1).jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0174,
+            0.1394,
+            0.8432
+          ],
+          "latency_ms": 36.1
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.50 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0135,
+            0.8703,
+            0.1162
+          ],
+          "latency_ms": 20.63
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.51 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0097,
+            0.9807,
+            0.0096
+          ],
+          "latency_ms": 56.15
+        }
+      ]
+    },
+    "Strategy B: Uncalibrated Patch (0.65)": {
+      "accuracy": 0.8667,
+      "macro_f1": 0.8296,
+      "leak_precision": 0.8333,
+      "leak_recall": 1.0,
+      "normal_recall": 0.6,
+      "false_positive_rate": 0.4,
+      "false_negative_rate": 0.0,
+      "confusion_matrix": {
+        "TP": 10,
+        "TN": 3,
+        "FP": 2,
+        "FN": 0
+      },
+      "avg_cpu_latency_ms": 98.28,
+      "samples": [
+        {
+          "filename": "blue-industrial-water-pipe-system-with-visible-rust-near-a-corrugated-metal-wall-in-an-outdoor-setting-photo.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.911,
+            0.2215,
+            0.0477
+          ],
+          "latency_ms": 48.82
+        },
+        {
+          "filename": "istockphoto-1275396599-612x612.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.866,
+            0.5265,
+            0.3659
+          ],
+          "latency_ms": 51.81
+        },
+        {
+          "filename": "istockphoto-1410643227-612x612.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.9661,
+            0.3057,
+            0.0835
+          ],
+          "latency_ms": 54.83
+        },
+        {
+          "filename": "istockphoto-157590055-612x612.jpg",
+          "true_label": 0,
+          "predicted": 1,
+          "passed": false,
+          "probs": [
+            0.9969,
+            0.2805,
+            0.7137
+          ],
+          "latency_ms": 66.83
+        },
+        {
+          "filename": "istockphoto-478577114-612x612.jpg",
+          "true_label": 0,
+          "predicted": 1,
+          "passed": false,
+          "probs": [
+            0.9867,
+            0.6514,
+            0.2448
+          ],
+          "latency_ms": 56.26
+        },
+        {
+          "filename": "broken-water-pipe-leaking-out-soil-underground-leak-274565016.webp",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0167,
+            0.8462,
+            0.518
+          ],
+          "latency_ms": 126.82
+        },
+        {
+          "filename": "Screenshot 2026-10-09 003238.png",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.1681,
+            0.3422,
+            0.6976
+          ],
+          "latency_ms": 120.57
+        },
+        {
+          "filename": "sentinelassam-english_2025-12-03_mru07lxm_Water-pipeline-leakage-at-Silpukhuri.avif",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.1935,
+            0.9308,
+            0.0652
+          ],
+          "latency_ms": 66.38
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.19.20 AM (1).jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.6539,
+            0.7112,
+            0.7603
+          ],
+          "latency_ms": 82.07
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.19.20 AM (2).jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.072,
+            0.7923,
+            0.5821
+          ],
+          "latency_ms": 50.68
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.19.20 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0013,
+            0.987,
+            0.6377
+          ],
+          "latency_ms": 153.93
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.49 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.2412,
+            0.8916,
+            0.688
+          ],
+          "latency_ms": 112.52
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.50 AM (1).jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0174,
+            0.7026,
+            0.8432
+          ],
+          "latency_ms": 160.71
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.50 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0135,
+            0.8703,
+            0.4318
+          ],
+          "latency_ms": 48.16
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.51 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0097,
+            0.9807,
+            0.5761
+          ],
+          "latency_ms": 273.87
+        }
+      ]
+    },
+    "Strategy C: Calibrated Hierarchical Gating": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "leak_precision": 1.0,
+      "leak_recall": 1.0,
+      "normal_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "confusion_matrix": {
+        "TP": 10,
+        "TN": 5,
+        "FP": 0,
+        "FN": 0
+      },
+      "avg_cpu_latency_ms": 89.59,
+      "samples": [
+        {
+          "filename": "blue-industrial-water-pipe-system-with-visible-rust-near-a-corrugated-metal-wall-in-an-outdoor-setting-photo.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.911,
+            0.2215,
+            0.0477
+          ],
+          "latency_ms": 65.78
+        },
+        {
+          "filename": "istockphoto-1275396599-612x612.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.866,
+            0.5265,
+            0.3659
+          ],
+          "latency_ms": 49.91
+        },
+        {
+          "filename": "istockphoto-1410643227-612x612.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.9661,
+            0.3057,
+            0.0835
+          ],
+          "latency_ms": 50.33
+        },
+        {
+          "filename": "istockphoto-157590055-612x612.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.9969,
+            0.2805,
+            0.7137
+          ],
+          "latency_ms": 63.87
+        },
+        {
+          "filename": "istockphoto-478577114-612x612.jpg",
+          "true_label": 0,
+          "predicted": 0,
+          "passed": true,
+          "probs": [
+            0.9867,
+            0.6514,
+            0.2448
+          ],
+          "latency_ms": 55.7
+        },
+        {
+          "filename": "broken-water-pipe-leaking-out-soil-underground-leak-274565016.webp",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0167,
+            0.8462,
+            0.518
+          ],
+          "latency_ms": 104.36
+        },
+        {
+          "filename": "Screenshot 2026-10-09 003238.png",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.1681,
+            0.3422,
+            0.6976
+          ],
+          "latency_ms": 97.47
+        },
+        {
+          "filename": "sentinelassam-english_2025-12-03_mru07lxm_Water-pipeline-leakage-at-Silpukhuri.avif",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.1935,
+            0.9308,
+            0.0652
+          ],
+          "latency_ms": 50.3
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.19.20 AM (1).jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.6539,
+            0.7112,
+            0.7603
+          ],
+          "latency_ms": 62.56
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.19.20 AM (2).jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.072,
+            0.7923,
+            0.5821
+          ],
+          "latency_ms": 46.53
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.19.20 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0013,
+            0.987,
+            0.6377
+          ],
+          "latency_ms": 127.71
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.49 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.2412,
+            0.8916,
+            0.688
+          ],
+          "latency_ms": 113.71
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.50 AM (1).jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0174,
+            0.7026,
+            0.8432
+          ],
+          "latency_ms": 153.04
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.50 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0135,
+            0.8703,
+            0.4318
+          ],
+          "latency_ms": 45.68
+        },
+        {
+          "filename": "WhatsApp Image 2026-10-09 at 12.20.51 AM.jpeg",
+          "true_label": 1,
+          "predicted": 1,
+          "passed": true,
+          "probs": [
+            0.0097,
+            0.9807,
+            0.5761
+          ],
+          "latency_ms": 256.96
+        }
+      ]
+    }
+  }
+}

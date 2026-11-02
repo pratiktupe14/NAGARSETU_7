@@ -1,0 +1,88 @@
+{
+  "evaluation_name": "Phase 7 Water Pipeline Comprehensive Benchmark (36 Samples)",
+  "timestamp": "2026-11-03T00:09:13",
+  "sample_count": 36,
+  "peak_ram_mb": 5.63,
+  "models": {
+    "baseline_global": {
+      "name": "water_pipe_model.pt (Global Inference)",
+      "size_mb": 5.92,
+      "metrics": {
+        "accuracy": 0.9722,
+        "macro_f1": 0.9722,
+        "leak_recall": 0.9444,
+        "normal_precision": 0.9474,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.0556,
+        "confusion_matrix": {
+          "TN": 18,
+          "FP": 0,
+          "FN": 1,
+          "TP": 17
+        },
+        "mean_latency_ms": 19.02,
+        "p95_latency_ms": 30.23
+      }
+    },
+    "baseline_hierarchical_patch": {
+      "name": "water_pipe_model.pt + Optimized Hierarchical Patch",
+      "size_mb": 5.92,
+      "metrics": {
+        "accuracy": 0.9444,
+        "macro_f1": 0.9444,
+        "leak_recall": 0.9444,
+        "normal_precision": 0.9444,
+        "false_positive_rate": 0.0556,
+        "false_negative_rate": 0.0556,
+        "confusion_matrix": {
+          "TN": 17,
+          "FP": 1,
+          "FN": 1,
+          "TP": 17
+        },
+        "mean_latency_ms": 35.21,
+        "p95_latency_ms": 90.29
+      }
+    },
+    "candidate_v5_fp32": {
+      "name": "water_pipe_candidate_v5.pt (FP32)",
+      "size_mb": 5.93,
+      "metrics": {
+        "accuracy": 0.9167,
+        "macro_f1": 0.9166,
+        "leak_recall": 0.9444,
+        "normal_precision": 0.9412,
+        "false_positive_rate": 0.1111,
+        "false_negative_rate": 0.0556,
+        "confusion_matrix": {
+          "TN": 16,
+          "FP": 2,
+          "FN": 1,
+          "TP": 17
+        },
+        "mean_latency_ms": 18.33,
+        "p95_latency_ms": 27.65
+      }
+    },
+    "candidate_v5_int8": {
+      "name": "water_pipe_candidate_v5_quantized.pt (INT8 Dynamic)",
+      "size_mb": 4.24,
+      "metrics": {
+        "accuracy": 0.9167,
+        "macro_f1": 0.9166,
+        "leak_recall": 0.9444,
+        "normal_precision": 0.9412,
+        "false_positive_rate": 0.1111,
+        "false_negative_rate": 0.0556,
+        "confusion_matrix": {
+          "TN": 16,
+          "FP": 2,
+          "FN": 1,
+          "TP": 17
+        },
+        "mean_latency_ms": 18.93,
+        "p95_latency_ms": 28.05
+      }
+    }
+  }
+}

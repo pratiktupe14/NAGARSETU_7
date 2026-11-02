@@ -1,0 +1,370 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 8,
+  "manifest_sha256": "8b802f7dc0573df7bb03f456852158b5434e55926d8a147456c829c19e6365b1",
+  "total_samples": 36,
+  "metrics": {
+    "baseline_whole": {
+      "accuracy": 0.9722,
+      "tp": 17,
+      "tn": 18,
+      "fp": 0,
+      "fn": 1,
+      "leak_precision": 1.0,
+      "leak_recall": 0.9444,
+      "leak_f1": 0.9714,
+      "normal_precision": 0.9474,
+      "normal_recall": 1.0,
+      "normal_f1": 0.973,
+      "macro_f1": 0.9722,
+      "fpr": 0.0,
+      "fnr": 0.0556,
+      "conf_mean": 0.5102,
+      "conf_std": 0.4296,
+      "conf_min": 0.0024,
+      "conf_max": 0.9983
+    },
+    "candidate_v5_whole": {
+      "accuracy": 0.9167,
+      "tp": 17,
+      "tn": 16,
+      "fp": 2,
+      "fn": 1,
+      "leak_precision": 0.8947,
+      "leak_recall": 0.9444,
+      "leak_f1": 0.9189,
+      "normal_precision": 0.9412,
+      "normal_recall": 0.8889,
+      "normal_f1": 0.9143,
+      "macro_f1": 0.9166,
+      "fpr": 0.1111,
+      "fnr": 0.0556,
+      "conf_mean": 0.5339,
+      "conf_std": 0.4834,
+      "conf_min": 0.0,
+      "conf_max": 1.0
+    },
+    "candidate_v5_int8": {
+      "accuracy": 0.9167,
+      "tp": 17,
+      "tn": 16,
+      "fp": 2,
+      "fn": 1,
+      "leak_precision": 0.8947,
+      "leak_recall": 0.9444,
+      "leak_f1": 0.9189,
+      "normal_precision": 0.9412,
+      "normal_recall": 0.8889,
+      "normal_f1": 0.9143,
+      "macro_f1": 0.9166,
+      "fpr": 0.1111,
+      "fnr": 0.0556,
+      "conf_mean": 0.5339,
+      "conf_std": 0.4835,
+      "conf_min": 0.0,
+      "conf_max": 1.0
+    },
+    "calibrated_patch_v2": {
+      "accuracy": 0.9444,
+      "tp": 17,
+      "tn": 17,
+      "fp": 1,
+      "fn": 1,
+      "leak_precision": 0.9444,
+      "leak_recall": 0.9444,
+      "leak_f1": 0.9444,
+      "normal_precision": 0.9444,
+      "normal_recall": 0.9444,
+      "normal_f1": 0.9444,
+      "macro_f1": 0.9444,
+      "fpr": 0.0556,
+      "fnr": 0.0556,
+      "conf_mean": 0.5591,
+      "conf_std": 0.4195,
+      "conf_min": 0.0024,
+      "conf_max": 0.9983
+    }
+  },
+  "timings": {
+    "baseline_whole": {
+      "mean_total_ms": 21.12,
+      "median_total_ms": 18.88,
+      "p95_total_ms": 31.73
+    },
+    "candidate_v5_whole": {
+      "mean_total_ms": 20.29,
+      "median_total_ms": 19.55,
+      "p95_total_ms": 24.86
+    },
+    "candidate_v5_int8": {
+      "mean_total_ms": 21.12,
+      "median_total_ms": 19.41,
+      "p95_total_ms": 30.58
+    },
+    "calibrated_patch_v2": {
+      "mean_total_ms": 38.67,
+      "median_total_ms": 21.68,
+      "p95_total_ms": 104.02,
+      "stages": {
+        "mean_preprocess_ms": 3.34,
+        "mean_patch_gen_ms": 0.28,
+        "mean_inference_ms": 17.13,
+        "mean_aggregation_ms": 0.03
+      }
+    }
+  },
+  "edge_case_breakdown": {
+    "thin_vertical_water_spray": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 0,
+      "candidate_fp32_correct": 0,
+      "patch_v2_correct": 1
+    },
+    "hairline_cracks_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "slow_leakage_trickle": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "large_water_burst": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "street_rupture": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "subsurface_soil_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "joint_flange_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "pipe_joint_leakage": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "joint_collar_fracture": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "poorly_lit_indoor_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "spraying_lateral_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "spraying_nozzle_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "corrosion_pit_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "low_resolution_blurry_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "harsh_shadow_glare_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 0
+    },
+    "occluded_pipe_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "distant_municipal_main_leak": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "weld_seam_rupture": {
+      "count": 1,
+      "ground_truth_class": "leak",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "rusted_intact_metal": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "clean_hdpe_pipe": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "wet_surface_intact": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 0
+    },
+    "old_functional_pvc": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "clean_concrete_main": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "clean_metal_pipeline": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "stained_discolored_pipe": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 0,
+      "patch_v2_correct": 1
+    },
+    "weathered_exterior_pipe": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "valved_utility_assembly": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "paved_trench_pipe": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "indoor_meter_riser": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 0,
+      "patch_v2_correct": 1
+    },
+    "insulated_water_line": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "flanged_coupling_sound": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "extreme_tilt_angle_normal": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "uneven_lighting_normal": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "clean_copper_tubing": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "overhead_conduit_intact": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    },
+    "outdoor_riser_normal": {
+      "count": 1,
+      "ground_truth_class": "normal",
+      "baseline_correct": 1,
+      "candidate_fp32_correct": 1,
+      "patch_v2_correct": 1
+    }
+  }
+}

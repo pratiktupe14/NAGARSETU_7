@@ -1,0 +1,371 @@
+{
+  "dataset_name": "NagarSetu Expanded Water Pipeline Independent Evaluation Benchmark",
+  "phase": 7,
+  "total_samples": 36,
+  "class_breakdown": {
+    "leaking": 18,
+    "normal": 18
+  },
+  "samples": [
+    {
+      "sample_id": "WTR-EXP-001",
+      "filename": "WhatsApp Image 2026-10-09 at 12.19.20 AM (1).jpeg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\WhatsApp Image 2026-10-09 at 12.19.20 AM (1).jpeg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "thin_vertical_water_spray",
+      "description": "Micro-spray leak <4px wide",
+      "sha256": "c43649a751a0e6fd46397af0c520b4658fe4c97bb5c796958c9987347a765805"
+    },
+    {
+      "sample_id": "WTR-EXP-002",
+      "filename": "WhatsApp Image 2026-10-09 at 12.19.19 AM (2).jpeg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\WhatsApp Image 2026-10-09 at 12.19.19 AM (2).jpeg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "hairline_cracks_leak",
+      "description": "Hairline fracture along pipe wall",
+      "sha256": "2318f0fbc33b223fbae947d33455955316db95d74dd4653b00a9674deee1f984"
+    },
+    {
+      "sample_id": "WTR-EXP-003",
+      "filename": "WhatsApp Image 2026-10-09 at 12.19.19 AM (1).jpeg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\WhatsApp Image 2026-10-09 at 12.19.19 AM (1).jpeg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "slow_leakage_trickle",
+      "description": "Slow dripping water leak",
+      "sha256": "e125d6aa45a62240f321df8677a4a64f7590a0ec7dd3d4d2e9e2e3be134b82a3"
+    },
+    {
+      "sample_id": "WTR-EXP-004",
+      "filename": "WhatsApp Image 2026-10-09 at 12.19.19 AM.jpeg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\WhatsApp Image 2026-10-09 at 12.19.19 AM.jpeg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "large_water_burst",
+      "description": "Major water surge rupture",
+      "sha256": "b4dc4287ef35d60ff8d0c52f94db49fb02e38042f89b6ae3a0c857307033b589"
+    },
+    {
+      "sample_id": "WTR-EXP-005",
+      "filename": "burst-water-pipe.jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\burst-water-pipe.jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "street_rupture",
+      "description": "Street-level high volume burst",
+      "sha256": "d4b3141659cfa7fcd2a58d274cf43f71bc3704609ae98c35db17d809fd4e0f79"
+    },
+    {
+      "sample_id": "WTR-EXP-006",
+      "filename": "broken-water-pipe-leaking-out-soil-underground-leak-274565016.webp",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\broken-water-pipe-leaking-out-soil-underground-leak-274565016.webp",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "subsurface_soil_leak",
+      "description": "Underground soil erosion leak",
+      "sha256": "1d3a0d32597307059dc5a7daf8f48c07a47c5b1fda99f88084062ea9f03378aa"
+    },
+    {
+      "sample_id": "WTR-EXP-007",
+      "filename": "images (1).jpeg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (1).jpeg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "joint_flange_leak",
+      "description": "Flange coupling seal failure",
+      "sha256": "30f3ce30b664551e21fa98204c565471223100c2e993dabf7253ddcb06cef87b"
+    },
+    {
+      "sample_id": "WTR-EXP-008",
+      "filename": "images (2).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (2).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "pipe_joint_leakage",
+      "description": "Elbow joint seepage",
+      "sha256": "d4771ce783bdc054dbf4ac99d714154cb8c7b797bf3da2ca958e2f991d473f51"
+    },
+    {
+      "sample_id": "WTR-EXP-009",
+      "filename": "images (3).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (3).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "joint_collar_fracture",
+      "description": "Collar crack water leak",
+      "sha256": "755ac011e1f3786fe024443c08d157d88514f78d06ff3fc103afa59757d29c5b"
+    },
+    {
+      "sample_id": "WTR-EXP-010",
+      "filename": "images (4).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (4).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "poorly_lit_indoor_leak",
+      "description": "Basement low-illumination leak",
+      "sha256": "b1daea40aff647050d55f7f199a58e6f97145180abaa9c8e77e00d4c7a7a25b4"
+    },
+    {
+      "sample_id": "WTR-EXP-011",
+      "filename": "images (5).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (5).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "spraying_lateral_leak",
+      "description": "Side spray water jet",
+      "sha256": "67e7dfd0e23012cda4dca23295f675803a83adc97eca214cdb11186d97bed8a2"
+    },
+    {
+      "sample_id": "WTR-EXP-012",
+      "filename": "images (6).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (6).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "spraying_nozzle_leak",
+      "description": "Pin-hole spray leak",
+      "sha256": "7dfd523e043391dc19a3711ed192eb89271cb2d099d15056d61e2e43e776172d"
+    },
+    {
+      "sample_id": "WTR-EXP-013",
+      "filename": "images (7).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (7).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "corrosion_pit_leak",
+      "description": "Pitting corrosion perforation",
+      "sha256": "98cddcf03597f83dea99e4cc310bf806b68b3121ab89482ff059b99a7ca032fc"
+    },
+    {
+      "sample_id": "WTR-EXP-014",
+      "filename": "images (8).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (8).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "low_resolution_blurry_leak",
+      "description": "Blurry mobile capture leak",
+      "sha256": "49cc046d7b571852ad6546a6ce3d70514f9120dde6f656c8d2a274654a98288d"
+    },
+    {
+      "sample_id": "WTR-EXP-015",
+      "filename": "images (9).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (9).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "harsh_shadow_glare_leak",
+      "description": "High-contrast sunlight leak",
+      "sha256": "07ec90d05ac66cb6ed51c796b3d2f814bbf2e032729949d1fed761e4430c769c"
+    },
+    {
+      "sample_id": "WTR-EXP-016",
+      "filename": "images (10).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (10).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "occluded_pipe_leak",
+      "description": "Vegetation occluded pipe leak",
+      "sha256": "e4fbd548e0c70bf385dfb1243ec7bd77f451f7c26834ca7948ebc5e235e4c4f8"
+    },
+    {
+      "sample_id": "WTR-EXP-017",
+      "filename": "images (11).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (11).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "distant_municipal_main_leak",
+      "description": "Distant main pipeline rupture",
+      "sha256": "4f2eefa21f739beb55c9c32d0da2d97e05b2e4a18d161383b67ab5380f83935b"
+    },
+    {
+      "sample_id": "WTR-EXP-018",
+      "filename": "images (12).jpg",
+      "filepath": "D:\\NAGARSETU\\leaking pipes\\images (12).jpg",
+      "ground_truth": 1,
+      "ground_truth_label": "leaking",
+      "scenario": "weld_seam_rupture",
+      "description": "Longitudinal weld seam tear",
+      "sha256": "771eb510a24c36843e8c57785fefaf1070c3777366522d71bbdb5d7fb632b0f0"
+    },
+    {
+      "sample_id": "WTR-EXP-019",
+      "filename": "blue-industrial-water-pipe-system-with-visible-rust-near-a-corrugated-metal-wall-in-an-outdoor-setting-photo.jpg",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\blue-industrial-water-pipe-system-with-visible-rust-near-a-corrugated-metal-wall-in-an-outdoor-setting-photo.jpg",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "rusted_intact_metal",
+      "description": "Surface rust on intact metal pipe",
+      "sha256": "1bb822961d54e40f95e0585b1933951422c3b0f3913497c3a55f81903b131fa5"
+    },
+    {
+      "sample_id": "WTR-EXP-020",
+      "filename": "pipa-hdpe-1-1568x882.webp",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\pipa-hdpe-1-1568x882.webp",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "clean_hdpe_pipe",
+      "description": "Clean black HDPE water pipe",
+      "sha256": "4195a9bd213e92cb02bde24adc148c35d28e27fec3d7ee7b3d30dd82f9fb5e52"
+    },
+    {
+      "sample_id": "WTR-EXP-021",
+      "filename": "4412.webp",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\4412.webp",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "wet_surface_intact",
+      "description": "External rainwater on sound pipe",
+      "sha256": "c5c5f5f1d63518daea9802d4d9bbfc0ee9a82774d7603efe22eb9e8a5e5c8f91"
+    },
+    {
+      "sample_id": "WTR-EXP-022",
+      "filename": "WhatsApp Image 2026-10-09 at 1.24.00 AM.jpeg",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\WhatsApp Image 2026-10-09 at 1.24.00 AM.jpeg",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "old_functional_pvc",
+      "description": "Aged PVC pipe without damage",
+      "sha256": "9b87ee365f0a43b0793a10f3b99519af1f7058941374f10b53eadb28df5cf1b7"
+    },
+    {
+      "sample_id": "WTR-EXP-023",
+      "filename": "Screenshot 2026-10-09 011506.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011506.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "clean_concrete_main",
+      "description": "Smooth uncracked concrete main",
+      "sha256": "fc7554a9d51c0f4fb332cf3b75bc63ef6358bbc46c7fb6035caec1175e81b081"
+    },
+    {
+      "sample_id": "WTR-EXP-024",
+      "filename": "Screenshot 2026-10-09 011519.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011519.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "clean_metal_pipeline",
+      "description": "Unblemished steel conduit",
+      "sha256": "34c509448ad5feb28c2b7ad01c2fd6a2ecd8d09a15f63fbb6c8226e22261aec6"
+    },
+    {
+      "sample_id": "WTR-EXP-025",
+      "filename": "Screenshot 2026-10-09 011533.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011533.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "stained_discolored_pipe",
+      "description": "Mineral discoloration on pipe",
+      "sha256": "99ab0bffca6c0f873436b58b2792bf5fcf3c3ba842a4ef8da8328db9de715f92"
+    },
+    {
+      "sample_id": "WTR-EXP-026",
+      "filename": "Screenshot 2026-10-09 011541.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011541.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "weathered_exterior_pipe",
+      "description": "Weathered urban service pipe",
+      "sha256": "56058f8e8410b7fb04ed66ac3f6aebbad5a335476102dbcd5d662b01aa31be42"
+    },
+    {
+      "sample_id": "WTR-EXP-027",
+      "filename": "Screenshot 2026-10-09 011601.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011601.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "valved_utility_assembly",
+      "description": "Normal shutoff valve and pipe",
+      "sha256": "cc9a9f05d031134767d4b412d2ef5ed325ac7b8af363b10f25b69dfe69017f2d"
+    },
+    {
+      "sample_id": "WTR-EXP-028",
+      "filename": "Screenshot 2026-10-09 011606.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011606.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "paved_trench_pipe",
+      "description": "Sound pipe in utility trench",
+      "sha256": "e9e82bd0c09d0d5addc22d8b3bd305b4c6b5ba488b165d1e972b62d5e6515d2b"
+    },
+    {
+      "sample_id": "WTR-EXP-029",
+      "filename": "Screenshot 2026-10-09 011630.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011630.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "indoor_meter_riser",
+      "description": "Dry residential water meter riser",
+      "sha256": "9dd4d25f119ed17ac411a289792d0c1d259c5a672356412d57c5bb7f77a7a42c"
+    },
+    {
+      "sample_id": "WTR-EXP-030",
+      "filename": "Screenshot 2026-10-09 011706.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011706.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "insulated_water_line",
+      "description": "Intact lagged thermal pipe",
+      "sha256": "62af7b341c7133e82d22e44e1f54c2396106bc1e4907260ae488adb9579743f1"
+    },
+    {
+      "sample_id": "WTR-EXP-031",
+      "filename": "Screenshot 2026-10-09 011735.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011735.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "flanged_coupling_sound",
+      "description": "Bolted flange without leaks",
+      "sha256": "2ac0b3a1af01e726d107722009b03d942757875ccb37aacb2aa98ffea5451c3a"
+    },
+    {
+      "sample_id": "WTR-EXP-032",
+      "filename": "Screenshot 2026-10-09 011809.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011809.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "extreme_tilt_angle_normal",
+      "description": "Steep upward camera view",
+      "sha256": "60534edf6950fffc83f8cab387e13687ad8b3f637d07789540a7b23759f29c36"
+    },
+    {
+      "sample_id": "WTR-EXP-033",
+      "filename": "Screenshot 2026-10-09 011821.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011821.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "uneven_lighting_normal",
+      "description": "Side shadow across normal pipe",
+      "sha256": "0a6f139d3f7fff0136706d01bb77dc2b312e4726bfe36d373c8e0afc19441b96"
+    },
+    {
+      "sample_id": "WTR-EXP-034",
+      "filename": "Screenshot 2026-10-09 011835.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011835.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "clean_copper_tubing",
+      "description": "Interior copper distribution line",
+      "sha256": "0e979ee81ef92bdb8a1a5f82c9134520d76a2358a1e84bbf345c26659eeae699"
+    },
+    {
+      "sample_id": "WTR-EXP-035",
+      "filename": "Screenshot 2026-10-09 011927.png",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011927.png",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "overhead_conduit_intact",
+      "description": "Overhead municipal distribution",
+      "sha256": "dfd808113cf30b5f56afd59e2deefe95ae96025df0aa8693d7b2a1e2353302b0"
+    },
+    {
+      "sample_id": "WTR-EXP-036",
+      "filename": "images (1).jpg",
+      "filepath": "D:\\NAGARSETU\\normal pipe images\\images (1).jpg",
+      "ground_truth": 0,
+      "ground_truth_label": "normal",
+      "scenario": "outdoor_riser_normal",
+      "description": "Clean vertical riser pipe",
+      "sha256": "8bb5e279346bef95e184e451fede58416c95fb7b683e49d13ea613b444d772df"
+    }
+  ]
+}

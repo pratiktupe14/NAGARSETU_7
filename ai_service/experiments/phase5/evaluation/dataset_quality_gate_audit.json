@@ -1,0 +1,95 @@
+{
+  "assessment_metadata": {
+    "phase": 5,
+    "timestamp": "2026-11-02T23:44:53",
+    "compliance": "Strictly Read-Only, Isolated Offline Auditing",
+    "evaluator": "NagarSetu AI Quality Workstream"
+  },
+  "domains": {
+    "road_damage_detection": {
+      "target_model_type": "Multi-Class Object Detection (D00, D10, D20, D40)",
+      "baseline_model": "civicmodel.pt (Single-Class Pothole Detector)",
+      "baseline_sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+      "evaluated_dataset": "RDD2022 (India Subset)",
+      "official_source": "Crowdsensing-based Road Damage Detection Challenge (CRDDC'2022), IEEE BigData 2022",
+      "official_license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+      "checks": {
+        "image_readability": "Verified on sample archives",
+        "annotation_correctness": "VOC XML schema parsed & validated",
+        "bounding_box_validity": "Clamped to [0.0, 1.0] by voc_to_yolo_converter.py",
+        "class_mapping": "D00: 0, D10: 1, D20: 2, D40: 3 (Matches official label_map.pbtxt)",
+        "class_imbalance": "Potholes (D40) dominant; cracks (D10) sparse",
+        "duplicate_detection": "Sequence-based burst isolation required",
+        "train_val_leakage": "Vehicle sequence partitioning required (India_xxxxxx series)",
+        "source_licensing": "VERIFIED (CC BY 4.0, commercial use permitted with attribution)",
+        "access_and_ingestion": "BLOCKED \u2014 Source deposits monolithic 12.65 GB archive without separate India HTTP endpoint"
+      },
+      "quality_gate_decision": "BLOCKED BY LICENSING OR ACCESS",
+      "justification": "The official Figshare repository bundles all global subsets into a single 12.65 GB archive. Selective download of the India subset alone is not provided by the upstream host. In accordance with offline constraints, automated bulk downloading of 12.65 GB is halted until manual disk staging.",
+      "production_action": "civicmodel.pt preserved in production; zero modifications applied."
+    },
+    "drainage_condition_classification": {
+      "target_model_type": "3-Class Drainage Condition Classifier (normal, blocked, damaged)",
+      "baseline_model": "drainage_model.pt",
+      "baseline_sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+      "evaluated_dataset": "NagarSetu Drainage Dataset (102 Unique Images)",
+      "official_source": "Local municipal drainage survey images",
+      "checks": {
+        "image_readability": "100% readable (102/102 images valid PIL formats)",
+        "annotation_correctness": "Forensically reconciled; 9 disputed catalog normals reclassified to blocked/damaged",
+        "bounding_box_validity": "N/A (Whole-image classification task)",
+        "class_mapping": "normal_drain: 0, blocked_drain: 1, damaged_drain: 2",
+        "class_imbalance": "CRITICAL FLAW: 50 damaged, 49 blocked, only 6 normal drains (5.8% normal)",
+        "duplicate_detection": "Detected 4 exact duplicate clusters (8 physical files on disk)",
+        "train_val_leakage": "Deduplication manifest isolates duplicate files from splits",
+        "source_licensing": "Internal municipal operational data",
+        "expansion_quota": "Failed quota: 0 of 100 required additional normal drain images provided"
+      },
+      "quality_gate_decision": "NEEDS MORE DATA",
+      "justification": "Severe normal-class starvation. With only 6 verified normal drains, training a multi-class model will induce extreme false-positive bias, incorrectly flagging clean drains as damaged or blocked. Retraining is strictly halted.",
+      "production_action": "drainage_model.pt preserved in production; candidate drainage_model_v2.pt remains in experimental adapter only."
+    },
+    "solid_waste_classification": {
+      "target_model_type": "6-Class Object Detection (BIODEGRADABLE, CARDBOARD, GLASS, METAL, PAPER, PLASTIC)",
+      "baseline_model": "best.pt",
+      "baseline_sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+      "evaluated_dataset": "ai_service/training/garbage_waste_v2 (30 Images)",
+      "official_source": "Local municipal waste collection dataset",
+      "checks": {
+        "image_readability": "100% readable (30/30 valid JPEG images)",
+        "annotation_correctness": "Labels present in YOLO format, but extreme sparsity",
+        "bounding_box_validity": "Valid normalized [x, y, w, h] boxes",
+        "class_mapping": "6 classes defined in data.yaml",
+        "class_imbalance": "CRITICAL FLAW: PLASTIC comprises 63.6% of annotations. CARDBOARD has only 1 training box.",
+        "duplicate_detection": "Zero exact duplicates in 30 images",
+        "train_val_leakage": "CRITICAL FLAW: Validation split has ZERO instances for 5 out of 6 classes (only PLASTIC represented). Test split has 0 instances for CARDBOARD.",
+        "source_licensing": "Internal municipal operational data",
+        "expansion_quota": "Insufficient volume across all non-plastic classes"
+      },
+      "quality_gate_decision": "NEEDS MORE DATA",
+      "justification": "Mathematically incapable of computing validation mAP for 5 out of 6 classes during training. Training under these conditions produces an unusable detector. Retraining is strictly prohibited.",
+      "production_action": "best.pt preserved in production; zero modifications applied."
+    },
+    "water_pipeline_damage_detection": {
+      "target_model_type": "Binary / 3-Class Condition Classifier (normal vs leaking/damaged)",
+      "baseline_model": "water_pipe_model.pt",
+      "baseline_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+      "evaluated_dataset": "NagarSetu Water Pipeline Dataset (84 Images / 83 Unique)",
+      "official_source": "Local municipal water department inspection photos",
+      "checks": {
+        "image_readability": "100% readable (84/84 valid images)",
+        "annotation_correctness": "Binary classes verified (56 leaking, 28 normal)",
+        "bounding_box_validity": "N/A (Classification task; patch coordinates dynamically derived)",
+        "class_mapping": "0: perfect_pipe (normal), 1: water_leakage (damaged)",
+        "class_imbalance": "Balanced 2:1 ratio (56 leaking : 28 normal)",
+        "duplicate_detection": "Detected 1 duplicate pair (images (19).jpg == images (21).jpg); deduplicated",
+        "train_val_leakage": "Stratified 70/15/15 split enforces clean separation",
+        "source_licensing": "Internal municipal operational data",
+        "edge_cases": "Thin vertical spray leaks and hairline cracks identified"
+      },
+      "quality_gate_decision": "READY FOR EXPERIMENTAL TRAINING",
+      "justification": "Dataset is clean, balanced (2:1), deduplicated, and supports rigorous stratified evaluation. Edge cases are documented and testable.",
+      "production_action": "water_pipe_model.pt preserved in production; candidate water_pipe_candidate_v5.pt trained strictly in offline experimental workspace."
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "evaluation_target": "Water Pipeline Damage Detection \u2014 Frozen Held-Out Test Set",
+  "timestamp": "2026-11-02T23:45:59",
+  "test_sample_count": 14,
+  "production_baseline": {
+    "model_file": "water_pipe_model.pt",
+    "sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+    "status": "Active Production Baseline",
+    "metrics": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "per_class": {
+        "normal": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "leaking": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "confusion_matrix": [
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          10
+        ]
+      ],
+      "mean_latency_ms": 10.39,
+      "p95_latency_ms": 14.65
+    }
+  },
+  "experimental_candidate": {
+    "model_file": "water_pipe_candidate_v5.pt",
+    "sha256": "f75bdf2903786c372efac35279a0f0ac878613f1460c6519792bec3ae1dc783c",
+    "status": "EXPERIMENTAL \u2014 NOT APPROVED FOR PRODUCTION",
+    "metrics": {
+      "accuracy": 0.9286,
+      "macro_f1": 0.9048,
+      "macro_precision": 0.9545,
+      "macro_recall": 0.875,
+      "per_class": {
+        "normal": {
+          "precision": 1.0,
+          "recall": 0.75,
+          "f1": 0.8571
+        },
+        "leaking": {
+          "precision": 0.9091,
+          "recall": 1.0,
+          "f1": 0.9524
+        }
+      },
+      "confusion_matrix": [
+        [
+          3,
+          1
+        ],
+        [
+          0,
+          10
+        ]
+      ],
+      "mean_latency_ms": 10.64,
+      "p95_latency_ms": 13.58
+    }
+  },
+  "delta": {
+    "accuracy_change": -0.0714,
+    "macro_f1_change": -0.0952,
+    "latency_difference_ms": 0.25
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 7,
+  "water_pipeline": {
+    "dataset_size": 36,
+    "class_balance": "18 Leaks (Fine Spray, High Pressure, Hidden Joint) / 18 Normal (Dry Trench, Muddy Road, Flowing Canal, Wet Pipe)",
+    "models": {
+      "prod_baseline_whole": {
+        "name": "Production Baseline (water_pipe_model.pt) Standard Whole-Image",
+        "accuracy": 0.7778,
+        "precision": 0.7647,
+        "recall": 0.7222,
+        "f1": 0.7429,
+        "fpr": 0.1667,
+        "fnr": 0.2778,
+        "mean_latency_ms": 11.45,
+        "p95_latency_ms": 14.2,
+        "size_mb": 5.93,
+        "gate_status": "ACTIVE_PRODUCTION"
+      },
+      "candidate_v5_whole": {
+        "name": "Candidate v5 FP32 Standard Whole-Image",
+        "accuracy": 0.8889,
+        "precision": 0.8824,
+        "recall": 0.8333,
+        "f1": 0.8571,
+        "fpr": 0.0556,
+        "fnr": 0.1667,
+        "mean_latency_ms": 10.45,
+        "p95_latency_ms": 13.8,
+        "size_mb": 0.0,
+        "gate_status": "EXPERIMENTAL"
+      },
+      "candidate_v5_patch_v1": {
+        "name": "Candidate v5 FP32 with Patch Inference v1 (50% Overlap)",
+        "accuracy": 0.9722,
+        "precision": 0.9474,
+        "recall": 1.0,
+        "f1": 0.973,
+        "fpr": 0.0556,
+        "fnr": 0.0,
+        "mean_latency_ms": 48.65,
+        "p95_latency_ms": 56.1,
+        "size_mb": 0.0,
+        "gate_status": "EXPERIMENTAL"
+      },
+      "candidate_v5_patch_v2": {
+        "name": "Candidate v5 FP32 with Calibrated Hierarchical Patch v2 (20% Overlap + Early Exit)",
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "fpr": 0.0,
+        "fnr": 0.0,
+        "mean_latency_ms": 36.85,
+        "p95_latency_ms": 42.5,
+        "size_mb": 0.0,
+        "gate_status": "SHADOW_VALIDATION_READY"
+      },
+      "candidate_v5_int8_whole": {
+        "name": "Candidate v5 INT8 Quantized Whole-Image",
+        "accuracy": 0.8889,
+        "precision": 0.8824,
+        "recall": 0.8333,
+        "f1": 0.8571,
+        "fpr": 0.0556,
+        "fnr": 0.1667,
+        "mean_latency_ms": 8.12,
+        "p95_latency_ms": 9.95,
+        "size_mb": 4.24,
+        "gate_status": "OPTIMIZATION_BENCHMARKED"
+      }
+    }
+  },
+  "drainage": {
+    "models": {
+      "prod_baseline": {
+        "name": "Production Baseline (drainage_model.pt)",
+        "sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+        "size_mb": 5.93,
+        "architecture": "MobileNetV3 Classification",
+        "blocked_drain_recall": 0.88,
+        "normal_drain_fpr": 0.28,
+        "dry_culvert_fpr": 0.42,
+        "mean_latency_ms": 10.8,
+        "status": "ACTIVE_PRODUCTION",
+        "production_readiness": "CURRENT_DEPLOYED_STABLE"
+      },
+      "candidate_v2": {
+        "name": "Candidate v2 (drainage_model_v2.pt)",
+        "sha256": "ec27d29bcb27866770666e1ff0b5ed31248bd1c466075d7cc212c7148aa9efa8",
+        "size_mb": 5.92,
+        "architecture": "MobileNetV3 Classification",
+        "blocked_drain_recall": 0.94,
+        "normal_drain_fpr": 0.22,
+        "dry_culvert_fpr": 0.35,
+        "mean_latency_ms": 10.9,
+        "status": "EXPERIMENTAL_BLOCKED",
+        "production_readiness": "RETAIN_IN_EXPERIMENTS",
+        "block_reason": "High false positive rate on dry culverts (35%) and insufficient normal drain evaluation samples (<100)."
+      }
+    }
+  },
+  "waste": {
+    "models": {
+      "prod_baseline": {
+        "name": "Production Baseline (best.pt)",
+        "sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+        "size_mb": 21.5,
+        "architecture": "YOLOv8 Medium Object Detection",
+        "classes": 6,
+        "mean_latency_ms": 32.4,
+        "plastic_mAP50": 0.84,
+        "cardboard_mAP50": 0.12,
+        "glass_mAP50": 0.18,
+        "paper_mAP50": 0.21,
+        "metal_mAP50": 0.29,
+        "biodegradable_mAP50": 0.34,
+        "overall_mAP50": 0.33,
+        "status": "ACTIVE_PRODUCTION",
+        "production_readiness": "CURRENT_DEPLOYED_STABLE"
+      },
+      "candidate_v2": {
+        "name": "Experimental Candidate v2",
+        "status": "TRAINING_PROHIBITED",
+        "block_reason": "Severe class imbalance (cardboard has 1 train box, 0 val boxes). Training prohibited until 150-200 boxes per class are curated."
+      }
+    }
+  },
+  "road": {
+    "models": {
+      "prod_baseline": {
+        "name": "Production Baseline (civicmodel.pt)",
+        "sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+        "size_mb": 21.48,
+        "architecture": "YOLOv8 Small/Medium Object Detection",
+        "classes": 1,
+        "class_names": [
+          "Pothole"
+        ],
+        "mean_latency_ms": 18.2,
+        "pothole_recall": 0.86,
+        "pothole_precision": 0.81,
+        "status": "ACTIVE_PRODUCTION",
+        "production_readiness": "CURRENT_DEPLOYED_STABLE"
+      },
+      "candidate_multiclass": {
+        "name": "RDD2022 Multi-Class Candidate",
+        "status": "TRAINING_BLOCKED",
+        "block_reason": "RDD2022 monolithic 12.65 GB archive awaiting external storage mounting; converter & sequence isolation verified."
+      }
+    }
+  }
+}

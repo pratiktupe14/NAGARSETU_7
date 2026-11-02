@@ -1,0 +1,99 @@
+{
+  "title": "Solid Waste Model Validation & Quality Audit (Phase 6)",
+  "timestamp": "2026-11-03T00:01:50",
+  "production_baseline": {
+    "model": "best.pt",
+    "sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+    "architecture": "YOLOv8 Object Detection (6 Classes)",
+    "metrics_on_test_split": {
+      "mean_precision": 0.7101,
+      "mean_recall": 0.7199,
+      "mAP50": 0.7655,
+      "mAP50_95": 0.6986,
+      "per_class_AP50": {
+        "BIODEGRADABLE": 0.6172,
+        "CARDBOARD": 0.6709,
+        "GLASS": 0.995,
+        "METAL": 0.7867,
+        "PAPER": 0.7576
+      },
+      "inference_duration_ms": 24806.63
+    }
+  },
+  "dataset_split_census": {
+    "train": {
+      "image_count": 21,
+      "bounding_boxes": {
+        "PLASTIC": 66,
+        "PAPER": 8,
+        "GLASS": 2,
+        "BIODEGRADABLE": 24,
+        "METAL": 19,
+        "CARDBOARD": 1
+      }
+    },
+    "val": {
+      "image_count": 5,
+      "bounding_boxes": {
+        "PLASTIC": 7
+      }
+    },
+    "test": {
+      "image_count": 4,
+      "bounding_boxes": {
+        "PLASTIC": 48,
+        "METAL": 2,
+        "GLASS": 13,
+        "PAPER": 4,
+        "BIODEGRADABLE": 4
+      }
+    }
+  },
+  "class_deficits_and_ingestion_needs": {
+    "BIODEGRADABLE": {
+      "train_boxes": 24,
+      "val_boxes": 0,
+      "test_boxes": 4,
+      "deficit_quota": 150,
+      "status": "Starved in validation split"
+    },
+    "CARDBOARD": {
+      "train_boxes": 1,
+      "val_boxes": 0,
+      "test_boxes": 0,
+      "deficit_quota": 200,
+      "status": "Critical zero-shot in test & val; only 1 train box"
+    },
+    "GLASS": {
+      "train_boxes": 2,
+      "val_boxes": 0,
+      "test_boxes": 13,
+      "deficit_quota": 180,
+      "status": "Starved in validation split"
+    },
+    "METAL": {
+      "train_boxes": 19,
+      "val_boxes": 0,
+      "test_boxes": 2,
+      "deficit_quota": 150,
+      "status": "Starved in validation split"
+    },
+    "PAPER": {
+      "train_boxes": 8,
+      "val_boxes": 0,
+      "test_boxes": 4,
+      "deficit_quota": 160,
+      "status": "Starved in validation split"
+    },
+    "PLASTIC": {
+      "train_boxes": 66,
+      "val_boxes": 7,
+      "test_boxes": 48,
+      "deficit_quota": 50,
+      "status": "Dominant (63.6% of annotations)"
+    }
+  },
+  "peak_ram_mb": 190.82,
+  "quality_gate_decision": "NEEDS MORE DATA",
+  "verdict_rationale": "The solid waste dataset possesses only 30 images. 5 out of 6 classes (BIODEGRADABLE, CARDBOARD, GLASS, METAL, PAPER) have ZERO representation in the validation split, and CARDBOARD has ZERO instances in the test split with only 1 training box. Reporting overall detector performance as reliable is mathematically invalid. Model promotion is strictly blocked until a minimum of 150-200 verified bounding boxes are acquired and partitioned across all 6 classes."
+}

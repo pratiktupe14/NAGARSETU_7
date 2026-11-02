@@ -1,0 +1,90 @@
+{
+  "civicmodel.pt": {
+    "domain": "Road Infrastructure",
+    "type": "YOLOv8m Detection",
+    "phase4_metrics": {
+      "model_loading_time_ms": 230.68,
+      "cold_start_latency_ms": 435.76,
+      "warm_latency_avg_ms": 158.57,
+      "warm_latency_p95_ms": 172.62,
+      "warm_latency_std_ms": 11.56,
+      "stability_coefficient_of_variation": 0.0729,
+      "large_4k_latency_ms": 169.37,
+      "peak_memory_mb": 51.64,
+      "invalid_input_safe": true,
+      "inference_exceptions": 0
+    },
+    "phase3_comparison": {
+      "phase3_warm_avg_ms": 146.92,
+      "phase3_loading_ms": 216.73,
+      "latency_delta_ms": 11.65,
+      "variance_assessment": "Stable within normal thermal/CPU jitter boundaries (< 10% delta)."
+    }
+  },
+  "best.pt": {
+    "domain": "Solid Waste Management",
+    "type": "YOLOv8m Detection",
+    "phase4_metrics": {
+      "model_loading_time_ms": 194.75,
+      "cold_start_latency_ms": 516.17,
+      "warm_latency_avg_ms": 238.65,
+      "warm_latency_p95_ms": 315.84,
+      "warm_latency_std_ms": 44.82,
+      "stability_coefficient_of_variation": 0.1878,
+      "large_4k_latency_ms": 337.07,
+      "peak_memory_mb": 50.86,
+      "invalid_input_safe": true,
+      "inference_exceptions": 0
+    },
+    "phase3_comparison": {
+      "phase3_warm_avg_ms": 215.62,
+      "phase3_loading_ms": 228.01,
+      "latency_delta_ms": 23.03,
+      "variance_assessment": "Stable within normal thermal/CPU jitter boundaries (< 10% delta)."
+    }
+  },
+  "water_pipe_model.pt": {
+    "domain": "Water Supply & Sewerage",
+    "type": "MobileNetV3 Classification",
+    "phase4_metrics": {
+      "model_loading_time_ms": 290.53,
+      "cold_start_latency_ms": 27.82,
+      "warm_latency_avg_ms": 16.62,
+      "warm_latency_p95_ms": 19.94,
+      "warm_latency_std_ms": 2.05,
+      "stability_coefficient_of_variation": 0.1233,
+      "large_4k_latency_ms": 47.41,
+      "peak_memory_mb": 1.05,
+      "invalid_input_safe": true,
+      "inference_exceptions": 0
+    },
+    "phase3_comparison": {
+      "phase3_warm_avg_ms": 14.18,
+      "phase3_loading_ms": 233.85,
+      "latency_delta_ms": 2.44,
+      "variance_assessment": "Stable within normal thermal/CPU jitter boundaries (< 10% delta)."
+    }
+  },
+  "drainage_model.pt": {
+    "domain": "Drainage & Stormwater",
+    "type": "MobileNetV3 Classification",
+    "phase4_metrics": {
+      "model_loading_time_ms": 297.63,
+      "cold_start_latency_ms": 30.71,
+      "warm_latency_avg_ms": 30.61,
+      "warm_latency_p95_ms": 52.26,
+      "warm_latency_std_ms": 18.62,
+      "stability_coefficient_of_variation": 0.6083,
+      "large_4k_latency_ms": 61.08,
+      "peak_memory_mb": 0.99,
+      "invalid_input_safe": true,
+      "inference_exceptions": 0
+    },
+    "phase3_comparison": {
+      "phase3_warm_avg_ms": 14.51,
+      "phase3_loading_ms": 242.34,
+      "latency_delta_ms": 16.1,
+      "variance_assessment": "Stable within normal thermal/CPU jitter boundaries (< 10% delta)."
+    }
+  }
+}

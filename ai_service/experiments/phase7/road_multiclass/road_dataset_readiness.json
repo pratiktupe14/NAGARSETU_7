@@ -1,0 +1,9 @@
+{
+  "domain": "road_damage",
+  "ingestion_ready": true,
+  "converter_verified": true,
+  "sequence_isolation_verified": true,
+  "archive_downloaded_on_disk": false,
+  "training_gate_passed": false,
+  "recommended_action": "Mount RDD2022 India subset from external storage or provision high-speed download volume; execute sequence-based converter before Phase 8."
+}

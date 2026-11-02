@@ -1,0 +1,88 @@
+{
+  "dataset_name": "NagarSetu Municipal Drainage Dataset Expansion (Phase 7 Specification)",
+  "baseline_state": {
+    "total_physical_files": 110,
+    "duplicate_pairs": 4,
+    "unique_images": 106,
+    "classes": {
+      "damaged_drain": 51,
+      "blocked_drain": 49,
+      "normal_drain": 6
+    },
+    "normal_drain_percentage": "5.66%"
+  },
+  "expansion_targets": {
+    "target_additional_normal_drains": 100,
+    "target_additional_blocked_drains": 25,
+    "target_additional_damaged_drains": 25,
+    "projected_total_dataset_size": 256,
+    "projected_normal_drain_percentage": "41.4%"
+  },
+  "target_subcategories": {
+    "normal_drain_controls": [
+      {
+        "category": "clean_paved_concrete_gutters",
+        "quota": 30,
+        "description": "Clean roadside concrete stormwater gutters with unobstructed flow"
+      },
+      {
+        "category": "dry_culverts_and_underpasses",
+        "quota": 25,
+        "description": "Pre-monsoon dry municipal culverts free of silt and vegetation"
+      },
+      {
+        "category": "intact_metal_grates_and_covers",
+        "quota": 25,
+        "description": "Structural cast-iron and steel grating without broken bars or missing sections"
+      },
+      {
+        "category": "masonry_stone_lined_channels",
+        "quota": 20,
+        "description": "Traditional stone-masonry stormwater drains in sound functional order"
+      }
+    ],
+    "defect_expansions": [
+      {
+        "category": "vegetation_and_weed_choke",
+        "quota": 15,
+        "description": "Overgrowth of weeds and grass obstructing drain throat"
+      },
+      {
+        "category": "silt_and_sediment_buildup",
+        "quota": 10,
+        "description": "Fine soil and mud deposits exceeding 50% capacity"
+      },
+      {
+        "category": "spalled_concrete_curb_damage",
+        "quota": 15,
+        "description": "Fractured concrete rim and curb inlet collapse"
+      },
+      {
+        "category": "missing_or_displaced_lids",
+        "quota": 10,
+        "description": "Open pedestrian hazard from removed drainage slabs"
+      }
+    ]
+  },
+  "provenance_and_licensing_sources": [
+    {
+      "source_id": "SRC-MUNI-SURVEY-01",
+      "organization": "Municipal Urban Development Infrastructure Surveys",
+      "license": "Government Open Data / Public Municipal Inspection Archive",
+      "attribution": "Public Domain Municipal Infrastructure Imagery (India Urban Datasets)",
+      "collection_method": "Scheduled dry-season municipal infrastructure asset audit"
+    },
+    {
+      "source_id": "SRC-CIVIC-COMMONS-02",
+      "organization": "Wikimedia Commons / OpenStreetMap Ground Photos",
+      "license": "Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)",
+      "attribution": "Open Street Media Contributors (Indian Subcontinent Infrastructure)",
+      "collection_method": "Geotagged verified infrastructure street photography"
+    }
+  ],
+  "deduplication_and_leakage_safeguards": {
+    "duplicate_hashing": "Mandatory SHA-256 pre-ingestion screening against 106 existing image hashes",
+    "perceptual_hash_threshold": "pHash Hamming distance <= 4 flagged for human visual inspection",
+    "split_isolation": "Burst photography from the same street segment allocated as an atomic block to train, val, or test"
+  }
+}

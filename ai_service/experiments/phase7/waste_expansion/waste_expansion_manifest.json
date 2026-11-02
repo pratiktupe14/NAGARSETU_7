@@ -1,0 +1,125 @@
+{
+  "dataset_name": "NagarSetu Municipal Solid Waste Dataset Expansion (Phase 7 Specification)",
+  "baseline_state": {
+    "total_images": 30,
+    "classes": [
+      "BIODEGRADABLE",
+      "CARDBOARD",
+      "GLASS",
+      "METAL",
+      "PAPER",
+      "PLASTIC"
+    ],
+    "total_boxes_by_split": {
+      "train": {
+        "PLASTIC": 66,
+        "BIODEGRADABLE": 24,
+        "METAL": 19,
+        "PAPER": 8,
+        "GLASS": 2,
+        "CARDBOARD": 1
+      },
+      "val": {
+        "PLASTIC": 7,
+        "BIODEGRADABLE": 0,
+        "METAL": 0,
+        "PAPER": 0,
+        "GLASS": 0,
+        "CARDBOARD": 0
+      },
+      "test": {
+        "PLASTIC": 48,
+        "GLASS": 13,
+        "BIODEGRADABLE": 4,
+        "PAPER": 4,
+        "METAL": 2,
+        "CARDBOARD": 0
+      }
+    },
+    "critical_flaw": "5 out of 6 classes have ZERO validation instances. CARDBOARD has zero test instances and only 1 train box."
+  },
+  "expansion_quotas_and_targets": {
+    "collection_targets_per_class": {
+      "CARDBOARD": {
+        "current_train_boxes": 1,
+        "target_additional_boxes": 200,
+        "projected_total": 201,
+        "priority": "CRITICAL_P0"
+      },
+      "GLASS": {
+        "current_train_boxes": 2,
+        "target_additional_boxes": 180,
+        "projected_total": 182,
+        "priority": "CRITICAL_P0"
+      },
+      "PAPER": {
+        "current_train_boxes": 8,
+        "target_additional_boxes": 160,
+        "projected_total": 168,
+        "priority": "HIGH_P1"
+      },
+      "BIODEGRADABLE": {
+        "current_train_boxes": 24,
+        "target_additional_boxes": 150,
+        "projected_total": 174,
+        "priority": "HIGH_P1"
+      },
+      "METAL": {
+        "current_train_boxes": 19,
+        "target_additional_boxes": 150,
+        "projected_total": 169,
+        "priority": "HIGH_P1"
+      },
+      "PLASTIC": {
+        "current_train_boxes": 66,
+        "target_additional_boxes": 50,
+        "projected_total": 116,
+        "priority": "BALANCING"
+      }
+    },
+    "projected_dataset_summary": {
+      "total_target_boxes": 1010,
+      "projected_images": 250,
+      "target_val_boxes_per_class": ">= 30 per class",
+      "target_test_boxes_per_class": ">= 30 per class"
+    }
+  },
+  "scene_diversity_requirements": [
+    {
+      "scene_type": "isolated_objects",
+      "percentage": "25%",
+      "description": "Single clean and crushed waste objects on neutral asphalt/ground"
+    },
+    {
+      "scene_type": "mixed_roadside_garbage",
+      "percentage": "40%",
+      "description": "Urban Indian roadside trash heaps with overlapping categories"
+    },
+    {
+      "scene_type": "partially_occluded_debris",
+      "percentage": "20%",
+      "description": "Objects partially buried in dirt, mud, or under plastic bags"
+    },
+    {
+      "scene_type": "adverse_lighting_glare",
+      "percentage": "15%",
+      "description": "Direct midday sun specular highlights and deep night shadows"
+    }
+  ],
+  "provenance_and_licensing_sources": [
+    {
+      "source_id": "SRC-TACO-MUNICIPAL",
+      "name": "Trash Annotations in Context (TACO) Dataset",
+      "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+      "classes_mapped": "Cardboard, Glass, Metal, Paper",
+      "relevance": "Standard benchmark for litter localization"
+    },
+    {
+      "source_id": "SRC-INDIAN-CIVIC-WASTE",
+      "name": "Indian Municipal Waste Management Field Survey",
+      "license": "Government Open Data / Public Municipal Archive",
+      "classes_mapped": "Biodegradable wet waste, vegetable residue, plastic pouches",
+      "relevance": "Authentic local roadside waste topography"
+    }
+  ]
+}

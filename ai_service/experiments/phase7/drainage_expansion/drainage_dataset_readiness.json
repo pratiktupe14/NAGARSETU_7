@@ -1,0 +1,10 @@
+{
+  "domain": "drainage_condition_classification",
+  "phase": 7,
+  "readiness_status": "NEEDS MORE DATA (EXPANSION MANIFEST STAGED)",
+  "quality_gate_decision": "BLOCKED FROM RETRAINING",
+  "current_normal_count": 6,
+  "required_normal_count": 106,
+  "deficit": 100,
+  "governing_rule": "Retraining drainage_model.pt or promoting drainage_model_v2.pt is strictly halted until the 100 verified normal drains are ingested and verified against Task 1 acceptance criteria."
+}

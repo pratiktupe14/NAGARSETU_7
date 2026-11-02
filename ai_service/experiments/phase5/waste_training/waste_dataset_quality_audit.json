@@ -1,0 +1,54 @@
+{
+  "domain": "solid_waste_classification",
+  "phase": 5,
+  "timestamp": "2026-11-02T23:42:00+05:30",
+  "production_baseline": {
+    "model_name": "best.pt",
+    "hash_sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+    "classes": ["BIODEGRADABLE", "CARDBOARD", "GLASS", "METAL", "PAPER", "PLASTIC"]
+  },
+  "dataset_split_audit": {
+    "total_images": 30,
+    "train_images": 21,
+    "val_images": 5,
+    "test_images": 4,
+    "bounding_box_distribution": {
+      "train": {
+        "PLASTIC": 66,
+        "BIODEGRADABLE": 24,
+        "METAL": 19,
+        "PAPER": 8,
+        "GLASS": 2,
+        "CARDBOARD": 1
+      },
+      "val": {
+        "PLASTIC": 7,
+        "BIODEGRADABLE": 0,
+        "CARDBOARD": 0,
+        "GLASS": 0,
+        "METAL": 0,
+        "PAPER": 0
+      },
+      "test": {
+        "PLASTIC": 48,
+        "GLASS": 13,
+        "BIODEGRADABLE": 4,
+        "PAPER": 4,
+        "METAL": 2,
+        "CARDBOARD": 0
+      }
+    }
+  },
+  "critical_quality_flaws": [
+    "Zero validation instances for 5 out of 6 classes (BIODEGRADABLE, CARDBOARD, GLASS, METAL, PAPER) in val split.",
+    "Zero test instances for CARDBOARD in test split.",
+    "Extreme class imbalance: PLASTIC comprises 63.6% of all annotated boxes.",
+    "Severe sample sparsity: only 1 CARDBOARD box across the entire training set."
+  ],
+  "quality_gate_decision": {
+    "status": "NEEDS MORE DATA",
+    "retraining_permitted": false,
+    "production_impact": "best.pt is preserved intact. Experimental training stopped to prevent deploying a crippled, plastic-biased detector."
+  }
+}
+

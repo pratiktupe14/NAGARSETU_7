@@ -1,0 +1,613 @@
+{
+  "evaluation_name": "Phase 6 Water Pipeline Robustness Validation",
+  "timestamp": "2026-11-02T23:59:53",
+  "total_samples": 24,
+  "overall_performance": {
+    "sample_count": 24,
+    "baseline": {
+      "accuracy": 0.9583,
+      "macro_f1": 0.9577,
+      "precision": 0.9545,
+      "recall": 0.9643,
+      "confusion_matrix": [
+        [
+          10,
+          0
+        ],
+        [
+          1,
+          13
+        ]
+      ]
+    },
+    "candidate": {
+      "accuracy": 0.9167,
+      "macro_f1": 0.9143,
+      "precision": 0.9143,
+      "recall": 0.9143,
+      "confusion_matrix": [
+        [
+          9,
+          1
+        ],
+        [
+          1,
+          13
+        ]
+      ]
+    }
+  },
+  "category_a_leaks": {
+    "sample_count": 10,
+    "baseline": {
+      "accuracy": 0.9,
+      "macro_f1": 0.4737,
+      "precision": 0.5,
+      "recall": 0.45,
+      "confusion_matrix": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          9
+        ]
+      ]
+    },
+    "candidate": {
+      "accuracy": 0.9,
+      "macro_f1": 0.4737,
+      "precision": 0.5,
+      "recall": 0.45,
+      "confusion_matrix": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          9
+        ]
+      ]
+    }
+  },
+  "category_b_normal_pipes": {
+    "sample_count": 8,
+    "baseline": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "confusion_matrix": [
+        [
+          8,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "candidate": {
+      "accuracy": 0.875,
+      "macro_f1": 0.4667,
+      "precision": 0.5,
+      "recall": 0.4375,
+      "confusion_matrix": [
+        [
+          7,
+          1
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    }
+  },
+  "category_c_difficult_conditions": {
+    "sample_count": 6,
+    "baseline": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "confusion_matrix": [
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    "candidate": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "confusion_matrix": [
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          4
+        ]
+      ]
+    }
+  },
+  "high_confidence_incorrect_predictions": [
+    {
+      "model": "candidate",
+      "sample_id": "SMP-017",
+      "scenario": "stained_discolored_pipe_intact",
+      "conf": 0.9982220530509949,
+      "pred": "leaking",
+      "gt": "normal"
+    }
+  ],
+  "sample_evaluations": [
+    {
+      "sample_id": "SMP-001",
+      "category": "A_LEAK",
+      "scenario": "thin_vertical_water_spray",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.6539,
+        "correct": false,
+        "latency_ms": 26.77
+      },
+      "candidate": {
+        "predicted": "normal",
+        "confidence": 0.6833,
+        "correct": false,
+        "latency_ms": 9.76
+      }
+    },
+    {
+      "sample_id": "SMP-002",
+      "category": "A_LEAK",
+      "scenario": "hairline_cracks_leak",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 1,
+        "confidence": 0.9224,
+        "correct": true,
+        "latency_ms": 9.99
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9999,
+        "correct": true,
+        "latency_ms": 8.55
+      }
+    },
+    {
+      "sample_id": "SMP-003",
+      "category": "A_LEAK",
+      "scenario": "slow_leakage_trickle",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 1,
+        "confidence": 0.5834,
+        "correct": true,
+        "latency_ms": 8.28
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9973,
+        "correct": true,
+        "latency_ms": 9.24
+      }
+    },
+    {
+      "sample_id": "SMP-004",
+      "category": "A_LEAK",
+      "scenario": "large_water_burst",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 1,
+        "confidence": 0.8433,
+        "correct": true,
+        "latency_ms": 9.34
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9981,
+        "correct": true,
+        "latency_ms": 10.98
+      }
+    },
+    {
+      "sample_id": "SMP-005",
+      "category": "A_LEAK",
+      "scenario": "large_street_rupture",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 2,
+        "confidence": 0.9263,
+        "correct": true,
+        "latency_ms": 15.57
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9856,
+        "correct": true,
+        "latency_ms": 11.81
+      }
+    },
+    {
+      "sample_id": "SMP-006",
+      "category": "A_LEAK",
+      "scenario": "subsurface_soil_leak",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 1,
+        "confidence": 0.8073,
+        "correct": true,
+        "latency_ms": 7.86
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9976,
+        "correct": true,
+        "latency_ms": 10.58
+      }
+    },
+    {
+      "sample_id": "SMP-007",
+      "category": "A_LEAK",
+      "scenario": "pipe_joint_leakage",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 1,
+        "confidence": 0.4944,
+        "correct": true,
+        "latency_ms": 10.34
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 1.0,
+        "correct": true,
+        "latency_ms": 6.98
+      }
+    },
+    {
+      "sample_id": "SMP-008",
+      "category": "A_LEAK",
+      "scenario": "joint_collar_fracture",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 1,
+        "confidence": 0.6633,
+        "correct": true,
+        "latency_ms": 9.53
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9997,
+        "correct": true,
+        "latency_ms": 8.52
+      }
+    },
+    {
+      "sample_id": "SMP-009",
+      "category": "A_LEAK",
+      "scenario": "poorly_lit_indoor_leak",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 2,
+        "confidence": 0.8236,
+        "correct": true,
+        "latency_ms": 7.72
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9897,
+        "correct": true,
+        "latency_ms": 9.25
+      }
+    },
+    {
+      "sample_id": "SMP-010",
+      "category": "A_LEAK",
+      "scenario": "spraying_lateral_leak",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 1,
+        "confidence": 0.7112,
+        "correct": true,
+        "latency_ms": 9.89
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9982,
+        "correct": true,
+        "latency_ms": 7.02
+      }
+    },
+    {
+      "sample_id": "SMP-011",
+      "category": "B_NORMAL",
+      "scenario": "rusted_intact_metal_pipe",
+      "ground_truth": "normal",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.911,
+        "correct": true,
+        "latency_ms": 8.87
+      },
+      "candidate": {
+        "predicted": "normal",
+        "confidence": 0.9999,
+        "correct": true,
+        "latency_ms": 8.7
+      }
+    },
+    {
+      "sample_id": "SMP-012",
+      "category": "B_NORMAL",
+      "scenario": "clean_hdpe_water_pipe",
+      "ground_truth": "normal",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.9969,
+        "correct": true,
+        "latency_ms": 9.59
+      },
+      "candidate": {
+        "predicted": "normal",
+        "confidence": 1.0,
+        "correct": true,
+        "latency_ms": 8.35
+      }
+    },
+    {
+      "sample_id": "SMP-013",
+      "category": "B_NORMAL",
+      "scenario": "wet_pipe_surface_intact",
+      "ground_truth": "normal",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.9521,
+        "correct": true,
+        "latency_ms": 7.51
+      },
+      "candidate": {
+        "predicted": "normal",
+        "confidence": 0.9999,
+        "correct": true,
+        "latency_ms": 8.4
+      }
+    },
+    {
+      "sample_id": "SMP-014",
+      "category": "B_NORMAL",
+      "scenario": "old_functional_pvc_pipe",
+      "ground_truth": "normal",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.9908,
+        "correct": true,
+        "latency_ms": 10.33
+      },
+      "candidate": {
+        "predicted": "normal",
+        "confidence": 1.0,
+        "correct": true,
+        "latency_ms": 7.53
+      }
+    },
+    {
+      "sample_id": "SMP-015",
+      "category": "B_NORMAL",
+      "scenario": "clean_concrete_water_main",
+      "ground_truth": "normal",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.9973,
+        "correct": true,
+        "latency_ms": 9.59
+      },
+      "candidate": {
+        "predicted": "normal",
+        "confidence": 1.0,
+        "correct": true,
+        "latency_ms": 7.63
+      }
+    },
+    {
+      "sample_id": "SMP-016",
+      "category": "B_NORMAL",
+      "scenario": "clean_metal_pipeline",
+      "ground_truth": "normal",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.5294,
+        "correct": true,
+        "latency_ms": 7.1
+      },
+      "candidate": {
+        "predicted": "normal",
+        "confidence": 0.9958,
+        "correct": true,
+        "latency_ms": 9.53
+      }
+    },
+    {
+      "sample_id": "SMP-017",
+      "category": "B_NORMAL",
+      "scenario": "stained_discolored_pipe_intact",
+      "ground_truth": "normal",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.5412,
+        "correct": true,
+        "latency_ms": 8.84
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9982,
+        "correct": false,
+        "latency_ms": 7.58
+      }
+    },
+    {
+      "sample_id": "SMP-018",
+      "category": "B_NORMAL",
+      "scenario": "weathered_exterior_pipe",
+      "ground_truth": "normal",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.9868,
+        "correct": true,
+        "latency_ms": 7.24
+      },
+      "candidate": {
+        "predicted": "normal",
+        "confidence": 1.0,
+        "correct": true,
+        "latency_ms": 10.71
+      }
+    },
+    {
+      "sample_id": "SMP-019",
+      "category": "C_DIFFICULT",
+      "scenario": "low_resolution_blurry_leak",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 1,
+        "confidence": 0.9636,
+        "correct": true,
+        "latency_ms": 9.04
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9953,
+        "correct": true,
+        "latency_ms": 7.39
+      }
+    },
+    {
+      "sample_id": "SMP-020",
+      "category": "C_DIFFICULT",
+      "scenario": "harsh_shadows_and_glare_leak",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 2,
+        "confidence": 0.726,
+        "correct": true,
+        "latency_ms": 9.18
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9997,
+        "correct": true,
+        "latency_ms": 7.4
+      }
+    },
+    {
+      "sample_id": "SMP-021",
+      "category": "C_DIFFICULT",
+      "scenario": "wide_angle_distant_pipe_leak",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 1,
+        "confidence": 0.949,
+        "correct": true,
+        "latency_ms": 7.33
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.9999,
+        "correct": true,
+        "latency_ms": 8.59
+      }
+    },
+    {
+      "sample_id": "SMP-022",
+      "category": "C_DIFFICULT",
+      "scenario": "partial_pipe_occlusion_leak",
+      "ground_truth": "leaking",
+      "baseline": {
+        "predicted": "leaking",
+        "raw_class": 1,
+        "confidence": 0.9796,
+        "correct": true,
+        "latency_ms": 10.17
+      },
+      "candidate": {
+        "predicted": "leaking",
+        "confidence": 0.992,
+        "correct": true,
+        "latency_ms": 7.35
+      }
+    },
+    {
+      "sample_id": "SMP-023",
+      "category": "C_DIFFICULT",
+      "scenario": "extreme_camera_tilt_angle_normal",
+      "ground_truth": "normal",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.9493,
+        "correct": true,
+        "latency_ms": 7.52
+      },
+      "candidate": {
+        "predicted": "normal",
+        "confidence": 0.9998,
+        "correct": true,
+        "latency_ms": 7.57
+      }
+    },
+    {
+      "sample_id": "SMP-024",
+      "category": "C_DIFFICULT",
+      "scenario": "uneven_lighting_normal_pipe",
+      "ground_truth": "normal",
+      "baseline": {
+        "predicted": "normal",
+        "raw_class": 0,
+        "confidence": 0.9916,
+        "correct": true,
+        "latency_ms": 7.34
+      },
+      "candidate": {
+        "predicted": "normal",
+        "confidence": 1.0,
+        "correct": true,
+        "latency_ms": 9.19
+      }
+    }
+  ]
+}

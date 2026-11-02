@@ -1,0 +1,135 @@
+{
+  "audit_name": "Phase 6 Production Compatibility & Safety Audit",
+  "timestamp": "2026-11-03T00:03:24",
+  "overall_status": "COMPLIANT",
+  "production_models_audit": {
+    "civicmodel.pt": {
+      "status": "VERIFIED_INTACT",
+      "actual_sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+      "expected_sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+      "matches": true,
+      "size_bytes": 22519594
+    },
+    "best.pt": {
+      "status": "VERIFIED_INTACT",
+      "actual_sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+      "expected_sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+      "matches": true,
+      "size_bytes": 22543854
+    },
+    "water_pipe_model.pt": {
+      "status": "VERIFIED_INTACT",
+      "actual_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+      "expected_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+      "matches": true,
+      "size_bytes": 6221217
+    },
+    "drainage_model.pt": {
+      "status": "VERIFIED_INTACT",
+      "actual_sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+      "expected_sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+      "matches": true,
+      "size_bytes": 6220717
+    }
+  },
+  "tracked_files_modified_count": 0,
+  "tracked_modifications": [],
+  "model_manager_configuration": {
+    "civicmodel_default": true,
+    "best_default": true,
+    "water_pipe_default": true,
+    "drainage_default": true,
+    "no_experimental_import_in_production": true
+  },
+  "phase6_isolated_files_count": 22,
+  "phase6_file_inventory": [
+    {
+      "path": "benchmarks\\benchmark_production_models_phase6.py",
+      "size_bytes": 8107
+    },
+    {
+      "path": "benchmarks\\phase6_cross_domain_benchmark.json",
+      "size_bytes": 3172
+    },
+    {
+      "path": "drainage_evaluation\\drainage_robustness_report.json",
+      "size_bytes": 9735
+    },
+    {
+      "path": "drainage_evaluation\\evaluate_drainage_robustness.py",
+      "size_bytes": 9450
+    },
+    {
+      "path": "reconciliation\\audit_drainage_math.py",
+      "size_bytes": 6775
+    },
+    {
+      "path": "reconciliation\\generate_reconciliation_report.py",
+      "size_bytes": 8672
+    },
+    {
+      "path": "reconciliation\\phase6_phase5_reconciliation_report.md",
+      "size_bytes": 7735
+    },
+    {
+      "path": "reports\\audit_phase6_safety.py",
+      "size_bytes": 5303
+    },
+    {
+      "path": "reports\\generate_failure_analysis.py",
+      "size_bytes": 8726
+    },
+    {
+      "path": "reports\\generate_production_readiness_matrix.py",
+      "size_bytes": 8475
+    },
+    {
+      "path": "reports\\phase6_ai_failure_analysis.json",
+      "size_bytes": 7353
+    },
+    {
+      "path": "reports\\phase6_production_readiness_matrix.md",
+      "size_bytes": 7728
+    },
+    {
+      "path": "road_damage\\road_damage_validation_report.md",
+      "size_bytes": 3532
+    },
+    {
+      "path": "road_damage\\road_pipeline_verification.json",
+      "size_bytes": 2419
+    },
+    {
+      "path": "road_damage\\validate_road_converter_and_pipeline.py",
+      "size_bytes": 9411
+    },
+    {
+      "path": "waste_evaluation\\evaluate_waste_robustness.py",
+      "size_bytes": 6214
+    },
+    {
+      "path": "waste_evaluation\\waste_robustness_report.json",
+      "size_bytes": 2937
+    },
+    {
+      "path": "water_evaluation\\benchmark_patch_optimization.py",
+      "size_bytes": 14683
+    },
+    {
+      "path": "water_evaluation\\categorize_and_evaluate_water_robustness.py",
+      "size_bytes": 13411
+    },
+    {
+      "path": "water_evaluation\\water_patch_optimization_metrics.json",
+      "size_bytes": 1244
+    },
+    {
+      "path": "water_evaluation\\water_patch_optimization_report.md",
+      "size_bytes": 3399
+    },
+    {
+      "path": "water_evaluation\\water_robustness_evaluation.json",
+      "size_bytes": 14274
+    }
+  ]
+}

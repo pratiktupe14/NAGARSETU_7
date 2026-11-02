@@ -1,0 +1,178 @@
+{
+  "candidate": {
+    "name": "water_pipe_candidate_v5.pt",
+    "sha256": "f75bdf2903786c372efac35279a0f0ac878613f1460c6519792bec3ae1dc783c",
+    "accuracy": 0.8571,
+    "macro_f1": 0.825,
+    "macro_precision": 0.9091,
+    "macro_recall": 0.8,
+    "per_class": {
+      "perfect_pipe (normal)": {
+        "precision": 1.0,
+        "recall": 0.6,
+        "f1": 0.75
+      },
+      "water_leakage": {
+        "precision": 0.8182,
+        "recall": 1.0,
+        "f1": 0.9
+      }
+    },
+    "confusion_matrix": [
+      [
+        3,
+        2
+      ],
+      [
+        0,
+        9
+      ]
+    ],
+    "mean_latency_ms": 5.45,
+    "p95_latency_ms": 7.3,
+    "model_size_mb": 5.93
+  },
+  "training_history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.8189,
+      "train_acc": 0.5965,
+      "val_loss": 0.2934,
+      "val_acc": 0.9167,
+      "val_f1": 0.8992
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.4379,
+      "train_acc": 0.8421,
+      "val_loss": 0.2068,
+      "val_acc": 0.9167,
+      "val_f1": 0.9111
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.2555,
+      "train_acc": 0.8772,
+      "val_loss": 0.1791,
+      "val_acc": 0.9167,
+      "val_f1": 0.9111
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.103,
+      "train_acc": 0.9649,
+      "val_loss": 0.3107,
+      "val_acc": 0.9167,
+      "val_f1": 0.8992
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.0597,
+      "train_acc": 0.9825,
+      "val_loss": 0.8509,
+      "val_acc": 0.75,
+      "val_f1": 0.6211
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.161,
+      "train_acc": 0.9649,
+      "val_loss": 0.183,
+      "val_acc": 0.9167,
+      "val_f1": 0.8992
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.0361,
+      "train_acc": 1.0,
+      "val_loss": 0.2545,
+      "val_acc": 0.8333,
+      "val_f1": 0.8125
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.0997,
+      "train_acc": 0.9649,
+      "val_loss": 0.4548,
+      "val_acc": 0.8333,
+      "val_f1": 0.8125
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.0426,
+      "train_acc": 0.9825,
+      "val_loss": 0.5869,
+      "val_acc": 0.9167,
+      "val_f1": 0.8992
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.0677,
+      "train_acc": 0.9825,
+      "val_loss": 0.6097,
+      "val_acc": 0.9167,
+      "val_f1": 0.8992
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.1367,
+      "train_acc": 0.9123,
+      "val_loss": 0.422,
+      "val_acc": 0.9167,
+      "val_f1": 0.8992
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.023,
+      "train_acc": 1.0,
+      "val_loss": 0.3369,
+      "val_acc": 0.8333,
+      "val_f1": 0.8125
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.0241,
+      "train_acc": 1.0,
+      "val_loss": 0.3152,
+      "val_acc": 0.8333,
+      "val_f1": 0.8125
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.0224,
+      "train_acc": 1.0,
+      "val_loss": 0.3064,
+      "val_acc": 0.8333,
+      "val_f1": 0.8125
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.0423,
+      "train_acc": 1.0,
+      "val_loss": 0.3008,
+      "val_acc": 0.8333,
+      "val_f1": 0.8125
+    }
+  ],
+  "test_set_files": [
+    "Screenshot 2026-10-09 011706.png",
+    "istockphoto-1275396599-612x612.jpg",
+    "4412.webp",
+    "Screenshot 2026-10-09 011533.png",
+    "images (5).jpg",
+    "images (10).jpg",
+    "images (16).jpg",
+    "images (6).jpg",
+    "WhatsApp Image 2026-10-09 at 12.20.50 AM.jpeg",
+    "images.jpeg",
+    "8gpfpaywtj6a1.jpg",
+    "need-advice-on-fixing-leak-in-underground-pipes-v0-cHBibnF5N3o0M3pmMV4T4mLa_8iLGbORBOPLt17YUBd1n0HNEMGd_L7Hdw-m.webp",
+    "burst-water-pipe.jpg",
+    "images (26).jpg"
+  ],
+  "hardware_specs": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+    "device": "cpu"
+  }
+}

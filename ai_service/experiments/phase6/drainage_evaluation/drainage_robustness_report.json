@@ -1,0 +1,367 @@
+{
+  "title": "Drainage Model Robustness & Validation Report (Phase 6)",
+  "timestamp": "2026-11-03T00:01:06",
+  "test_sample_count": 16,
+  "peak_ram_mb": 3.26,
+  "evaluation_verdict": "INCONCLUSIVE \u2014 INSUFFICIENT EVIDENCE (NORMAL CLASS STARVATION)",
+  "justification": "Although drainage_model_v2.pt achieves measurable metrics, the normal_drain class contains only 6 verified instances across the entire dataset (only 2 in this test split). Evaluating a 3-class classifier with 2 normal samples has high variance and cannot statistically guarantee low false-positive rates on clean municipal drains. Retraining and promotion remain blocked.",
+  "production_baseline": {
+    "model": "drainage_model.pt",
+    "sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+    "metrics": {
+      "accuracy": 0.875,
+      "macro_f1": 0.8556,
+      "macro_precision": 0.8472,
+      "macro_recall": 0.9048,
+      "per_class": {
+        "normal_drain": {
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8
+        },
+        "blocked_drain": {
+          "precision": 1.0,
+          "recall": 0.7143,
+          "f1": 0.8333
+        },
+        "damaged_drain": {
+          "precision": 0.875,
+          "recall": 1.0,
+          "f1": 0.9333
+        }
+      },
+      "confusion_matrix": [
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          1,
+          5,
+          1
+        ],
+        [
+          0,
+          0,
+          7
+        ]
+      ],
+      "mean_latency_ms": 14.34,
+      "p95_latency_ms": 19.11
+    }
+  },
+  "candidate_v2": {
+    "model": "drainage_model_v2.pt",
+    "sha256": "5d27d7ce0d8a55681ce81b0a88df542c300dc05273760a927a7c936df314d87b",
+    "metrics": {
+      "accuracy": 0.9375,
+      "macro_f1": 0.9521,
+      "macro_precision": 0.9583,
+      "macro_recall": 0.9524,
+      "per_class": {
+        "normal_drain": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "blocked_drain": {
+          "precision": 1.0,
+          "recall": 0.8571,
+          "f1": 0.9231
+        },
+        "damaged_drain": {
+          "precision": 0.875,
+          "recall": 1.0,
+          "f1": 0.9333
+        }
+      },
+      "confusion_matrix": [
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          0,
+          6,
+          1
+        ],
+        [
+          0,
+          0,
+          7
+        ]
+      ],
+      "mean_latency_ms": 13.12,
+      "p95_latency_ms": 16.27
+    }
+  },
+  "high_confidence_incorrect_predictions": [
+    {
+      "model": "drainage_model_v2.pt",
+      "file": "121658674.avif",
+      "pred": "damaged_drain",
+      "gt": "blocked_drain",
+      "conf": 0.9339696168899536
+    }
+  ],
+  "sample_evaluations": [
+    {
+      "filename": "Screenshot 2026-10-09 005711.png",
+      "ground_truth": "blocked_drain",
+      "baseline": {
+        "predicted": "blocked_drain",
+        "confidence": 0.7835,
+        "correct": true,
+        "latency_ms": 27.57
+      },
+      "candidate": {
+        "predicted": "blocked_drain",
+        "confidence": 0.9939,
+        "correct": true,
+        "latency_ms": 16.41
+      }
+    },
+    {
+      "filename": "09d2afff-c9e6-4a0b-b06c-b0ac78a8c516_1790499968874 (1).jpg",
+      "ground_truth": "damaged_drain",
+      "baseline": {
+        "predicted": "damaged_drain",
+        "confidence": 1.0,
+        "correct": true,
+        "latency_ms": 13.32
+      },
+      "candidate": {
+        "predicted": "damaged_drain",
+        "confidence": 0.9933,
+        "correct": true,
+        "latency_ms": 12.1
+      }
+    },
+    {
+      "filename": "920c9b8a-2cfa-4222-bb6b-8ba65f9ceefc-577x1024.jpg",
+      "ground_truth": "blocked_drain",
+      "baseline": {
+        "predicted": "blocked_drain",
+        "confidence": 0.9751,
+        "correct": true,
+        "latency_ms": 12.3
+      },
+      "candidate": {
+        "predicted": "blocked_drain",
+        "confidence": 0.5805,
+        "correct": true,
+        "latency_ms": 11.96
+      }
+    },
+    {
+      "filename": "IMG_A_section_of_TrustPu_2_1_9PA8Q3JP.jpg",
+      "ground_truth": "blocked_drain",
+      "baseline": {
+        "predicted": "blocked_drain",
+        "confidence": 0.9967,
+        "correct": true,
+        "latency_ms": 16.29
+      },
+      "candidate": {
+        "predicted": "blocked_drain",
+        "confidence": 0.9987,
+        "correct": true,
+        "latency_ms": 11.62
+      }
+    },
+    {
+      "filename": "7we0y7hj7hyf1.jpg",
+      "ground_truth": "damaged_drain",
+      "baseline": {
+        "predicted": "damaged_drain",
+        "confidence": 0.998,
+        "correct": true,
+        "latency_ms": 12.44
+      },
+      "candidate": {
+        "predicted": "damaged_drain",
+        "confidence": 0.9603,
+        "correct": true,
+        "latency_ms": 11.72
+      }
+    },
+    {
+      "filename": "09d2afff-c9e6-4a0b-b06c-b0ac78a8c516_1790499968874.jpg",
+      "ground_truth": "damaged_drain",
+      "baseline": {
+        "predicted": "damaged_drain",
+        "confidence": 1.0,
+        "correct": true,
+        "latency_ms": 12.81
+      },
+      "candidate": {
+        "predicted": "damaged_drain",
+        "confidence": 0.9937,
+        "correct": true,
+        "latency_ms": 11.81
+      }
+    },
+    {
+      "filename": "128926359.avif",
+      "ground_truth": "damaged_drain",
+      "baseline": {
+        "predicted": "damaged_drain",
+        "confidence": 0.9999,
+        "correct": true,
+        "latency_ms": 12.77
+      },
+      "candidate": {
+        "predicted": "damaged_drain",
+        "confidence": 0.877,
+        "correct": true,
+        "latency_ms": 13.16
+      }
+    },
+    {
+      "filename": "Screenshot 2026-10-09 005723.png",
+      "ground_truth": "blocked_drain",
+      "baseline": {
+        "predicted": "normal_drain",
+        "confidence": 0.4444,
+        "correct": false,
+        "latency_ms": 13.95
+      },
+      "candidate": {
+        "predicted": "blocked_drain",
+        "confidence": 0.9988,
+        "correct": true,
+        "latency_ms": 13.28
+      }
+    },
+    {
+      "filename": "images (11).jpg",
+      "ground_truth": "normal_drain",
+      "baseline": {
+        "predicted": "normal_drain",
+        "confidence": 0.8708,
+        "correct": true,
+        "latency_ms": 16.16
+      },
+      "candidate": {
+        "predicted": "normal_drain",
+        "confidence": 0.7483,
+        "correct": true,
+        "latency_ms": 15.35
+      }
+    },
+    {
+      "filename": "121658674.avif",
+      "ground_truth": "blocked_drain",
+      "baseline": {
+        "predicted": "blocked_drain",
+        "confidence": 0.986,
+        "correct": true,
+        "latency_ms": 12.25
+      },
+      "candidate": {
+        "predicted": "damaged_drain",
+        "confidence": 0.934,
+        "correct": false,
+        "latency_ms": 12.66
+      }
+    },
+    {
+      "filename": "54c49313-8a19-4bf9-93e8-1c4db27ea3cd_1789962940981.jpg",
+      "ground_truth": "damaged_drain",
+      "baseline": {
+        "predicted": "damaged_drain",
+        "confidence": 0.9987,
+        "correct": true,
+        "latency_ms": 11.82
+      },
+      "candidate": {
+        "predicted": "damaged_drain",
+        "confidence": 0.9837,
+        "correct": true,
+        "latency_ms": 11.84
+      }
+    },
+    {
+      "filename": "a-close-up-view-of-a-damaged-urban-street-surface-showing-a-metal-storm-drain-grate-positioned-at-the-edge-of-a-large-deep-pothole-or-sinkhole-the-3F9P90R.jpg",
+      "ground_truth": "damaged_drain",
+      "baseline": {
+        "predicted": "damaged_drain",
+        "confidence": 0.9997,
+        "correct": true,
+        "latency_ms": 13.42
+      },
+      "candidate": {
+        "predicted": "damaged_drain",
+        "confidence": 0.9926,
+        "correct": true,
+        "latency_ms": 14.04
+      }
+    },
+    {
+      "filename": "8eafe9d5-6d92-4fbe-b831-50e80a38fea6_1789109089366.jpg",
+      "ground_truth": "blocked_drain",
+      "baseline": {
+        "predicted": "damaged_drain",
+        "confidence": 0.6307,
+        "correct": false,
+        "latency_ms": 13.04
+      },
+      "candidate": {
+        "predicted": "blocked_drain",
+        "confidence": 0.924,
+        "correct": true,
+        "latency_ms": 11.13
+      }
+    },
+    {
+      "filename": "124484822.avif",
+      "ground_truth": "damaged_drain",
+      "baseline": {
+        "predicted": "damaged_drain",
+        "confidence": 0.998,
+        "correct": true,
+        "latency_ms": 13.26
+      },
+      "candidate": {
+        "predicted": "damaged_drain",
+        "confidence": 0.9962,
+        "correct": true,
+        "latency_ms": 13.61
+      }
+    },
+    {
+      "filename": "images (10).jpg",
+      "ground_truth": "normal_drain",
+      "baseline": {
+        "predicted": "normal_drain",
+        "confidence": 0.9983,
+        "correct": true,
+        "latency_ms": 14.47
+      },
+      "candidate": {
+        "predicted": "normal_drain",
+        "confidence": 0.9389,
+        "correct": true,
+        "latency_ms": 16.23
+      }
+    },
+    {
+      "filename": "56694397.avif",
+      "ground_truth": "blocked_drain",
+      "baseline": {
+        "predicted": "blocked_drain",
+        "confidence": 0.9977,
+        "correct": true,
+        "latency_ms": 13.53
+      },
+      "candidate": {
+        "predicted": "blocked_drain",
+        "confidence": 0.9983,
+        "correct": true,
+        "latency_ms": 13.05
+      }
+    }
+  ]
+}

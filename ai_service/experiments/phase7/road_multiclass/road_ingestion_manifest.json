@@ -1,0 +1,246 @@
+{
+  "domain": "road_damage",
+  "phase": 7,
+  "production_baseline": {
+    "model_path": "ai_service\\model\\civicmodel.pt",
+    "sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+    "classes": {
+      "0": "Pothole"
+    },
+    "size_mb": 21.48,
+    "architecture": "YOLOv8 Small/Medium Single-Class Detection"
+  },
+  "target_taxonomy": {
+    "D00": {
+      "id": 0,
+      "name": "longitudinal_crack",
+      "desc": "Linear longitudinal crack along traffic direction"
+    },
+    "D10": {
+      "id": 1,
+      "name": "transverse_crack",
+      "desc": "Linear transverse crack perpendicular to traffic direction"
+    },
+    "D20": {
+      "id": 2,
+      "name": "alligator_crack",
+      "desc": "Alligator or fatigue cracking network"
+    },
+    "D40": {
+      "id": 3,
+      "name": "pothole",
+      "desc": "Pothole, deep road depression or severe surface loss"
+    }
+  },
+  "source_dataset": {
+    "name": "Road Damage Dataset 2022 (RDD2022)",
+    "target_country_subset": "India",
+    "repository": "Figshare (DOI: 10.6084/m9.figshare.21431547.v1)",
+    "full_archive_size_gb": 12.65,
+    "archive_format": "Monolithic ZIP archive containing Japan, India, Czech, Norway, United States, China subsets",
+    "license": "CC BY-SA 4.0",
+    "camera_modality": "Vehicle dashboard smartphone video capture at 30 fps (extracted every 1-2 sec)",
+    "native_annotation_format": "Pascal VOC XML (PASCAL VOC 2007 structure)"
+  },
+  "converter_verification": {
+    "total_test_cases": 10,
+    "all_passed": true,
+    "test_cases": [
+      {
+        "test_case": "Standard D00 Longitudinal Crack",
+        "input_voc": [
+          450,
+          100,
+          520,
+          680
+        ],
+        "input_class": "D00",
+        "yolo_output": [
+          0.378906,
+          0.541667,
+          0.054688,
+          0.805556
+        ],
+        "status": "OK",
+        "passed": true
+      },
+      {
+        "test_case": "Standard D10 Transverse Crack",
+        "input_voc": [
+          200,
+          400,
+          950,
+          430
+        ],
+        "input_class": "D10",
+        "yolo_output": [
+          0.449219,
+          0.576389,
+          0.585938,
+          0.041667
+        ],
+        "status": "OK",
+        "passed": true
+      },
+      {
+        "test_case": "Standard D20 Alligator Crack",
+        "input_voc": [
+          300,
+          350,
+          700,
+          600
+        ],
+        "input_class": "D20",
+        "yolo_output": [
+          0.390625,
+          0.659722,
+          0.3125,
+          0.347222
+        ],
+        "status": "OK",
+        "passed": true
+      },
+      {
+        "test_case": "Standard D40 Pothole",
+        "input_voc": [
+          550,
+          420,
+          720,
+          560
+        ],
+        "input_class": "D40",
+        "yolo_output": [
+          0.496094,
+          0.680556,
+          0.132812,
+          0.194444
+        ],
+        "status": "OK",
+        "passed": true
+      },
+      {
+        "test_case": "Out-of-bounds left/top (Negative coordinates)",
+        "input_voc": [
+          -50,
+          -20,
+          300,
+          400
+        ],
+        "input_class": "D40",
+        "yolo_output": [
+          0.117188,
+          0.277778,
+          0.234375,
+          0.555556
+        ],
+        "status": "OK",
+        "passed": true
+      },
+      {
+        "test_case": "Out-of-bounds right/bottom (Oversized coordinates)",
+        "input_voc": [
+          1000,
+          500,
+          1450,
+          850
+        ],
+        "input_class": "D20",
+        "yolo_output": [
+          0.890625,
+          0.847222,
+          0.21875,
+          0.305556
+        ],
+        "status": "OK",
+        "passed": true
+      },
+      {
+        "test_case": "Degenerate zero-width box",
+        "input_voc": [
+          300,
+          200,
+          300,
+          500
+        ],
+        "input_class": "D00",
+        "yolo_output": null,
+        "status": "Degenerate box: width=0.0, height=300.0",
+        "passed": true
+      },
+      {
+        "test_case": "Degenerate zero-height box",
+        "input_voc": [
+          300,
+          200,
+          600,
+          200
+        ],
+        "input_class": "D10",
+        "yolo_output": null,
+        "status": "Degenerate box: width=300.0, height=0.0",
+        "passed": true
+      },
+      {
+        "test_case": "Sub-pixel inverted coordinates (xmin > xmax)",
+        "input_voc": [
+          600,
+          200,
+          300,
+          500
+        ],
+        "input_class": "D40",
+        "yolo_output": null,
+        "status": "Degenerate box: width=-300.0, height=300.0",
+        "passed": true
+      },
+      {
+        "test_case": "Boundary edge flush (0, 0, 1280, 720)",
+        "input_voc": [
+          0,
+          0,
+          1280,
+          720
+        ],
+        "input_class": "D20",
+        "yolo_output": [
+          0.5,
+          0.5,
+          1.0,
+          1.0
+        ],
+        "status": "OK",
+        "passed": true
+      }
+    ]
+  },
+  "sequence_split_strategy": {
+    "total_frames": 60,
+    "total_sequences": 6,
+    "sequence_length_frames": 10,
+    "train_sequences": 4,
+    "val_sequences": 1,
+    "test_sequences": 1,
+    "train_frames": 40,
+    "val_frames": 10,
+    "test_frames": 10,
+    "leakage_train_val": 0,
+    "leakage_train_test": 0,
+    "leakage_val_test": 0,
+    "leakage_free": true
+  },
+  "directory_layout_specification": {
+    "root_path": "ai_service/training/rdd2022_india_multiclass",
+    "images_train": "ai_service/training/rdd2022_india_multiclass/images/train",
+    "images_val": "ai_service/training/rdd2022_india_multiclass/images/val",
+    "images_test": "ai_service/training/rdd2022_india_multiclass/images/test",
+    "labels_train": "ai_service/training/rdd2022_india_multiclass/labels/train",
+    "labels_val": "ai_service/training/rdd2022_india_multiclass/labels/val",
+    "labels_test": "ai_service/training/rdd2022_india_multiclass/labels/test",
+    "raw_annotations": "ai_service/training/rdd2022_india_multiclass/raw_voc_xml",
+    "config_yaml": "ai_service/training/rdd2022_india_multiclass/data.yaml"
+  },
+  "training_gate_decision": {
+    "status": "BLOCKED",
+    "reason": "Upstream Figshare archive requires 12.65 GB full download; external network ingestion offline; zero ungrounded synthetic training permitted under Mandatory Code Protection Rules."
+  }
+}

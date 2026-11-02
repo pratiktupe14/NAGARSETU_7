@@ -1,0 +1,49 @@
+{
+  "audit_name": "Phase 7 Final Production Safety Audit",
+  "timestamp": "2026-11-03",
+  "verdict": "PASSED",
+  "cryptographic_integrity": {
+    "all_valid": true,
+    "models": {
+      "civicmodel.pt": {
+        "path": "ai_service\\model\\civicmodel.pt",
+        "expected_sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+        "actual_sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+        "valid": true,
+        "size_bytes": 22519594
+      },
+      "best.pt": {
+        "path": "ai_service\\model\\best.pt",
+        "expected_sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+        "actual_sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+        "valid": true,
+        "size_bytes": 22543854
+      },
+      "water_pipe_model.pt": {
+        "path": "ai_service\\model\\water_pipe_model.pt",
+        "expected_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+        "actual_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+        "valid": true,
+        "size_bytes": 6221217
+      },
+      "drainage_model.pt": {
+        "path": "ai_service\\model\\drainage_model.pt",
+        "expected_sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+        "actual_sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+        "valid": true,
+        "size_bytes": 6220717
+      }
+    }
+  },
+  "git_working_tree": {
+    "clean_tracked_files": true,
+    "tracked_modifications": [],
+    "untracked_count": 18
+  },
+  "test_suite": {
+    "exit_code": 0,
+    "all_passed": true,
+    "passed_tests": 31,
+    "failed_tests": 0
+  }
+}

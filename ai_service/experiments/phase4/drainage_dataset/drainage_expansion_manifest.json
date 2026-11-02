@@ -1,0 +1,75 @@
+{
+  "audit_name": "NAGARSETU Phase 4 Drainage Dataset Quality & Expansion Audit",
+  "total_source_files_scanned": 110,
+  "valid_unique_images": 106,
+  "exact_duplicates_detected": 4,
+  "corrupted_images": 0,
+  "current_class_distribution": {
+    "UNCATALOGED": 8,
+    "DAMAGED_DRAIN": 44,
+    "BLOCKED_DRAIN": 37,
+    "DRAIN_OVERFLOW": 3,
+    "NORMAL_DRAIN": 14
+  },
+  "expansion_blueprint": {
+    "normal_concrete_gutters": {
+      "current_count": 14,
+      "target_addition": 60,
+      "target_total": 74,
+      "description": "Functional concrete gutters with clear water flow, dry surfaces, no standing sludge, unbroken grates."
+    },
+    "clean_dry_culverts": {
+      "current_count": 0,
+      "target_addition": 40,
+      "target_total": 40,
+      "description": "Natural and concrete culverts during dry season, showing light sand/silt without structural wall collapse."
+    },
+    "blocked_drains_with_silt": {
+      "current_count": 37,
+      "target_addition": 25,
+      "target_total": 62,
+      "description": "Drains clogged by solid silt, construction debris, or municipal garbage causing flow stagnation."
+    },
+    "damaged_drains_slab_collapse": {
+      "current_count": 44,
+      "target_addition": 25,
+      "target_total": 69,
+      "description": "Cracked concrete slabs, missing cast iron covers, washed-out side walls."
+    },
+    "drain_overflow_monsoon": {
+      "current_count": 3,
+      "target_addition": 20,
+      "target_total": 23,
+      "description": "Stormwater overtopping curbs into pedestrian or vehicular pathways."
+    }
+  },
+  "split_proposal": {
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "test_ratio": 0.15,
+    "isolation_protocol": "Group-based sequence hashing to prevent multi-angle camera burst leakage across splits.",
+    "negative_class_target_ratio": "35% of total dataset dedicated to normal/clean drains to eliminate false positive alarms."
+  },
+  "duplicates_list": [
+    {
+      "duplicate_file": "09d2afff-c9e6-4a0b-b06c-b0ac78a8c516_1790499968874 (1).jpg",
+      "original_file": "09d2afff-c9e6-4a0b-b06c-b0ac78a8c516_1790499968874 (1) - Copy.jpg",
+      "sha256": "abc05790a0f150419d2fca66a0e919966e14cb0f825a2da0807ed776e3b198ac"
+    },
+    {
+      "duplicate_file": "images (18).jpg",
+      "original_file": "images (16).jpg",
+      "sha256": "d44bf3eb12e3b943e21d3badf0615404f60df51e8d384725614bcd8fa9baa4e5"
+    },
+    {
+      "duplicate_file": "images (45).jpg",
+      "original_file": "images (13).jpg",
+      "sha256": "0583fedb91f3f6bafc0c9fdb6b002a7c9461f71e44f84d5caf5bcbb02372420e"
+    },
+    {
+      "duplicate_file": "images (50).jpg",
+      "original_file": "images (42).jpg",
+      "sha256": "f3d5f272d70ea934ffbda72c23ba0241b031278c5d542dafdc064f1b377d3f76"
+    }
+  ]
+}

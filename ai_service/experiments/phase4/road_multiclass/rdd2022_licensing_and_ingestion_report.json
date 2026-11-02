@@ -1,0 +1,56 @@
+{
+  "dataset_name": "Road Damage Dataset 2022 (RDD2022) — India Subset",
+  "phase": 4,
+  "inspection_timestamp": "2026-11-02T23:28:00+05:30",
+  "local_availability_status": "NOT_LOCALLY_PRESENT (Reported per Phase 4 requirement; zero synthetic data invented)",
+  "official_source": "Crowdsensing-based Road Damage Detection Challenge (CRDDC'2022), IEEE BigData 2022",
+  "official_license": "Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)",
+  "license_compliance": {
+    "commercial_use_permitted": true,
+    "modification_permitted": true,
+    "distribution_permitted": true,
+    "attribution_requirement": "Must cite: Arya et al., Global Road Damage Detection: State-of-the-art Solutions and Open Challenges, IEEE Trans. Intell. Transp. Syst., 2022."
+  },
+  "target_multiclass_schema": {
+    "D00": {
+      "class_id": 0,
+      "name": "Longitudinal Crack",
+      "visual_definition": "Linear crack parallel to the road centerline along wheel tracks or paving joints.",
+      "severity_mapping": "Low (Surface crack sealing)",
+      "target_sample_count": 850
+    },
+    "D10": {
+      "class_id": 1,
+      "name": "Transverse Crack",
+      "visual_definition": "Linear crack perpendicular to the road direction, commonly thermal or sub-base shrinkage.",
+      "severity_mapping": "Low (Transverse joint sealing)",
+      "target_sample_count": 450
+    },
+    "D20": {
+      "class_id": 2,
+      "name": "Alligator Cracking",
+      "visual_definition": "Network of interconnected polygonal cracks resembling reptile skin, indicating structural base failure.",
+      "severity_mapping": "Medium (Full-depth patching / milling)",
+      "target_sample_count": 600
+    },
+    "D40": {
+      "class_id": 3,
+      "name": "Potholes & Depressed Manholes",
+      "visual_definition": "Bowl-shaped cavity in asphalt surface exceeding 25mm depth and 150mm diameter.",
+      "severity_mapping": "High / Critical (Asphalt infill / Emergency barricade)",
+      "target_sample_count": 1300
+    }
+  },
+  "proposed_split_isolation": {
+    "train_ratio": 0.70,
+    "val_ratio": 0.15,
+    "test_ratio": 0.15,
+    "isolation_rule": "Video sequences partitioned strictly by vehicle session ID (India_xxxxxx series) to ensure no consecutive dashcam frames leak between train and validation/test."
+  },
+  "production_safeguards": {
+    "civicmodel_pt_preserved": true,
+    "single_class_pothole_dataset_unmodified": true,
+    "retraining_blocked_until_dataset_download_approval": true
+  }
+}
+

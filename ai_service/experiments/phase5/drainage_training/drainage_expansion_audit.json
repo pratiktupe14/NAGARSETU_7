@@ -1,0 +1,29 @@
+{
+  "domain": "drainage_condition_classification",
+  "phase": 5,
+  "timestamp": "2026-11-02T23:42:00+05:30",
+  "dataset_audit": {
+    "total_raw_files_scanned": 106,
+    "physical_files_on_disk": 101,
+    "unique_cryptographic_images": 102,
+    "exact_duplicates_count": 4,
+    "class_counts_reconciled": {
+      "damaged_drain": 50,
+      "blocked_drain": 49,
+      "normal_drain": 6
+    }
+  },
+  "expansion_target_evaluation": {
+    "target_additional_normal_drains": 100,
+    "locally_available_new_normal_images": 0,
+    "deficit": 100,
+    "current_normal_class_ratio": "5.88%",
+    "recommended_normal_class_ratio": "30.0% - 40.0%"
+  },
+  "quality_gate_assessment": {
+    "status": "NEEDS MORE DATA",
+    "blocker_details": "Normal class starvation: only 6 verified normal drains exist in the dataset. Training a 3-class classifier (normal, blocked, damaged) under this extreme skew would cause severe false-alarm rates on unblocked municipal channels.",
+    "training_decision": "STOPPED (Zero-training enforced per Phase 5 safety rules; production drainage_model.pt preserved)"
+  }
+}
+

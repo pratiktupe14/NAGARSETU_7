@@ -1,0 +1,45 @@
+{
+  "module": "Water Pipeline Multi-Scale Patch Shadow Testing",
+  "phase": 4,
+  "model_file": "water_pipe_model.pt",
+  "model_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+  "total_shadow_samples_tested": 25,
+  "total_disagreements": 3,
+  "peak_memory_mb": 3.73,
+  "metrics_held_out_test": {
+    "strategy_a_global": {
+      "accuracy": 0.9333,
+      "macro_f1": 0.9282,
+      "leak_precision": 1.0,
+      "leak_recall": 0.9,
+      "normal_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.1,
+      "avg_latency_ms": 28.96,
+      "p95_latency_ms": 48.5,
+      "confusion_matrix": {
+        "TP": 9,
+        "TN": 5,
+        "FP": 0,
+        "FN": 1
+      }
+    },
+    "strategy_c_calibrated_patch": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "leak_precision": 1.0,
+      "leak_recall": 1.0,
+      "normal_recall": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "avg_latency_ms": 98.8,
+      "p95_latency_ms": 206.16,
+      "confusion_matrix": {
+        "TP": 10,
+        "TN": 5,
+        "FP": 0,
+        "FN": 0
+      }
+    }
+  }
+}

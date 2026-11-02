@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 8,
+  "models": [
+    {
+      "model_name": "Water Pipeline Baseline (water_pipe_model.pt)",
+      "domain": "water_pipeline",
+      "current_status": "Active Primary in Live Production",
+      "classification": "1. Existing production baseline",
+      "primary_metric": "77.8% Accuracy | 72.2% Leak Recall",
+      "latency_p95_ms": 39.9,
+      "size_mb": 6.22,
+      "readiness_verdict": "RETAIN IN PRODUCTION AS AUTHORITATIVE",
+      "rationale": "Currently serves live citizen pipe leak complaints; fast (30.4ms mean) and stable; misses fine sprays (<4px) but provides safe baseline until shadow validation completes."
+    },
+    {
+      "model_name": "Water Candidate v5 FP32 (water_pipe_candidate_v5.pt)",
+      "domain": "water_pipeline",
+      "current_status": "Experimental Offline Checkpoint",
+      "classification": "2. Experimental candidate",
+      "primary_metric": "91.7% Accuracy | 94.4% Leak Recall",
+      "latency_p95_ms": 41.0,
+      "size_mb": 6.22,
+      "readiness_verdict": "RETAIN IN EXPERIMENTAL REGISTRY",
+      "rationale": "Improved accuracy over baseline when evaluated whole-image, but still misses ultra-fine pinholes when downscaled; superseded by Calibrated Patch v2."
+    },
+    {
+      "model_name": "Water Calibrated Hierarchical Patch v2 Adapter",
+      "domain": "water_pipeline",
+      "current_status": "Shadow Integration Candidate",
+      "classification": "3. Eligible for isolated shadow validation",
+      "primary_metric": "94.4% - 100.0% Accuracy | 94.4% - 100.0% Leak Recall | 0% FPR",
+      "latency_p95_ms": 146.5,
+      "size_mb": 6.22,
+      "readiness_verdict": "APPROVED FOR ISOLATED SHADOW VALIDATION ONLY",
+      "rationale": "Successfully detects microscopic and thin spray leaks (100% recall); satisfies municipal latency SLA (< 150 ms P95); passes all 12 adapter compatibility tests and fallback scenarios. Ready for non-blocking 14-day shadow testing."
+    },
+    {
+      "model_name": "Water Candidate v5 Dynamic INT8 (water_pipe_candidate_v5_quantized.pt)",
+      "domain": "water_pipeline",
+      "current_status": "Optimized Quantized Checkpoint",
+      "classification": "6. Requires further engineering",
+      "primary_metric": "91.7% Accuracy | 94.4% Leak Recall",
+      "latency_p95_ms": 44.4,
+      "size_mb": 4.24,
+      "readiness_verdict": "ENGINEERING GATED (FUSE WITH PATCH V2)",
+      "rationale": "INT8 dynamic quantization verified loadable and achieves 28.5% compression with 0 accuracy degradation; requires further engineering in Phase 9 to fuse INT8 quantization into the Patch v2 sliding window pipeline."
+    },
+    {
+      "model_name": "Drainage Baseline (drainage_model.pt)",
+      "domain": "drainage",
+      "current_status": "Active Primary in Live Production",
+      "classification": "1. Existing production baseline",
+      "primary_metric": "88.0% Blocked Recall | 28.0% Normal FPR",
+      "latency_p95_ms": 13.9,
+      "size_mb": 6.22,
+      "readiness_verdict": "RETAIN IN PRODUCTION AS AUTHORITATIVE",
+      "rationale": "Reliable baseline for high-confidence stormwater blockage complaints; retains primary authority."
+    },
+    {
+      "model_name": "Drainage Candidate v2 (drainage_model_v2.pt)",
+      "domain": "drainage",
+      "current_status": "Experimental Offline Checkpoint",
+      "classification": "4. Requires more data",
+      "primary_metric": "94.0% Blocked Recall | 35.0% Dry Culvert FPR",
+      "latency_p95_ms": 14.1,
+      "size_mb": 6.21,
+      "readiness_verdict": "TRAINING & PROMOTION BLOCKED",
+      "rationale": "Severe false positive rate on dry culverts and normal gutters (35% false alarm rate); blocked until 100 clean, functional normal drain images are ingested per Task 3 expansion manifest."
+    },
+    {
+      "model_name": "Solid Waste Baseline (best.pt)",
+      "domain": "solid_waste",
+      "current_status": "Active Primary in Live Production",
+      "classification": "1. Existing production baseline",
+      "primary_metric": "0.84 Plastic mAP@0.50 | 0.33 Macro mAP",
+      "latency_p95_ms": 36.5,
+      "size_mb": 25.85,
+      "readiness_verdict": "RETAIN IN PRODUCTION AS AUTHORITATIVE",
+      "rationale": "Excellent plastic detection on street garbage; minority classes (cardboard, glass) lack training data; candidate retraining is prohibited until 150-200 boxes per class are curated."
+    },
+    {
+      "model_name": "Road Damage Baseline (civicmodel.pt)",
+      "domain": "road_damage",
+      "current_status": "Active Primary in Live Production",
+      "classification": "1. Existing production baseline",
+      "primary_metric": "86.4% Pothole Recall | 81.2% Precision",
+      "latency_p95_ms": 21.0,
+      "size_mb": 21.48,
+      "readiness_verdict": "RETAIN IN PRODUCTION AS AUTHORITATIVE",
+      "rationale": "Serves single-class pothole complaints reliably; multi-class RDD2022 ingestion pipeline is verified and ready, but awaiting the 12.65 GB archive mounting."
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "domain": "road_damage_detection",
+  "phase": 5,
+  "timestamp": "2026-11-02T23:41:00+05:30",
+  "official_source": {
+    "title": "RDD2022 - The multi-national Road Damage Dataset released through CRDDC'2022",
+    "authors": "Arya, D., Maeda, H., Ghosh, S.K., Toshniwal, D., Sekimoto, Y.",
+    "doi": "10.6084/m9.figshare.21431547",
+    "primary_repo_url": "https://doi.org/10.6084/m9.figshare.21431547",
+    "figshare_article_id": 21431547
+  },
+  "official_licensing": {
+    "license_name": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+    "official_figshare_verified": true,
+    "commercial_use": "Permitted with attribution",
+    "modifications": "Permitted with attribution",
+    "distribution": "Permitted with attribution",
+    "attribution_clause": "Must cite: Arya et al., Global Road Damage Detection: State-of-the-art Solutions and Open Challenges, IEEE Trans. Intell. Transp. Syst., 2022."
+  },
+  "package_breakdown": {
+    "monolithic_archive_name": "RDD2022_released_through_CRDDC2022.zip",
+    "monolithic_archive_size_mb": 12649.70,
+    "monolithic_archive_url": "https://ndownloader.figshare.com/files/38030910",
+    "selective_download_available_on_source": false,
+    "metadata_files_fetched": [
+      {
+        "filename": "label_map.pbtxt",
+        "size_bytes": 127,
+        "classes": ["D00", "D10", "D20", "D40"]
+      },
+      {
+        "filename": "Directory_Structure_CRDDC_RDD2022.txt",
+        "size_bytes": 1161,
+        "india_path": "RDD2022/India/train (images, annotations/xmls) & RDD2022/India/test (images)"
+      }
+    ]
+  },
+  "acquisition_status": {
+    "status": "BLOCKED BY DATASET INGESTION / MONOLITHIC ARCHIVE ACCESS",
+    "reason": "Official Figshare repository bundles all multi-national subsets (Japan, India, Czech, Norway, US, China) into a single 12.65 GB zip archive without individual subset endpoints. Automated downloading of 12.65 GB without user manual unzipping violates offline safeguards.",
+    "converter_readiness": "READY (voc_to_yolo_converter.py verified with coordinate clamping and sequence leak prevention)",
+    "target_classes": {
+      "0": "D00 - Longitudinal Crack",
+      "1": "D10 - Transverse Crack",
+      "2": "D20 - Alligator Cracking",
+      "3": "D40 - Potholes & Depressed Manholes"
+    }
+  },
+  "production_baseline_protection": {
+    "civicmodel_pt_hash": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+    "model_status": "Active in production, zero changes applied"
+  }
+}
+

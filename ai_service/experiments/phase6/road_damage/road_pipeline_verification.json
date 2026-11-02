@@ -1,0 +1,110 @@
+{
+  "pipeline_name": "RDD2022 VOC-to-YOLO Conversion & Sequence Isolation",
+  "converter_test_results": [
+    {
+      "test_case": "D00_Longitudinal",
+      "voc_class": "D00",
+      "yolo_class_id": 0,
+      "raw_voc_pixels": [
+        450,
+        100,
+        520,
+        680
+      ],
+      "normalized_yolo": [
+        0.378906,
+        0.541667,
+        0.054688,
+        0.805556
+      ],
+      "valid_clamping": true
+    },
+    {
+      "test_case": "D10_Transverse",
+      "voc_class": "D10",
+      "yolo_class_id": 1,
+      "raw_voc_pixels": [
+        200,
+        400,
+        950,
+        430
+      ],
+      "normalized_yolo": [
+        0.449219,
+        0.576389,
+        0.585938,
+        0.041667
+      ],
+      "valid_clamping": true
+    },
+    {
+      "test_case": "D20_Alligator",
+      "voc_class": "D20",
+      "yolo_class_id": 2,
+      "raw_voc_pixels": [
+        300,
+        350,
+        700,
+        600
+      ],
+      "normalized_yolo": [
+        0.390625,
+        0.659722,
+        0.3125,
+        0.347222
+      ],
+      "valid_clamping": true
+    },
+    {
+      "test_case": "D40_Pothole",
+      "voc_class": "D40",
+      "yolo_class_id": 3,
+      "raw_voc_pixels": [
+        550,
+        420,
+        720,
+        560
+      ],
+      "normalized_yolo": [
+        0.496094,
+        0.680556,
+        0.132812,
+        0.194444
+      ],
+      "valid_clamping": true
+    },
+    {
+      "test_case": "Out_Of_Bounds_Box",
+      "voc_class": "D40",
+      "yolo_class_id": 3,
+      "raw_voc_pixels": [
+        -50,
+        300,
+        1350,
+        800
+      ],
+      "normalized_yolo": [
+        0.5,
+        0.708333,
+        1.0,
+        0.583333
+      ],
+      "valid_clamping": true
+    }
+  ],
+  "sequence_isolation_verification": {
+    "total_sample_frames": 30,
+    "sequence_groups": 7,
+    "train_frames": 19,
+    "val_frames": 5,
+    "test_frames": 6,
+    "leakage_detected": false
+  },
+  "official_source": {
+    "title": "RDD2022 - The multi-national Road Damage Dataset released through CRDDC'2022",
+    "doi": "10.6084/m9.figshare.21431547",
+    "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+    "monolithic_archive_size_mb": 12649.7,
+    "access_status": "BLOCKED BY MONOLITHIC ARCHIVE ACCESS (Requires offline manual unzipping of 12.65 GB)"
+  }
+}

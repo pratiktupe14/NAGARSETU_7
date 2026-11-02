@@ -1,0 +1,117 @@
+{
+  "registry_title": "NagarSetu AI Candidate Model Registry (Phase 5)",
+  "registry_version": "5.0.0",
+  "generated_at": "2026-11-02T23:46:20",
+  "compliance_note": "All candidates are strictly offline and experimental. ZERO candidates are active in production.",
+  "candidates": [
+    {
+      "candidate_name": "water_pipe_candidate_v5.pt",
+      "model_domain": "water_pipeline_damage_detection",
+      "model_architecture": "MobileNetV3-Small (Custom Classification Head with Dropout)",
+      "dataset_version": "WaterPipe_v5_deduplicated (83 unique samples, 70/15/15 stratified split)",
+      "training_configuration": {
+        "epochs": 15,
+        "optimizer": "AdamW (lr=0.001, weight_decay=1e-4)",
+        "scheduler": "CosineAnnealingLR (T_max=15)",
+        "loss": "Weighted CrossEntropyLoss (Class 0: 1.48, Class 1: 0.75)",
+        "batch_size": 8,
+        "random_seed": 42,
+        "hardware": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel"
+      },
+      "checkpoint_path": "ai_service/experiments/phase5/water_training/water_pipe_candidate_v5.pt",
+      "sha256_hash": "f75bdf2903786c372efac35279a0f0ac878613f1460c6519792bec3ae1dc783c",
+      "file_size_mb": 5.93,
+      "evaluation_metrics": {
+        "accuracy": 0.8571,
+        "macro_f1": 0.825,
+        "macro_precision": 0.9091,
+        "macro_recall": 0.8,
+        "leak_recall": 1.0,
+        "mean_latency_ms": 5.45,
+        "p95_latency_ms": 7.3,
+        "confusion_matrix": [
+          [
+            3,
+            2
+          ],
+          [
+            0,
+            9
+          ]
+        ]
+      },
+      "baseline_comparison": {
+        "baseline_model": "water_pipe_model.pt",
+        "baseline_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+        "accuracy_improvement": -0.0714,
+        "macro_f1_improvement": -0.0952,
+        "leak_recall_change": "+16.7% improvement in catching leaks"
+      },
+      "known_limitations": [
+        "Trained on 83 unique municipal images; still benefits from larger variety of rusted intact pipes.",
+        "Single full-frame input may still under-resolve microscopic spray leaks without patch inference adapter."
+      ],
+      "training_date": "2026-11-02",
+      "approval_status": "EXPERIMENTAL \u2014 NOT APPROVED FOR PRODUCTION"
+    },
+    {
+      "candidate_name": "water_pipeline_calibrated_patch_adapter",
+      "model_domain": "water_pipeline_damage_detection",
+      "model_architecture": "Multi-Scale Overlapping Patch Ensemble + Global Resizing",
+      "dataset_version": "Held-Out Water Pipeline Shadow Benchmark (15 samples)",
+      "training_configuration": {
+        "strategy": "Adaptive 640x640 tile sliding window with IoU NMS merging and confidence arbitration",
+        "base_weights": "water_pipe_model.pt (frozen)"
+      },
+      "checkpoint_path": "ai_service/experiments/phase4/water_shadow/shadow_inference_engine.py",
+      "sha256_hash": "N/A (Inference Adapter / Workflow Enhancement)",
+      "file_size_mb": "N/A",
+      "evaluation_metrics": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "leak_precision": 1.0,
+        "leak_recall": 1.0,
+        "mean_latency_ms": 98.8,
+        "p95_latency_ms": 206.16
+      },
+      "baseline_comparison": {
+        "baseline_model": "water_pipe_model.pt (Global Inference)",
+        "resolved_flaw": "Eliminated false negative on thin vertical spray leaks without generating false alarms on normal pipes."
+      },
+      "known_limitations": [
+        "Higher inference latency (98.8 ms vs 28.9 ms on CPU) due to processing 4-6 image tiles per frame.",
+        "Requires minimum image resolution > 720p to provide meaningful tile decomposition."
+      ],
+      "training_date": "2026-11-02",
+      "approval_status": "EXPERIMENTAL \u2014 NOT APPROVED FOR PRODUCTION"
+    },
+    {
+      "candidate_name": "drainage_model_v2.pt",
+      "model_domain": "drainage_condition_classification",
+      "model_architecture": "MobileNetV3-Small",
+      "dataset_version": "drainage_annotations_reviewed (106 images / 102 unique)",
+      "training_configuration": {
+        "evaluated_in": "Phase 2 & Phase 3 via drainage_adapter.py"
+      },
+      "checkpoint_path": "ai_service/model/drainage_model_v2.pt",
+      "sha256_hash": "5d27d7ce0d8a55681ce81b0a88df542c300dc05273760a927a7c936df314d87b",
+      "file_size_mb": 5.92,
+      "evaluation_metrics": {
+        "accuracy": 0.8125,
+        "macro_f1": 0.741,
+        "normal_recall": 0.5
+      },
+      "baseline_comparison": {
+        "baseline_model": "drainage_model.pt",
+        "baseline_sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f"
+      },
+      "known_limitations": [
+        "Dataset suffers from extreme normal-class starvation (only 6 normal drains in dataset).",
+        "High false-positive rate on dry concrete gutters.",
+        "Blocked from production until at least 100 additional normal drains are integrated."
+      ],
+      "training_date": "2026-10-10",
+      "approval_status": "EXPERIMENTAL \u2014 NOT APPROVED FOR PRODUCTION"
+    }
+  ]
+}

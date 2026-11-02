@@ -1,0 +1,96 @@
+{
+  "audit_name": "NAGARSETU Phase 4 Solid Waste Quality & Class Balance Audit",
+  "baseline_model": "best.pt",
+  "total_source_images": 30,
+  "split_image_counts": {
+    "train": 21,
+    "val": 5,
+    "test": 4
+  },
+  "split_box_distribution": {
+    "train": {
+      "BIODEGRADABLE": 24,
+      "CARDBOARD": 1,
+      "GLASS": 2,
+      "METAL": 19,
+      "PAPER": 8,
+      "PLASTIC": 66
+    },
+    "val": {
+      "BIODEGRADABLE": 0,
+      "CARDBOARD": 0,
+      "GLASS": 0,
+      "METAL": 0,
+      "PAPER": 0,
+      "PLASTIC": 7
+    },
+    "test": {
+      "BIODEGRADABLE": 4,
+      "CARDBOARD": 0,
+      "GLASS": 13,
+      "METAL": 2,
+      "PAPER": 4,
+      "PLASTIC": 48
+    }
+  },
+  "missing_validation_classes": [
+    "BIODEGRADABLE",
+    "CARDBOARD",
+    "GLASS",
+    "METAL",
+    "PAPER"
+  ],
+  "missing_test_classes": [
+    "CARDBOARD"
+  ],
+  "label_quality_audit": {
+    "total_boxes_audited": 277,
+    "approved_boxes": 198,
+    "rejected_boxes": 79,
+    "rejection_rate_percent": 28.52,
+    "primary_rejection_causes": [
+      "Overlapping background dirt/concrete misidentified as plastic/paper",
+      "Ambiguous multi-material heaps enclosed in single oversized boxes",
+      "Low-resolution distant artifacts (< 20 pixels) unidentifiable by human audit"
+    ]
+  },
+  "duplicates_detected": 0,
+  "expansion_blueprint": {
+    "PLASTIC": {
+      "current_total_boxes": 121,
+      "target_total_boxes": 600,
+      "target_images": 150,
+      "priority": "Maintenance (Currently dominant; diversify with multi-colored films, HDPE containers)"
+    },
+    "BIODEGRADABLE": {
+      "current_total_boxes": 28,
+      "target_total_boxes": 500,
+      "target_images": 150,
+      "priority": "HIGH (Add vegetable market refuse, leaf piles, domestic organic food scraps)"
+    },
+    "CARDBOARD": {
+      "current_total_boxes": 1,
+      "target_total_boxes": 300,
+      "target_images": 100,
+      "priority": "CRITICAL STARVATION (Only 1 box in entire training set; add shipping cartons, corrugated boxes)"
+    },
+    "PAPER": {
+      "current_total_boxes": 12,
+      "target_total_boxes": 300,
+      "target_images": 100,
+      "priority": "HIGH (Add shredded paper, newspapers, flyers, beverage cartons)"
+    },
+    "METAL": {
+      "current_total_boxes": 21,
+      "target_total_boxes": 250,
+      "target_images": 100,
+      "priority": "HIGH (Add aluminum beverage cans, tin food cans, scrap wire)"
+    },
+    "GLASS": {
+      "current_total_boxes": 15,
+      "target_total_boxes": 200,
+      "target_images": 80,
+      "priority": "HIGH (Add clear, amber, and green bottles, broken beverage glass)"
+    }
+  }
+}

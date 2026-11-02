@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 8,
+  "task": "Task 4 - Shadow-Mode Harness",
+  "total_requests": 36,
+  "candidate_success_rate": 100.0,
+  "agreement_count": 31,
+  "divergence_count": 5,
+  "agreement_rate": 86.11,
+  "latency_profile": {
+    "baseline_mean_ms": 20.07,
+    "candidate_mean_ms": 27.27,
+    "delta_ms": 7.21
+  },
+  "divergence_analysis": [
+    {
+      "request_id": "SHADOW-REQ-0001-WTR-EXP-001",
+      "divergence_type": "CANDIDATE_DETECTED_LEAK_BASELINE_MISSED",
+      "ground_truth": "leak",
+      "baseline_prediction": "normal",
+      "candidate_prediction": "leak",
+      "candidate_superior": true,
+      "baseline_superior": false
+    },
+    {
+      "request_id": "SHADOW-REQ-0020-WTR-EXP-020",
+      "divergence_type": "CANDIDATE_DETECTED_LEAK_BASELINE_MISSED",
+      "ground_truth": "normal",
+      "baseline_prediction": "normal",
+      "candidate_prediction": "leak",
+      "candidate_superior": false,
+      "baseline_superior": true
+    },
+    {
+      "request_id": "SHADOW-REQ-0021-WTR-EXP-021",
+      "divergence_type": "CANDIDATE_DETECTED_LEAK_BASELINE_MISSED",
+      "ground_truth": "normal",
+      "baseline_prediction": "normal",
+      "candidate_prediction": "leak",
+      "candidate_superior": false,
+      "baseline_superior": true
+    },
+    {
+      "request_id": "SHADOW-REQ-0025-WTR-EXP-025",
+      "divergence_type": "CANDIDATE_DETECTED_LEAK_BASELINE_MISSED",
+      "ground_truth": "normal",
+      "baseline_prediction": "normal",
+      "candidate_prediction": "leak",
+      "candidate_superior": false,
+      "baseline_superior": true
+    },
+    {
+      "request_id": "SHADOW-REQ-0029-WTR-EXP-029",
+      "divergence_type": "CANDIDATE_DETECTED_LEAK_BASELINE_MISSED",
+      "ground_truth": "normal",
+      "baseline_prediction": "normal",
+      "candidate_prediction": "leak",
+      "candidate_superior": false,
+      "baseline_superior": true
+    }
+  ]
+}

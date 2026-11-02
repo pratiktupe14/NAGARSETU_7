@@ -1,0 +1,52 @@
+{
+  "benchmark_title": "Water Patch Inference Optimization Benchmark",
+  "sample_count": 20,
+  "peak_ram_mb": 5.63,
+  "strategies": {
+    "strategy_a_global": {
+      "accuracy": 0.95,
+      "macro_f1": 0.9499,
+      "leak_recall": 0.9,
+      "normal_precision": 0.9091,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": {
+        "TN": 10,
+        "FP": 0,
+        "FN": 1,
+        "TP": 9
+      },
+      "mean_latency_ms": 19.11,
+      "p95_latency_ms": 26.74
+    },
+    "strategy_b_naive_patch": {
+      "accuracy": 0.9,
+      "macro_f1": 0.899,
+      "leak_recall": 1.0,
+      "normal_precision": 1.0,
+      "false_positive_rate": 0.2,
+      "confusion_matrix": {
+        "TN": 8,
+        "FP": 2,
+        "FN": 0,
+        "TP": 10
+      },
+      "mean_latency_ms": 46.58,
+      "p95_latency_ms": 93.94
+    },
+    "strategy_c_calibrated_hierarchical_patch": {
+      "accuracy": 0.95,
+      "macro_f1": 0.9499,
+      "leak_recall": 1.0,
+      "normal_precision": 1.0,
+      "false_positive_rate": 0.1,
+      "confusion_matrix": {
+        "TN": 9,
+        "FP": 1,
+        "FN": 0,
+        "TP": 10
+      },
+      "mean_latency_ms": 30.05,
+      "p95_latency_ms": 73.05
+    }
+  }
+}

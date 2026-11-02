@@ -1,0 +1,95 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 8,
+  "task": "Task 2 - Hash Verification & Failure Forensics",
+  "all_production_models_verified": true,
+  "production_models": {
+    "civicmodel.pt": {
+      "path": "ai_service\\model\\civicmodel.pt",
+      "role": "Production Road Damage Model Baseline",
+      "exists": true,
+      "expected_sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+      "actual_sha256": "1067a09d37e4e9081164e6d6da337ad66d8ec7a884a6a194e58703beee804aa2",
+      "expected_size_bytes": 22519594,
+      "actual_size_bytes": 22519594,
+      "match": true
+    },
+    "best.pt": {
+      "path": "ai_service\\model\\best.pt",
+      "role": "Production Solid Waste Model Baseline",
+      "exists": true,
+      "expected_sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+      "actual_sha256": "0965dfbb16320981abeab3ed50cefe90bef8dede1453407aed2d952898a765e6",
+      "expected_size_bytes": 22543854,
+      "actual_size_bytes": 22543854,
+      "match": true
+    },
+    "water_pipe_model.pt": {
+      "path": "ai_service\\model\\water_pipe_model.pt",
+      "role": "Production Water Pipeline Model Baseline",
+      "exists": true,
+      "expected_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+      "actual_sha256": "f1bc766c569d1053b4e252247e37edfcc0fe76d3ce594e8b1ae9020aa52aac86",
+      "expected_size_bytes": 6221217,
+      "actual_size_bytes": 6221217,
+      "match": true
+    },
+    "drainage_model.pt": {
+      "path": "ai_service\\model\\drainage_model.pt",
+      "role": "Production Drainage Condition Model Baseline",
+      "exists": true,
+      "expected_sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+      "actual_sha256": "70821c225a90dd769f097c5d212ebce89a21aaf83667ada4a950d54e9d96e75f",
+      "expected_size_bytes": 6220717,
+      "actual_size_bytes": 6220717,
+      "match": true
+    }
+  },
+  "candidate_models": {
+    "water_pipe_candidate_v5.pt": {
+      "path": "ai_service\\experiments\\phase5\\water_training\\water_pipe_candidate_v5.pt",
+      "role": "Experimental Water Pipeline Candidate v5 (FP32)",
+      "exists": true,
+      "expected_sha256": "f75bdf2903786c372efac35279a0f0ac878613f1460c6519792bec3ae1dc783c",
+      "actual_sha256": "f75bdf2903786c372efac35279a0f0ac878613f1460c6519792bec3ae1dc783c",
+      "expected_size_bytes": 6219191,
+      "actual_size_bytes": 6219191,
+      "match": true
+    },
+    "water_pipe_candidate_v5_quantized.pt": {
+      "path": "ai_service\\experiments\\phase7\\water_optimization\\water_pipe_candidate_v5_quantized.pt",
+      "role": "Experimental Water Pipeline Candidate v5 (Dynamic INT8 Quantized)",
+      "exists": true,
+      "expected_sha256": "89d48d90af888aa6b4dcc472fbc5295cc2ec09a9c66a2e9a6cff4265d70f0863",
+      "actual_sha256": "89d48d90af888aa6b4dcc472fbc5295cc2ec09a9c66a2e9a6cff4265d70f0863",
+      "expected_size_bytes": 4447195,
+      "actual_size_bytes": 4447195,
+      "match": true
+    },
+    "drainage_model_v2.pt": {
+      "path": "ai_service\\model\\drainage_model_v2.pt",
+      "role": "Experimental Drainage Condition Candidate v2",
+      "exists": true,
+      "expected_sha256": "ec27d29bcb27866770666e1ff0b5ed31248bd1c466075d7cc212c7148aa9efa8",
+      "actual_sha256": "ec27d29bcb27866770666e1ff0b5ed31248bd1c466075d7cc212c7148aa9efa8",
+      "expected_size_bytes": 6210139,
+      "actual_size_bytes": 6210139,
+      "match": true
+    }
+  },
+  "forensics": {
+    "failure_event": "Phase 7 Pre-Check Step 1982 / 1983",
+    "failed_command": "python -c \"import hashlib, os ... assert h == expected ...\"",
+    "exit_code": 1,
+    "error_type": "AssertionError",
+    "exact_exception": "AssertionError: Mismatch on drainage_model_v2.pt: ec27d29bcb27866770666e1ff0b5ed31248bd1c466075d7cc212c7148aa9efa8 vs 5d27d7ce0d8a55681ce81b0a88df542c300dc05273760a927a7c936df314d87b",
+    "production_impact": "ZERO. All four production models passed their hash checks in the same script immediately before the assertion on candidate checkpoint.",
+    "root_cause_analysis": {
+      "file_missing": false,
+      "file_permissions_issue": false,
+      "powershell_syntax_issue": false,
+      "incorrect_manifest_value": true,
+      "detailed_explanation": "An inline Python pre-check script in step 1982 included both production models and experimental candidates. The dictionary in that script contained an obsolete hash string ('5d27d7ce...') for the experimental file 'drainage_model_v2.pt' (derived from an earlier unfinalized training iteration documented in a preliminary draft). The actual weights file on disk had SHA-256 'ec27d29bcb27866770666e1ff0b5ed31248bd1c466075d7cc212c7148aa9efa8'. Because Python's 'assert h == expected' halted execution upon checking the candidate, the script exited with code 1. The production models (civicmodel, best, water_pipe_model, drainage_model) were completely unaltered and matched 100%."
+    }
+  }
+}
