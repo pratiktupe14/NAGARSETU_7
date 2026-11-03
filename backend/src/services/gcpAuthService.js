@@ -19,7 +19,8 @@ const fs = require('fs');
 let cachedTokenData = {
   idToken: null,
   expiresAt: 0,
-  audience: null
+  audience: null,
+  apiKey: null
 };
 
 let cachedInternalApiKey = {
@@ -27,8 +28,15 @@ let cachedInternalApiKey = {
   expiresAt: 0
 };
 
+let lastStsAccessToken = null;
+
+function isRevokedKey(k) {
+  if (!k || typeof k !== 'string') return true;
+  return k.startsWith('BNOdu') || k.includes('BNOduVL');
+}
+
 async function fetchSecretManagerKey(stsAccessToken, projectNumber = '755578057105', secretName = 'nagarsetu-ai-internal-key') {
-  if (process.env.AI_INTERNAL_API_KEY) {
+  if (process.env.AI_INTERNAL_API_KEY && !isRevokedKey(process.env.AI_INTERNAL_API_KEY)) {
     return process.env.AI_INTERNAL_API_KEY.trim();
   }
   const now = Date.now();
@@ -291,14 +299,18 @@ async function getCloudRunIdToken(targetUrl, options = {}) {
     return process.env.GCP_ID_TOKEN || process.env.CLOUD_RUN_ID_TOKEN;
   }
 
-  // 2. Check token cache (ensure internal API key is also available if not in env)
+  // 2. Check token cache (ensure valid, unrevoked internal API key is available)
   const now = Date.now();
-  const hasKey = Boolean(process.env.AI_INTERNAL_API_KEY || cachedInternalApiKey.key || cachedTokenData.apiKey);
+  const hasValidKey = Boolean(
+    (process.env.AI_INTERNAL_API_KEY && !isRevokedKey(process.env.AI_INTERNAL_API_KEY)) ||
+    cachedInternalApiKey.key ||
+    cachedTokenData.apiKey
+  );
   if (
     cachedTokenData.idToken &&
     cachedTokenData.audience === audience &&
     cachedTokenData.expiresAt > (now + 5 * 60 * 1000) &&
-    hasKey
+    hasValidKey
   ) {
     return cachedTokenData.idToken;
   }
@@ -350,14 +362,16 @@ async function getCloudRunIdToken(targetUrl, options = {}) {
           poolId,
           providerId
         });
+        lastStsAccessToken = stsAccessToken;
         lastDiagnostics.sts = { success: true, status: 200 };
       } catch (stsErr) {
         lastDiagnostics.sts = { success: false, error: stsErr.message };
         throw stsErr;
       }
 
-      // Step A2: Retrieve internal API key from Secret Manager if not set in environment
-      if (!process.env.AI_INTERNAL_API_KEY && stsAccessToken) {
+      // Step A2: Retrieve internal API key from Secret Manager if env key is missing or revoked
+      const envNeedsRotation = isRevokedKey(process.env.AI_INTERNAL_API_KEY);
+      if (envNeedsRotation && stsAccessToken) {
         try {
           await fetchSecretManagerKey(stsAccessToken, projectNumber);
         } catch (_) {}
@@ -414,13 +428,13 @@ async function attachGcpAuthHeaders(headers = {}, targetUrl, options = {}) {
     console.warn('[GCP AUTH] Failed to attach GCP ID token:', err.message);
   }
 
-  const apiKey = (
-    process.env.AI_INTERNAL_API_KEY ||
-    process.env.AI_SERVICE_API_KEY ||
-    process.env.INTERNAL_AI_SECRET ||
-    process.env.AI_SECRET_KEY ||
-    cachedInternalApiKey.key
-  );
+  let apiKey = cachedInternalApiKey.key || cachedTokenData.apiKey;
+  if (!apiKey && process.env.AI_INTERNAL_API_KEY && !isRevokedKey(process.env.AI_INTERNAL_API_KEY)) {
+    apiKey = process.env.AI_INTERNAL_API_KEY.trim();
+  }
+  if (!apiKey && lastStsAccessToken) {
+    apiKey = await fetchSecretManagerKey(lastStsAccessToken, process.env.GCP_PROJECT_NUMBER || '755578057105');
+  }
   if (apiKey) {
     finalHeaders['X-Internal-API-Key'] = apiKey.trim();
   }
