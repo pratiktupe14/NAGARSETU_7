@@ -328,8 +328,7 @@ async function attachGcpAuthHeaders(headers = {}, targetUrl, options = {}) {
     console.warn('[GCP AUTH] Failed to attach GCP ID token:', err.message);
   }
 
-  const CANONICAL_AI_KEY = 'BNOduVL82we00CCFDpQsw7uQx00gIII2d3vBk6xFgnP7wUR1lZV_hL1y5_Zspxwc';
-  const apiKey = process.env.AI_INTERNAL_API_KEY || process.env.AI_SERVICE_API_KEY || process.env.INTERNAL_AI_SECRET || process.env.AI_SECRET_KEY || CANONICAL_AI_KEY;
+  const apiKey = process.env.AI_INTERNAL_API_KEY || process.env.AI_SERVICE_API_KEY || process.env.INTERNAL_AI_SECRET || process.env.AI_SECRET_KEY;
   if (apiKey) {
     finalHeaders['X-Internal-API-Key'] = apiKey;
   }
