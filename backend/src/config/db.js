@@ -1041,8 +1041,11 @@ async function querySupabase(sql, params = []) {
       let idParam = null;
       let deptId = null;
 
+      const whereIdx = upper.indexOf('WHERE ');
+      const wherePart = whereIdx !== -1 ? upper.slice(whereIdx) : '';
+
       // A. Specific complaint by ID or complaint_number
-      if (upper.includes('WHERE C.ID =') || upper.includes('WHERE (C.ID =') || upper.includes('C.COMPLAINT_NUMBER =') || upper.includes('WHERE ID =')) {
+      if (wherePart.includes('C.ID =') || wherePart.includes('(C.ID =') || wherePart.includes('C.COMPLAINT_NUMBER =') || wherePart.includes('ID =')) {
         idParam = params[0];
         if (idParam && String(idParam) !== 'NaN') {
           queryBuilder = queryBuilder.or(`id.eq.${idParam},complaint_number.eq.${idParam}`);
@@ -1051,7 +1054,7 @@ async function querySupabase(sql, params = []) {
         }
       }
       // B. Citizen filtering (both c.citizen_id = ? and c.citizen_id IN (...))
-      else if (upper.includes('CITIZEN_ID =') || upper.includes('CITIZEN_ID IN') || upper.includes('C.CITIZEN_ID')) {
+      else if (wherePart.includes('CITIZEN_ID =') || wherePart.includes('CITIZEN_ID IN') || wherePart.includes('C.CITIZEN_ID')) {
         isCitizenQuery = true;
         cleanCitizenParams = [...new Set(
           params
@@ -1085,8 +1088,9 @@ async function querySupabase(sql, params = []) {
         }
       }
       // C. Department filtering
-      else if (upper.includes('DEPARTMENT_ID =') || upper.includes('DEPARTMENT_ID IN') || upper.includes('C.DEPARTMENT_ID')) {
-        deptId = params.find(p => typeof p === 'string' && p.length > 0) || params[0];
+      else if (wherePart.includes('DEPARTMENT_ID =') || wherePart.includes('DEPARTMENT_ID IN') || wherePart.includes('C.DEPARTMENT_ID') || wherePart.includes('D.ID =') || wherePart.includes('D.CODE =')) {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        deptId = params.find(p => typeof p === 'string' && uuidRegex.test(p)) || params.find(p => typeof p === 'string' && p.length > 0) || params[0];
         if (deptId && String(deptId) !== 'NaN') {
           queryBuilder = queryBuilder.eq('department_id', String(deptId));
         } else {
