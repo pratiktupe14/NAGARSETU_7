@@ -90,6 +90,16 @@ function initDatabase() {
     }
 
     if (isPostgres && dbUrl) {
+      if (dbUrl.includes('postgres:postgres@') || dbUrl.includes('placeholder')) {
+        console.log('[DATABASE] Placeholder PostgreSQL credentials detected. Directing to verified Supabase REST client.');
+        const { getSupabase } = require('./supabaseStorage');
+        const supabase = getSupabase();
+        if (supabase) {
+          pgPool = null;
+          isSupabaseActive = true;
+          return onInitSuccess();
+        }
+      }
       console.log('Connecting to PostgreSQL database...');
       try {
         pgPool = new Pool({
@@ -100,7 +110,8 @@ function initDatabase() {
         pgPool.query('SELECT NOW()', (err, res) => {
           if (err) {
             console.warn('[DATABASE NOTE] PostgreSQL pool connection check note:', err.message);
-            const { supabase } = require('./supabaseStorage');
+            const { getSupabase } = require('./supabaseStorage');
+            const supabase = getSupabase();
             if (supabase) {
               console.log('[DATABASE] Verified Supabase client active as production database handler.');
               pgPool = null;
@@ -1335,7 +1346,17 @@ async function query(sql, params = []) {
       return await pgPool.query(pgSql, params);
     } catch (err) {
       console.warn('[DATABASE POOL NOTE] PostgreSQL pool query notice:', err.message);
-      if (err.message && (err.message.includes('timeout') || err.message.includes('Connection terminated') || err.message.includes('connect ECONNREFUSED'))) {
+      if (err.message && (
+        err.message.includes('timeout') ||
+        err.message.includes('Connection terminated') ||
+        err.message.includes('connect ECONNREFUSED') ||
+        err.message.includes('password authentication failed') ||
+        err.message.includes('authentication failed') ||
+        err.message.includes('SASL') ||
+        err.message.includes('tenant or user not found') ||
+        err.message.includes('ENOTFOUND') ||
+        err.message.includes('Connection closed')
+      )) {
         isSupabaseActive = true;
         pgPool = null;
       }

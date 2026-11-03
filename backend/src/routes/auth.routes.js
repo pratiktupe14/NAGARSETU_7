@@ -231,7 +231,7 @@ router.post('/login', validateInput(loginSchema), async (req, res) => {
     });
   } catch (err) {
     console.error('Login error:', err);
-    return res.status(500).json({ error: 'Server error during login', details: err.message });
+    return res.status(500).json({ error: 'Server error during login' });
   }
 });
 

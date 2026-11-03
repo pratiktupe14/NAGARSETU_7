@@ -1,11 +1,15 @@
 const { createClient } = require('@supabase/supabase-js');
 
+const CANONICAL_SUPABASE_URL = 'https://ozeiymkbxtrqqdoxtmhm.supabase.co';
+const CANONICAL_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96ZWl5bWtieHRycXFkb3h0bWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMjk1MzEsImV4cCI6MjEwMjgwNTUzMX0.6nQemY46XsG89kK5f_ONpAvrmI_buXX-VlpgLRY_sqs';
+
 function getValidSupabaseConfig() {
   const urlCandidates = [
     process.env.SUPABASE_URL,
     process.env.VITE_SUPABASE_URL,
     process.env.PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_URL
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    CANONICAL_SUPABASE_URL
   ];
 
   const keyCandidates = [
@@ -13,7 +17,8 @@ function getValidSupabaseConfig() {
     process.env.SUPABASE_ANON_KEY,
     process.env.VITE_SUPABASE_ANON_KEY,
     process.env.PUBLIC_SUPABASE_ANON_KEY,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    CANONICAL_SUPABASE_ANON_KEY
   ];
 
   const isValidUrl = (u) => {
@@ -42,8 +47,8 @@ function getValidSupabaseConfig() {
   const validUrlMatch = urlCandidates.find(isValidUrl);
   const validKeyMatch = keyCandidates.find(isValidKey);
 
-  const validUrl = validUrlMatch ? validUrlMatch.trim() : '';
-  const validKey = validKeyMatch ? validKeyMatch.trim() : '';
+  const validUrl = validUrlMatch ? validUrlMatch.trim() : CANONICAL_SUPABASE_URL;
+  const validKey = validKeyMatch ? validKeyMatch.trim() : CANONICAL_SUPABASE_ANON_KEY;
 
   return { url: validUrl, key: validKey };
 }
