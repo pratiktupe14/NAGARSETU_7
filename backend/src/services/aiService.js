@@ -108,7 +108,12 @@ async function callLocalAiService(fileBuffer, mimeType, originalName, domain = n
   const blob = new Blob([fileBuffer], { type: mimeType });
   formData.append('file', blob, originalName);
   if (domain) {
-    formData.append('domain', domain);
+    let cleanDomain = String(domain).toLowerCase().trim();
+    if (cleanDomain === 'roads') cleanDomain = 'road';
+    if (cleanDomain === 'wastes' || cleanDomain === 'garbages') cleanDomain = 'waste';
+    if (cleanDomain === 'pipes' || cleanDomain === 'waters') cleanDomain = 'pipe';
+    if (cleanDomain === 'drainages' || cleanDomain === 'drains') cleanDomain = 'drain';
+    formData.append('domain', cleanDomain);
   }
 
   const isProd = process.env.NODE_ENV === 'production';

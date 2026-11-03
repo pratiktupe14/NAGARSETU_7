@@ -537,7 +537,7 @@ const handleProfileUpdate = async (req, res) => {
     });
   } catch (err) {
     console.error('Profile update handler error:', err);
-    return res.status(500).json({ error: err.message || 'Server error updating profile' });
+    return res.status(500).json({ error: 'Server error updating profile' });
   }
 };
 

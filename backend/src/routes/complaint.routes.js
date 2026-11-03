@@ -1070,7 +1070,7 @@ router.patch('/:id/recurrence', authenticateToken, async (req, res) => {
     });
   } catch (err) {
     console.error('Error reviewing recurrence:', err);
-    return res.status(500).json({ error: err.message || 'Failed to review recurrence' });
+    return res.status(500).json({ error: 'Failed to review recurrence' });
   }
 });
 
