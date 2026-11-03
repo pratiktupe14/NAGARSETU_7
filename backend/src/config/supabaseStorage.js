@@ -1,47 +1,78 @@
 const { createClient } = require('@supabase/supabase-js');
 
 function getValidSupabaseConfig() {
-  const envUrl = (
-    process.env.SUPABASE_URL ||
-    process.env.VITE_SUPABASE_URL ||
-    process.env.PUBLIC_SUPABASE_URL ||
-    ''
-  ).trim();
+  const urlCandidates = [
+    process.env.SUPABASE_URL,
+    process.env.VITE_SUPABASE_URL,
+    process.env.PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_URL
+  ];
 
-  const envKey = (
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    process.env.VITE_SUPABASE_ANON_KEY ||
-    ''
-  ).trim();
+  const keyCandidates = [
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    process.env.SUPABASE_ANON_KEY,
+    process.env.VITE_SUPABASE_ANON_KEY,
+    process.env.PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ];
 
-  const validUrl = (envUrl && !envUrl.includes('your-supabase') && !envUrl.includes('your-project') && !envUrl.includes('placeholder') && !envUrl.includes('example'))
-    ? envUrl
-    : '';
+  const isValidUrl = (u) => {
+    if (!u || typeof u !== 'string') return false;
+    const s = u.trim();
+    return (s.startsWith('http://') || s.startsWith('https://')) &&
+      !s.includes('[Sensitive]') &&
+      !s.includes('your-supabase') &&
+      !s.includes('your-project') &&
+      !s.includes('placeholder') &&
+      !s.includes('example');
+  };
 
-  const validKey = (envKey && !envKey.includes('your_supabase') && !envKey.includes('your-supabase') && !envKey.includes('your_service_role') && !envKey.includes('placeholder') && !envKey.includes('here') && envKey.length > 20)
-    ? envKey
-    : '';
+  const isValidKey = (k) => {
+    if (!k || typeof k !== 'string') return false;
+    const s = k.trim();
+    return s.length > 20 &&
+      !s.includes('[Sensitive]') &&
+      !s.includes('your_supabase') &&
+      !s.includes('your-supabase') &&
+      !s.includes('your_service_role') &&
+      !s.includes('placeholder') &&
+      !s.includes('here');
+  };
+
+  const validUrlMatch = urlCandidates.find(isValidUrl);
+  const validKeyMatch = keyCandidates.find(isValidKey);
+
+  const validUrl = validUrlMatch ? validUrlMatch.trim() : '';
+  const validKey = validKeyMatch ? validKeyMatch.trim() : '';
 
   return { url: validUrl, key: validKey };
 }
 
-const { url: supabaseUrl, key: supabaseKey } = getValidSupabaseConfig();
+let supabaseInstance = null;
 
-let supabase = null;
-if (supabaseUrl && supabaseKey) {
-  try {
-    supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
-      }
-    });
-  } catch (e) {
-    console.warn('[SUPABASE STORAGE] Initialization note:', e.message);
+function getSupabase() {
+  if (supabaseInstance) return supabaseInstance;
+
+  const { url, key } = getValidSupabaseConfig();
+  if (url && key) {
+    try {
+      supabaseInstance = createClient(url, key, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false
+        }
+      });
+      return supabaseInstance;
+    } catch (e) {
+      console.warn('[SUPABASE STORAGE] Initialization note:', e.message);
+    }
   }
+  return null;
 }
+
+// Initial bootstrap attempt
+getSupabase();
 
 /**
  * Uploads a file buffer to Supabase Storage bucket (default 'issues')
@@ -54,14 +85,15 @@ if (supabaseUrl && supabaseKey) {
  * @returns {Promise<{ publicUrl: string, filePath: string }>}
  */
 async function uploadBufferToSupabase(buffer, filename, mimetype = 'image/jpeg', bucketName = 'issues') {
-  if (!supabase) {
+  const client = getSupabase();
+  if (!client) {
     throw new Error('Supabase client is not configured on the backend. Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.');
   }
 
   const cleanFilename = `${Date.now()}_${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
   const filePath = `uploads/${cleanFilename}`;
 
-  const { data, error } = await supabase.storage
+  const { data, error } = await client.storage
     .from(bucketName)
     .upload(filePath, buffer, {
       contentType: mimetype,
@@ -74,7 +106,7 @@ async function uploadBufferToSupabase(buffer, filename, mimetype = 'image/jpeg',
     throw new Error(`Supabase Storage upload failed: ${error.message}`);
   }
 
-  const { data: publicUrlData } = supabase.storage
+  const { data: publicUrlData } = client.storage
     .from(bucketName)
     .getPublicUrl(filePath);
 
@@ -89,6 +121,9 @@ async function uploadBufferToSupabase(buffer, filename, mimetype = 'image/jpeg',
 }
 
 module.exports = {
-  supabase,
+  get supabase() {
+    return getSupabase();
+  },
+  getSupabase,
   uploadBufferToSupabase
 };

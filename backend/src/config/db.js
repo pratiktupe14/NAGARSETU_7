@@ -878,10 +878,31 @@ function runMemQuery(sql, params = []) {
   return Promise.resolve({ rows: [], rowCount: 1 });
 }
 
+const CANONICAL_DEPT_MAP = {
+  '1': 'Public Works Department (PWD)',
+  '2': 'Sanitation & Waste Management',
+  '3': 'Water Supply & Sewerage Board',
+  '4': 'Drainage & Sewage Department',
+  '5': 'Electrical & Street Lighting',
+  '6': 'Traffic Management Department',
+  '7': 'Maintenance Department',
+  'PWD': 'Public Works Department (PWD)',
+  'SAN': 'Sanitation & Waste Management',
+  'WTR': 'Water Supply & Sewerage Board',
+  'DRN': 'Drainage & Sewage Department',
+  'ELE': 'Electrical & Street Lighting',
+  'TRF': 'Traffic Management Department',
+  'MNT': 'Maintenance Department',
+  '9cabc1f2-fd10-48dd-a5cb-01d05197de22': 'Sanitation & Waste Management',
+  'ead370cc-459c-44f0-899f-8a97f0928beb': 'Water Supply & Sewerage Board',
+  'ee73cb82-cc47-4333-b7d6-4491353c1354': 'Drainage & Sewage Department'
+};
+
 // Lightweight, type-safe Supabase REST client adapter for PostgreSQL fallback
 async function querySupabase(sql, params = []) {
   try {
-    const { supabase } = require('./supabaseStorage');
+    const { getSupabase } = require('./supabaseStorage');
+    const supabase = getSupabase();
     if (!supabase) return null;
 
     const trimmed = sql.trim();
@@ -966,11 +987,15 @@ async function querySupabase(sql, params = []) {
         if (!error && count !== null) return { rows: [{ count }] };
       }
       let queryBuilder = supabase.from('complaints').select('*, departments(name)');
+      let cleanCitizenParams = [];
+      let isCitizenQuery = false;
+      let idParam = null;
+      let deptId = null;
 
       // A. Specific complaint by ID or complaint_number
       if (upper.includes('WHERE C.ID =') || upper.includes('WHERE (C.ID =') || upper.includes('C.COMPLAINT_NUMBER =') || upper.includes('WHERE ID =')) {
-        const idParam = params[0];
-        if (idParam) {
+        idParam = params[0];
+        if (idParam && String(idParam) !== 'NaN') {
           queryBuilder = queryBuilder.or(`id.eq.${idParam},complaint_number.eq.${idParam}`);
         } else {
           return { rows: [] };
@@ -978,36 +1003,65 @@ async function querySupabase(sql, params = []) {
       }
       // B. Citizen filtering (both c.citizen_id = ? and c.citizen_id IN (...))
       else if (upper.includes('CITIZEN_ID =') || upper.includes('CITIZEN_ID IN') || upper.includes('C.CITIZEN_ID')) {
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        const validUuids = [...new Set(params.map(String).filter(p => uuidRegex.test(p)))];
-        if (validUuids.length === 1) {
-          queryBuilder = queryBuilder.eq('citizen_id', validUuids[0]);
-        } else if (validUuids.length > 1) {
-          queryBuilder = queryBuilder.in('citizen_id', validUuids);
-        } else {
-          // FAIL CLOSED: A citizen filter was requested in the query, but no valid citizen UUID was provided or resolved.
+        isCitizenQuery = true;
+        cleanCitizenParams = [...new Set(
+          params
+            .filter(p => p !== null && p !== undefined && p !== '' && p !== 'NaN' && !Number.isNaN(p))
+            .map(String)
+            .map(s => s.trim())
+            .filter(s => s.length > 0 && s !== 'NaN')
+        )];
+
+        if (cleanCitizenParams.length === 0) {
+          // FAIL CLOSED: A citizen filter was requested in the query, but no valid citizen identifier was provided.
           // NEVER run an unfiltered query or return another citizen's records.
           return { rows: [] };
+        }
+
+        if (cleanCitizenParams.length === 1) {
+          queryBuilder = queryBuilder.eq('citizen_id', cleanCitizenParams[0]);
+        } else {
+          queryBuilder = queryBuilder.in('citizen_id', cleanCitizenParams);
         }
       }
       // C. Department filtering
       else if (upper.includes('DEPARTMENT_ID =') || upper.includes('DEPARTMENT_ID IN') || upper.includes('C.DEPARTMENT_ID')) {
-        const deptId = params.find(p => typeof p === 'string' && p.length > 0) || params[0];
-        if (deptId) {
+        deptId = params.find(p => typeof p === 'string' && p.length > 0) || params[0];
+        if (deptId && String(deptId) !== 'NaN') {
           queryBuilder = queryBuilder.eq('department_id', String(deptId));
         } else {
           return { rows: [] };
         }
       }
 
-      const { data, error } = await queryBuilder.order('created_at', { ascending: false });
+      let { data, error } = await queryBuilder.order('created_at', { ascending: false });
+
+      // Fallback if relationship join failed
+      if (error) {
+        console.warn('[SUPABASE COMPLAINTS QUERY NOTE] Primary select with relation note:', error.message);
+        let fallbackBuilder = supabase.from('complaints').select('*');
+        if (idParam) {
+          fallbackBuilder = fallbackBuilder.or(`id.eq.${idParam},complaint_number.eq.${idParam}`);
+        } else if (isCitizenQuery && cleanCitizenParams.length === 1) {
+          fallbackBuilder = fallbackBuilder.eq('citizen_id', cleanCitizenParams[0]);
+        } else if (isCitizenQuery && cleanCitizenParams.length > 1) {
+          fallbackBuilder = fallbackBuilder.in('citizen_id', cleanCitizenParams);
+        } else if (deptId) {
+          fallbackBuilder = fallbackBuilder.eq('department_id', String(deptId));
+        }
+        const fbRes = await fallbackBuilder.order('created_at', { ascending: false });
+        data = fbRes.data;
+        error = fbRes.error;
+      }
+
       if (!error && data) {
         const formatted = data.map(row => ({
           ...row,
-          department_name: row.departments?.name || row.department_name
+          department_name: row.departments?.name || CANONICAL_DEPT_MAP[String(row.department_id)] || row.department_name || 'Municipal Services'
         }));
         return { rows: formatted };
       }
+      return { rows: [] };
     }
 
     // 2b. Complaints status update
@@ -1194,6 +1248,11 @@ async function query(sql, params = []) {
 
       return await pgPool.query(pgSql, params);
     } catch (err) {
+      console.warn('[DATABASE POOL NOTE] PostgreSQL pool query notice:', err.message);
+      if (err.message && (err.message.includes('timeout') || err.message.includes('Connection terminated') || err.message.includes('connect ECONNREFUSED'))) {
+        isSupabaseActive = true;
+        pgPool = null;
+      }
       // Graceful fallback to verified Supabase REST client
       const supaRes = await querySupabase(sql, params);
       if (supaRes) {

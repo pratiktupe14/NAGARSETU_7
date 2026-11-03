@@ -383,10 +383,13 @@ async function authenticateToken(req, res, next) {
     }
 
     const normalizedRole = normalizeRole(role);
+    const userMobile = profRes.data?.mobile || profRes.data?.phone || authUser.phone || authUser.user_metadata?.mobile || authUser.user_metadata?.phone || '';
 
     req.user = {
       id: authUser.id,
+      supabase_uid: authUser.id,
       email: authUser.email,
+      mobile: userMobile,
       role: normalizedRole,
       department_id: departmentId,
       department_name: departmentName,

@@ -29,17 +29,18 @@ router.use((req, res, next) => {
 async function resolveAuthorizedCitizenIds(user) {
   const ids = new Set();
   if (!user) return ids;
-  const rawId = user.id != null ? String(user.id) : '';
-  const mobile = user.mobile ? String(user.mobile) : '';
-  const email = user.email ? String(user.email).toLowerCase() : '';
-  const name = user.name ? String(user.name).toLowerCase() : '';
+  const rawId = user.id != null ? String(user.id).trim() : '';
+  const mobile = user.mobile ? String(user.mobile).trim() : '';
+  const email = user.email ? String(user.email).toLowerCase().trim() : '';
 
-  if (rawId) {
+  if (rawId && rawId !== 'NaN') {
     ids.add(rawId);
-    ids.add(Number(rawId));
+    if (!isNaN(Number(rawId)) && !rawId.includes('-')) {
+      ids.add(Number(rawId));
+    }
   }
-  if (user.supabase_uid) {
-    ids.add(String(user.supabase_uid));
+  if (user.supabase_uid && String(user.supabase_uid).trim() !== 'NaN') {
+    ids.add(String(user.supabase_uid).trim());
   }
 
   if (mobile || email) {
@@ -47,8 +48,15 @@ async function resolveAuthorizedCitizenIds(user) {
       const uRes = await query('SELECT id FROM users WHERE mobile = ? OR LOWER(email) = ?', [mobile, email]);
       if (uRes.rows && uRes.rows.length > 0) {
         for (const row of uRes.rows) {
-          ids.add(String(row.id));
-          ids.add(Number(row.id));
+          if (row.id != null) {
+            const strId = String(row.id).trim();
+            if (strId && strId !== 'NaN') {
+              ids.add(strId);
+              if (!isNaN(Number(strId)) && !strId.includes('-')) {
+                ids.add(Number(strId));
+              }
+            }
+          }
         }
       }
     } catch (e) {}
@@ -58,13 +66,13 @@ async function resolveAuthorizedCitizenIds(user) {
       if (DEMO_USER_TOKENS) {
         for (const dt of Object.values(DEMO_USER_TOKENS)) {
           if ((mobile && dt.mobile === mobile) || (email && dt.email && dt.email.toLowerCase() === email)) {
-            if (dt.id) {
+            if (dt.id && String(dt.id) !== 'NaN') {
               ids.add(String(dt.id));
-              if (!isNaN(Number(dt.id))) ids.add(Number(dt.id));
+              if (!isNaN(Number(dt.id)) && !String(dt.id).includes('-')) ids.add(Number(dt.id));
             }
-            if (dt.legacy_id) {
+            if (dt.legacy_id && String(dt.legacy_id) !== 'NaN') {
               ids.add(String(dt.legacy_id));
-              ids.add(Number(dt.legacy_id));
+              if (!isNaN(Number(dt.legacy_id))) ids.add(Number(dt.legacy_id));
             }
           }
         }
@@ -73,8 +81,9 @@ async function resolveAuthorizedCitizenIds(user) {
 
     // Resolve authoritative Supabase profile UUID
     try {
-      const { supabase } = require('../config/supabaseStorage');
-      if (supabase) {
+      const { getSupabase } = require('../config/supabaseStorage');
+      const client = getSupabase();
+      if (client) {
         const filters = [];
         if (mobile) {
           const rawDigits = mobile.replace(/\D/g, '');
@@ -83,22 +92,32 @@ async function resolveAuthorizedCitizenIds(user) {
         }
         if (email) filters.push(`email.ilike.${email}`);
         if (filters.length > 0) {
-          const { data: prof } = await supabase.from('profiles').select('id').or(filters.join(',')).maybeSingle();
+          const { data: prof } = await client.from('profiles').select('id').or(filters.join(',')).maybeSingle();
           if (prof && prof.id) {
-            ids.add(String(prof.id));
+            ids.add(String(prof.id).trim());
           }
         }
       }
     } catch (e) {}
   }
 
-  return ids;
+  // Strictly filter out any NaN, null, undefined, empty strings, or string 'NaN'
+  const cleanIds = new Set();
+  for (const id of ids) {
+    if (id !== null && id !== undefined && id !== '' && id !== 'NaN' && !Number.isNaN(id)) {
+      cleanIds.add(id);
+    }
+  }
+  return cleanIds;
 }
 
 async function isCitizenComplaintOwner(complaintCitizenId, user) {
   if (!complaintCitizenId || !user) return false;
   const ids = await resolveAuthorizedCitizenIds(user);
-  return ids.has(String(complaintCitizenId)) || ids.has(Number(complaintCitizenId));
+  const strId = String(complaintCitizenId).trim();
+  if (ids.has(strId)) return true;
+  if (!isNaN(Number(strId)) && ids.has(Number(strId))) return true;
+  return false;
 }
 
 // Dedicated photo upload endpoint for complaints (persists to /uploads or Supabase storage)
@@ -1404,15 +1423,22 @@ router.get('/', authenticateToken, async (req, res) => {
     const params = [];
 
     if (isCitizen) {
-      const allowedIds = Array.from(await resolveAuthorizedCitizenIds(req.user));
+      const allowedIds = Array.from(await resolveAuthorizedCitizenIds(req.user)).filter(
+        id => id !== null && id !== undefined && id !== '' && id !== 'NaN' && !Number.isNaN(id)
+      );
       if (allowedIds.length > 0) {
         const placeholders = allowedIds.map(() => '?').join(', ');
         sql += ` WHERE (c.citizen_id IN (${placeholders}) OR CAST(c.citizen_id AS TEXT) IN (${placeholders}))`;
-        params.push(...allowedIds, ...allowedIds.map(String));
+        params.push(...allowedIds.map(String), ...allowedIds.map(String));
       } else {
-        const rawCitizenId = req.user?.id != null ? String(req.user.id) : '';
-        sql += ` WHERE (c.citizen_id = ? OR CAST(c.citizen_id AS TEXT) = ?)`;
-        params.push(rawCitizenId, rawCitizenId);
+        const rawCitizenId = req.user?.id != null ? String(req.user.id).trim() : '';
+        if (rawCitizenId && rawCitizenId !== 'NaN') {
+          sql += ` WHERE (c.citizen_id = ? OR CAST(c.citizen_id AS TEXT) = ?)`;
+          params.push(rawCitizenId, rawCitizenId);
+        } else {
+          // Strictly fail-closed: return empty complaints if no citizen ID resolved
+          return res.json({ complaints: [] });
+        }
       }
     } else if (isDeptHead && (req.user?.department_id || req.user?.department_code)) {
       const rawDept = req.user.department_id || req.user.department_code;
@@ -1469,19 +1495,51 @@ router.get('/my', authenticateToken, async (req, res) => {
       LEFT JOIN feedback f ON f.complaint_id = c.id
     `;
     const params = [];
-    const allowedIds = Array.from(await resolveAuthorizedCitizenIds(req.user));
+    const allowedIds = Array.from(await resolveAuthorizedCitizenIds(req.user)).filter(
+      id => id !== null && id !== undefined && id !== '' && id !== 'NaN' && !Number.isNaN(id)
+    );
     if (allowedIds.length > 0) {
       const placeholders = allowedIds.map(() => '?').join(', ');
       sql += ` WHERE (c.citizen_id IN (${placeholders}) OR CAST(c.citizen_id AS TEXT) IN (${placeholders}))`;
-      params.push(...allowedIds, ...allowedIds.map(String));
+      params.push(...allowedIds.map(String), ...allowedIds.map(String));
     } else {
-      const rawCitizenId = req.user?.id != null ? String(req.user.id) : '';
+      const rawCitizenId = req.user?.id != null ? String(req.user.id).trim() : '';
+      if (!rawCitizenId || rawCitizenId === 'NaN') {
+        return res.json({ complaints: [] });
+      }
       sql += ` WHERE (c.citizen_id = ? OR CAST(c.citizen_id AS TEXT) = ?)`;
       params.push(rawCitizenId, rawCitizenId);
     }
     sql += ` ORDER BY c.created_at DESC`;
-    const result = await query(sql, params);
-    const pgRows = result.rows || [];
+
+    let pgRows = [];
+    try {
+      const result = await query(sql, params);
+      pgRows = result.rows || [];
+    } catch (dbErr) {
+      console.warn('[MY COMPLAINTS NOTE] Primary query exception, falling back to Supabase client:', dbErr.message);
+      const { getSupabase } = require('../config/supabaseStorage');
+      const client = getSupabase();
+      if (client && allowedIds.length > 0) {
+        const idStrings = allowedIds.map(String);
+        let q = client.from('complaints').select('*, departments(name)');
+        if (idStrings.length === 1) {
+          q = q.eq('citizen_id', idStrings[0]);
+        } else {
+          q = q.in('citizen_id', idStrings);
+        }
+        const { data, error } = await q.order('created_at', { ascending: false });
+        if (!error && data) {
+          pgRows = data.map(r => ({
+            ...r,
+            department_name: r.departments?.name || r.department_name
+          }));
+        } else {
+          const { data: plainData } = await client.from('complaints').select('*').in('citizen_id', idStrings).order('created_at', { ascending: false });
+          if (plainData) pgRows = plainData;
+        }
+      }
+    }
 
     return res.json({ complaints: pgRows.map(c => normalizeComplaintPhotoUrls(c, req)) });
   } catch (err) {
