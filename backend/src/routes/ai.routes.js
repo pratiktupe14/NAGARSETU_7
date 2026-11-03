@@ -12,6 +12,10 @@ const { attachGcpAuthHeaders, getLastDiagnostics } = require('../services/gcpAut
  * GET /api/ai/health
  */
 router.get('/health', async (req, res) => {
+  if (req.query.reset === 'true') {
+    const { resetTokenCache } = require('../services/gcpAuthService');
+    resetTokenCache();
+  }
   const defaultAiUrl = process.env.NODE_ENV === 'production'
     ? 'https://nagarsetu-ai-service-755578057105.asia-south1.run.app/analyze'
     : 'http://localhost:8000/analyze';

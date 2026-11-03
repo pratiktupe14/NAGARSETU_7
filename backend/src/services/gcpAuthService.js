@@ -289,12 +289,14 @@ async function getCloudRunIdToken(targetUrl, options = {}) {
     return process.env.GCP_ID_TOKEN || process.env.CLOUD_RUN_ID_TOKEN;
   }
 
-  // 2. Check token cache
+  // 2. Check token cache (ensure internal API key is also available if not in env)
   const now = Date.now();
+  const hasKey = Boolean(process.env.AI_INTERNAL_API_KEY || cachedInternalApiKey.key || cachedTokenData.apiKey);
   if (
     cachedTokenData.idToken &&
     cachedTokenData.audience === audience &&
-    cachedTokenData.expiresAt > (now + 5 * 60 * 1000) // 5-minute safety buffer
+    cachedTokenData.expiresAt > (now + 5 * 60 * 1000) &&
+    hasKey
   ) {
     return cachedTokenData.idToken;
   }
@@ -379,7 +381,8 @@ async function getCloudRunIdToken(targetUrl, options = {}) {
       cachedTokenData = {
         idToken,
         expiresAt,
-        audience
+        audience,
+        apiKey: cachedInternalApiKey.key
       };
 
       return idToken;
@@ -430,7 +433,12 @@ function resetTokenCache() {
   cachedTokenData = {
     idToken: null,
     expiresAt: 0,
-    audience: null
+    audience: null,
+    apiKey: null
+  };
+  cachedInternalApiKey = {
+    key: null,
+    expiresAt: 0
   };
   inFlightPromise = null;
 }
