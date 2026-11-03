@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 9,
+  "batch_vs_sequential": {
+    "sequential_mean_ms": 98.97,
+    "batched_mean_ms": 31.06,
+    "speedup_factor": 3.19
+  },
+  "overlap_tuning": {
+    "10%": {
+      "overlap_ratio": 0.1,
+      "average_patches_per_image": 4.0,
+      "accuracy": 1.0,
+      "latency_mean_ms": 36.16,
+      "latency_p95_ms": 39.42
+    },
+    "20%": {
+      "overlap_ratio": 0.2,
+      "average_patches_per_image": 4.0,
+      "accuracy": 1.0,
+      "latency_mean_ms": 36.05,
+      "latency_p95_ms": 40.45
+    },
+    "30%": {
+      "overlap_ratio": 0.3,
+      "average_patches_per_image": 4.0,
+      "accuracy": 1.0,
+      "latency_mean_ms": 35.33,
+      "latency_p95_ms": 38.62
+    }
+  },
+  "gating_strategies": {
+    "Aggressive (Norm>0.85, Leak>0.80)": {
+      "early_exit_pct": 82.67,
+      "accuracy": 1.0,
+      "latency_mean_ms": 15.49,
+      "latency_p95_ms": 36.57
+    },
+    "Calibrated (Norm>0.90, Leak>0.85)": {
+      "early_exit_pct": 80.67,
+      "accuracy": 1.0,
+      "latency_mean_ms": 15.84,
+      "latency_p95_ms": 35.69
+    },
+    "Conservative (Norm>0.95, Leak>0.90)": {
+      "early_exit_pct": 70.67,
+      "accuracy": 1.0,
+      "latency_mean_ms": 18.92,
+      "latency_p95_ms": 38.49
+    },
+    "No Gating (Always Patch)": {
+      "early_exit_pct": 0.0,
+      "accuracy": 1.0,
+      "latency_mean_ms": 38.42,
+      "latency_p95_ms": 48.16
+    }
+  },
+  "stage_breakdown": {
+    "preprocessing_and_global_check_ms": {
+      "mean": 13.48,
+      "p95": 17.76
+    },
+    "patch_extraction_ms": {
+      "mean": 0.78,
+      "p95": 0.94
+    },
+    "batched_patch_forward_pass_ms": {
+      "mean": 41.59,
+      "p95": 45.93
+    },
+    "score_aggregation_ms": {
+      "mean": 0.09,
+      "p95": 0.12
+    },
+    "total_full_pipeline_ms": {
+      "mean": 55.94,
+      "p95": 61.87,
+      "p99": 92.13
+    }
+  },
+  "sla_compliance": {
+    "sla_target_ms": 150.0,
+    "p95_actual_ms": 61.87,
+    "headroom_pct": 58.75,
+    "meets_20pct_headroom_requirement": true
+  }
+}

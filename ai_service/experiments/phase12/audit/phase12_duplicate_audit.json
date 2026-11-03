@@ -1,0 +1,79 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": "12",
+  "reconciliation_summary": {
+    "total_physical_files_scanned": 87,
+    "exact_sha256_duplicates_count": 2,
+    "unique_physical_photographs_count": 85,
+    "distinct_perceptual_clusters_count": 82,
+    "near_duplicate_merged_pairs_count": 3,
+    "arithmetic_shortfall_against_500_by_photos": 415,
+    "arithmetic_shortfall_against_500_by_clusters": 418
+  },
+  "exact_sha256_duplicates": [
+    {
+      "duplicate_filepath": "D:\\NAGARSETU\\leaking pipes\\images (21).jpg",
+      "original_filepath": "D:\\NAGARSETU\\leaking pipes\\images (19).jpg",
+      "sha256": "cd5e0b3a816e043b7114da211e305661f62c08d10db2e8c0a02d41ed5982335b",
+      "filename": "images (21).jpg"
+    },
+    {
+      "duplicate_filepath": "D:\\NAGARSETU\\images\\water leakage\\burst-water-pipe.jpg",
+      "original_filepath": "D:\\NAGARSETU\\leaking pipes\\burst-water-pipe.jpg",
+      "sha256": "d4b3141659cfa7fcd2a58d274cf43f71bc3704609ae98c35db17d809fd4e0f79",
+      "filename": "burst-water-pipe.jpg"
+    }
+  ],
+  "near_duplicate_pairs_hamming_le_5": [
+    {
+      "image_1": "8gpfpaywtj6a1.jpg",
+      "path_1": "D:\\NAGARSETU\\leaking pipes\\8gpfpaywtj6a1.jpg",
+      "image_2": "images (10).jpg",
+      "path_2": "D:\\NAGARSETU\\leaking pipes\\images (10).jpg",
+      "hamming_distance": 1
+    },
+    {
+      "image_1": "images (8).jpg",
+      "path_1": "D:\\NAGARSETU\\leaking pipes\\images (8).jpg",
+      "image_2": "need-advice-on-fixing-leak-in-underground-pipes-v0-cHBibnF5N3o0M3pmMV4T4mLa_8iLGbORBOPLt17YUBd1n0HNEMGd_L7Hdw-m.webp",
+      "path_2": "D:\\NAGARSETU\\leaking pipes\\need-advice-on-fixing-leak-in-underground-pipes-v0-cHBibnF5N3o0M3pmMV4T4mLa_8iLGbORBOPLt17YUBd1n0HNEMGd_L7Hdw-m.webp",
+      "hamming_distance": 0
+    },
+    {
+      "image_1": "Screenshot 2026-10-09 011541.png",
+      "path_1": "D:\\NAGARSETU\\normal pipe images\\Screenshot 2026-10-09 011541.png",
+      "image_2": "WhatsApp Image 2026-10-09 at 1.24.00 AM.jpeg",
+      "path_2": "D:\\NAGARSETU\\normal pipe images\\WhatsApp Image 2026-10-09 at 1.24.00 AM.jpeg",
+      "hamming_distance": 5
+    }
+  ],
+  "multi_image_clusters": [
+    {
+      "cluster_id": "CLUSTER-001",
+      "size": 2,
+      "images": [
+        "8gpfpaywtj6a1.jpg",
+        "images (10).jpg"
+      ],
+      "split": "train"
+    },
+    {
+      "cluster_id": "CLUSTER-046",
+      "size": 2,
+      "images": [
+        "images (8).jpg",
+        "need-advice-on-fixing-leak-in-underground-pipes-v0-cHBibnF5N3o0M3pmMV4T4mLa_8iLGbORBOPLt17YUBd1n0HNEMGd_L7Hdw-m.webp"
+      ],
+      "split": "train"
+    },
+    {
+      "cluster_id": "CLUSTER-059",
+      "size": 2,
+      "images": [
+        "Screenshot 2026-10-09 011541.png",
+        "WhatsApp Image 2026-10-09 at 1.24.00 AM.jpeg"
+      ],
+      "split": "val"
+    }
+  ]
+}

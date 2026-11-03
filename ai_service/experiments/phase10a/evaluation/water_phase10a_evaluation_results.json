@@ -1,0 +1,250 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": "10A",
+  "total_samples": 150,
+  "overall_metrics": {
+    "production_baseline": {
+      "accuracy": 0.96,
+      "tp": 73,
+      "tn": 71,
+      "fp": 4,
+      "fn": 2,
+      "precision": 0.9481,
+      "leak_recall": 0.9733,
+      "normal_recall": 0.9467,
+      "leak_f1": 0.9605,
+      "normal_f1": 0.9595,
+      "macro_f1": 0.96,
+      "fpr": 0.0533,
+      "fnr": 0.0267,
+      "latency_mean_ms": 12.8,
+      "latency_median_ms": 12.62,
+      "latency_p95_ms": 15.55,
+      "latency_p99_ms": 16.57,
+      "conf_mean": 0.5116
+    },
+    "candidate_v5_fp32": {
+      "accuracy": 0.94,
+      "tp": 74,
+      "tn": 67,
+      "fp": 8,
+      "fn": 1,
+      "precision": 0.9024,
+      "leak_recall": 0.9867,
+      "normal_recall": 0.8933,
+      "leak_f1": 0.9427,
+      "normal_f1": 0.9371,
+      "macro_f1": 0.9399,
+      "fpr": 0.1067,
+      "fnr": 0.0133,
+      "latency_mean_ms": 11.48,
+      "latency_median_ms": 10.94,
+      "latency_p95_ms": 14.72,
+      "latency_p99_ms": 18.0,
+      "conf_mean": 0.5441
+    },
+    "candidate_v5_int8": {
+      "accuracy": 0.94,
+      "tp": 74,
+      "tn": 67,
+      "fp": 8,
+      "fn": 1,
+      "precision": 0.9024,
+      "leak_recall": 0.9867,
+      "normal_recall": 0.8933,
+      "leak_f1": 0.9427,
+      "normal_f1": 0.9371,
+      "macro_f1": 0.9399,
+      "fpr": 0.1067,
+      "fnr": 0.0133,
+      "latency_mean_ms": 10.91,
+      "latency_median_ms": 10.67,
+      "latency_p95_ms": 13.03,
+      "latency_p99_ms": 14.7,
+      "conf_mean": 0.5442
+    },
+    "calibrated_patch_v2": {
+      "accuracy": 0.94,
+      "tp": 73,
+      "tn": 68,
+      "fp": 7,
+      "fn": 2,
+      "precision": 0.9125,
+      "leak_recall": 0.9733,
+      "normal_recall": 0.9067,
+      "leak_f1": 0.9419,
+      "normal_f1": 0.9379,
+      "macro_f1": 0.9399,
+      "fpr": 0.0933,
+      "fnr": 0.0267,
+      "latency_mean_ms": 17.06,
+      "latency_median_ms": 11.45,
+      "latency_p95_ms": 38.58,
+      "latency_p99_ms": 61.88,
+      "conf_mean": 0.5283
+    }
+  },
+  "accuracy_comparison": {
+    "baseline_accuracy_pct": 96.0,
+    "candidate_v5_accuracy_pct": 94.0,
+    "accuracy_delta_percentage_points": -2.0,
+    "candidate_superior_on_accuracy": false,
+    "candidate_leak_recall_pct": 98.67,
+    "baseline_leak_recall_pct": 97.33000000000001,
+    "recall_delta_percentage_points": 1.34
+  },
+  "scenario_breakdown": {
+    "concrete_rcc_intact_culvert": {
+      "total_samples": 15,
+      "ground_truth_class": "normal",
+      "baseline_correct": 13,
+      "candidate_fp32_correct": 13,
+      "patch_v2_correct": 12
+    },
+    "condensation_cold_pipe": {
+      "total_samples": 15,
+      "ground_truth_class": "normal",
+      "baseline_correct": 14,
+      "candidate_fp32_correct": 13,
+      "patch_v2_correct": 14
+    },
+    "dry_utility_trench": {
+      "total_samples": 15,
+      "ground_truth_class": "normal",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 14,
+      "patch_v2_correct": 15
+    },
+    "hairline_cracks_leak": {
+      "total_samples": 15,
+      "ground_truth_class": "leaking",
+      "baseline_correct": 13,
+      "candidate_fp32_correct": 14,
+      "patch_v2_correct": 13
+    },
+    "large_water_burst": {
+      "total_samples": 15,
+      "ground_truth_class": "leaking",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 15,
+      "patch_v2_correct": 15
+    },
+    "microscopic_pinhole_leak": {
+      "total_samples": 15,
+      "ground_truth_class": "leaking",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 15,
+      "patch_v2_correct": 15
+    },
+    "rusted_intact_pipe": {
+      "total_samples": 15,
+      "ground_truth_class": "normal",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 14,
+      "patch_v2_correct": 14
+    },
+    "slow_joint_trickle": {
+      "total_samples": 15,
+      "ground_truth_class": "leaking",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 15,
+      "patch_v2_correct": 15
+    },
+    "thin_vertical_water_spray": {
+      "total_samples": 15,
+      "ground_truth_class": "leaking",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 15,
+      "patch_v2_correct": 15
+    },
+    "wet_surface_rain_puddle": {
+      "total_samples": 15,
+      "ground_truth_class": "normal",
+      "baseline_correct": 14,
+      "candidate_fp32_correct": 13,
+      "patch_v2_correct": 13
+    }
+  },
+  "candidate_v5_false_positives": [
+    {
+      "sample_id": "WTR-P9-081",
+      "scenario": "rusted_intact_pipe",
+      "pipe_material": "DUCTILE_IRON",
+      "lighting_condition": "OVERCAST",
+      "parent_source_image": "Screenshot 2026-10-09 011601.png",
+      "candidate_prob": 0.9179,
+      "baseline_prob": 0.4569,
+      "baseline_prediction": 0
+    },
+    {
+      "sample_id": "WTR-P9-091",
+      "scenario": "condensation_cold_pipe",
+      "pipe_material": "PVC_WHITE",
+      "lighting_condition": "OVERCAST",
+      "parent_source_image": "blue-industrial-water-pipe-system-with-visible-rust-near-a-corrugated-metal-wall-in-an-outdoor-setting-photo.jpg",
+      "candidate_prob": 0.999,
+      "baseline_prob": 0.5005,
+      "baseline_prediction": 1
+    },
+    {
+      "sample_id": "WTR-P9-095",
+      "scenario": "condensation_cold_pipe",
+      "pipe_material": "GALVANIZED_STEEL",
+      "lighting_condition": "DIRECT_DAYLIGHT",
+      "parent_source_image": "images (4).jpg",
+      "candidate_prob": 0.7185,
+      "baseline_prob": 0.3134,
+      "baseline_prediction": 0
+    },
+    {
+      "sample_id": "WTR-P9-109",
+      "scenario": "wet_surface_rain_puddle",
+      "pipe_material": "PVC_WHITE",
+      "lighting_condition": "ARTIFICIAL_TORCH",
+      "parent_source_image": "Screenshot 2026-10-09 011601.png",
+      "candidate_prob": 0.6998,
+      "baseline_prob": 0.3336,
+      "baseline_prediction": 0
+    },
+    {
+      "sample_id": "WTR-P9-119",
+      "scenario": "wet_surface_rain_puddle",
+      "pipe_material": "GALVANIZED_STEEL",
+      "lighting_condition": "ARTIFICIAL_TORCH",
+      "parent_source_image": "blue-industrial-water-pipe-system-with-visible-rust-near-a-corrugated-metal-wall-in-an-outdoor-setting-photo.jpg",
+      "candidate_prob": 0.9996,
+      "baseline_prob": 0.5652,
+      "baseline_prediction": 1
+    },
+    {
+      "sample_id": "WTR-P9-123",
+      "scenario": "dry_utility_trench",
+      "pipe_material": "DUCTILE_IRON",
+      "lighting_condition": "SHADOWED_TRENCH",
+      "parent_source_image": "images (4).jpg",
+      "candidate_prob": 0.9196,
+      "baseline_prob": 0.2744,
+      "baseline_prediction": 0
+    },
+    {
+      "sample_id": "WTR-P9-137",
+      "scenario": "concrete_rcc_intact_culvert",
+      "pipe_material": "GALVANIZED_STEEL",
+      "lighting_condition": "LOW_LIGHT_DAWN",
+      "parent_source_image": "Screenshot 2026-10-09 011601.png",
+      "candidate_prob": 0.9471,
+      "baseline_prob": 0.3782,
+      "baseline_prediction": 0
+    },
+    {
+      "sample_id": "WTR-P9-147",
+      "scenario": "concrete_rcc_intact_culvert",
+      "pipe_material": "DUCTILE_IRON",
+      "lighting_condition": "LOW_LIGHT_DAWN",
+      "parent_source_image": "blue-industrial-water-pipe-system-with-visible-rust-near-a-corrugated-metal-wall-in-an-outdoor-setting-photo.jpg",
+      "candidate_prob": 0.9992,
+      "baseline_prob": 0.5784,
+      "baseline_prediction": 1
+    }
+  ]
+}

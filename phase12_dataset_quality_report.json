@@ -1,0 +1,73 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": "12",
+  "overall_quality_verdict": "VERIFIED_STANDARDIZED_WITH_KNOWN_DATA_SHORTFALL",
+  "integrity_metrics": {
+    "total_records_checked": 85,
+    "corrupt_or_unreadable_files_count": 0,
+    "duplicate_sha256_unflagged_count": 0,
+    "missing_metadata_fields_count": 0,
+    "invalid_class_labels_count": 0,
+    "invalid_scenario_labels_count": 0,
+    "conflicting_annotations_count": 0
+  },
+  "leakage_metrics": {
+    "train_test_parent_overlap": 0,
+    "val_test_parent_overlap": 0,
+    "train_val_parent_overlap": 0,
+    "cross_split_perceptual_near_duplicates_count": 0,
+    "leakage_status": "ZERO_LEAKAGE_VERIFIED"
+  },
+  "distribution_and_balance": {
+    "class_distribution": {
+      "pipe_leak": 57,
+      "normal_pipe": 25,
+      "rusted_pipe": 3
+    },
+    "scenario_distribution": {
+      "joint_leakage": 56,
+      "high_pressure_spray": 1,
+      "normal_clean": 23,
+      "condensation": 2,
+      "corrosion_dry": 3
+    },
+    "shannon_entropy": 1.0761,
+    "max_theoretical_entropy": 1.585,
+    "normalized_balance_ratio": 0.6789,
+    "class_imbalance_severity": "CRITICAL",
+    "leak_to_rust_ratio": "57:3"
+  },
+  "critical_scenario_deficits": {
+    "corrosion_dry": {
+      "current": 3,
+      "target": 45,
+      "gap": 42
+    },
+    "condensation": {
+      "current": 2,
+      "target": 50,
+      "gap": 48
+    },
+    "high_pressure_spray": {
+      "current": 1,
+      "target": 35,
+      "gap": 34
+    },
+    "hairline_crack": {
+      "current": 0,
+      "target": 30,
+      "gap": 30
+    },
+    "wet_surface_non_leak": {
+      "current": 0,
+      "target": 35,
+      "gap": 35
+    }
+  },
+  "actionable_quality_directives": [
+    "Maintain strict freeze on current 85 physical parent photographs.",
+    "Acquire 415 additional physical photographs to resolve severe class and scenario deficits.",
+    "Prioritize 80 rusted pipes and 50 condensation images before any model retraining.",
+    "Enforce dual-blind review on all 53 ambiguous/condensation/hairline images acquired."
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 9,
+  "total_inferences": 250,
+  "checkpoint_intervals": [
+    {
+      "iteration": 0,
+      "rss_mb": 343.93,
+      "heap_current_mb": 1.18,
+      "heap_peak_mb": 1.46,
+      "open_handles": 318
+    },
+    {
+      "iteration": 50,
+      "rss_mb": 358.61,
+      "heap_current_mb": 1.19,
+      "heap_peak_mb": 1.48,
+      "open_handles": 318,
+      "rolling_mean_lat_ms": 18.04,
+      "rolling_p95_lat_ms": 42.38
+    },
+    {
+      "iteration": 100,
+      "rss_mb": 359.13,
+      "heap_current_mb": 2.08,
+      "heap_peak_mb": 2.65,
+      "open_handles": 318,
+      "rolling_mean_lat_ms": 17.8,
+      "rolling_p95_lat_ms": 42.87
+    },
+    {
+      "iteration": 150,
+      "rss_mb": 351.65,
+      "heap_current_mb": 2.08,
+      "heap_peak_mb": 2.65,
+      "open_handles": 318,
+      "rolling_mean_lat_ms": 19.93,
+      "rolling_p95_lat_ms": 50.9
+    },
+    {
+      "iteration": 200,
+      "rss_mb": 358.6,
+      "heap_current_mb": 2.08,
+      "heap_peak_mb": 2.65,
+      "open_handles": 318,
+      "rolling_mean_lat_ms": 18.31,
+      "rolling_p95_lat_ms": 42.76
+    },
+    {
+      "iteration": 250,
+      "rss_mb": 358.6,
+      "heap_current_mb": 2.09,
+      "heap_peak_mb": 2.65,
+      "open_handles": 318,
+      "rolling_mean_lat_ms": 17.69,
+      "rolling_p95_lat_ms": 40.83
+    }
+  ],
+  "latency_drift_analysis": {
+    "first_50_inferences": {
+      "mean_ms": 18.04,
+      "p95_ms": 42.38
+    },
+    "last_50_inferences": {
+      "mean_ms": 17.69,
+      "p95_ms": 40.83
+    },
+    "latency_drift_pct": -1.91,
+    "status": "PASS - LATENCY STABLE"
+  },
+  "memory_leak_analysis": {
+    "rss_initial_mb": 343.93,
+    "rss_final_mb": 358.6,
+    "rss_net_growth_mb": 14.67,
+    "rss_growth_per_100_requests_mb": -0.0,
+    "heap_initial_mb": 1.18,
+    "heap_final_mb": 2.09,
+    "heap_peak_mb": 2.65,
+    "gc_garbage_objects": 0,
+    "handle_growth": 0,
+    "status": "PASS - ZERO MEMORY LEAKS"
+  }
+}

@@ -1,0 +1,16 @@
+category_group,scenario,target_photographs,verified_independent_photographs,remaining_quantity,annotation_completion_pct,reviewer_verification,quality_status,collection_method,priority
+A. Normal Pipes,Dry Clean PVC / CPVC,40,15,25,100.0,Dual-Verified,HIGH,Municipal ward plumbing inventory audit (Ward 1-5),HIGH
+A. Normal Pipes,Dry Clean Galvanized Iron (GI),30,6,24,100.0,Dual-Verified,HIGH,Overground domestic water supply riser inspection,HIGH
+A. Normal Pipes,Dry Intact Cast Iron (Uncorroded),20,2,18,100.0,Dual-Verified,MEDIUM,Sub-surface main distribution feeder line inspection,MEDIUM
+A. Normal Pipes,Copper / Brass Plumbing Lines,10,0,10,0.0,Pending Collection,DEFICIT,Water meter manifold survey,MEDIUM
+B. Active Leakage,High-Pressure Spray Leaks,35,1,34,100.0,Verified,DEFICIT,Emergency pipe breach response team telemetry,CRITICAL
+B. Active Leakage,Burst Joint / Flange Gasket Leakage,50,48,2,100.0,Dual-Verified,SUFFICIENT,Municipal valve chamber inspections,LOW
+B. Active Leakage,Underground Weeping & Pavement Eruption,35,8,27,100.0,Dual-Verified,MEDIUM,Road excavation water utility repair sessions,HIGH
+B. Active Leakage,Hairline Cracks & Capillary Drips,30,0,30,0.0,Pending Collection,DEFICIT,Macro close-up inspection during pressure testing,CRITICAL
+C. Rust & Corrosion,Dry Rust Scale Without Leakage,45,2,43,100.0,Dual-Verified,SEVERE_DEFICIT,Aging cast-iron municipal water bridge lines,CRITICAL
+C. Rust & Corrosion,Surface Oxidation & Pitting Corrosion,35,1,34,100.0,Dual-Verified,SEVERE_DEFICIT,Exposed atmospheric utility pipe lines,CRITICAL
+C. Rust & Corrosion,Rusted Couplings & Flange Bolts,20,0,20,0.0,Pending Collection,DEFICIT,Pumping station manifold valve rooms,HIGH
+D. Environmental Conditions,Cold-Pipe Thermal Condensation,50,2,48,100.0,Dual-Verified (Flagged),SEVERE_DEFICIT,Early morning chilled water supply riser surveys,CRITICAL
+D. Environmental Conditions,Humidity Beading & Rain Droplets,40,0,40,0.0,Pending Collection,DEFICIT,Post-rainfall outdoor municipal pipe photography,HIGH
+D. Environmental Conditions,Wet Pavement Without Pipe Breach,35,0,35,0.0,Pending Collection,DEFICIT,Road cleaning runoff near water conduits,HIGH
+D. Environmental Conditions,Harsh Sun Glare & Direct Reflections,25,0,25,0.0,Pending Collection,DEFICIT,Midday high-lux tropical sunlight photography,MEDIUM

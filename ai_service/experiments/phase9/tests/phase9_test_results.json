@@ -1,0 +1,281 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 9,
+  "overall_status": "PASS",
+  "total_tests_executed": 49,
+  "total_passed": 49,
+  "total_failed": 0,
+  "breakdown": {
+    "baseline_tests": {
+      "passed": 31,
+      "failed": 0
+    },
+    "phase8_tests": {
+      "passed": 9,
+      "failed": 0
+    },
+    "phase9_tests": {
+      "passed": 9,
+      "failed": 0
+    }
+  },
+  "suites": {
+    "baseline_production_tests": {
+      "passed": 31,
+      "failed": 0,
+      "files": [
+        {
+          "file": "ai_service\\tests\\test_clean_road_verification.py",
+          "returncode": 0,
+          "passed": 11,
+          "failed": 0,
+          "duration_sec": 22.927,
+          "test_details": [
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_analyzer_contract_clean_road",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_analyzer_contract_pothole",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_1_clearly_clean_road",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_2_clear_pothole",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_3_repaired_road_patch",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_4_road_with_shadows",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_5_road_with_lane_markings",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_6_blurry_road_image",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_7_non_road_image",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_8_pothole_at_different_angle",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_comprehensive_metrics_benchmark",
+              "status": "PASSED"
+            }
+          ],
+          "raw_stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\\Users\\prati\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\ncachedir: .pytest_cache\nrootdir: D:\\NAGARSETU\\NAGARSETU 3.1\\ai_service\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2, langsmith-0.14.4\ncollecting ... collected 11 items\n\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_analyzer_contract_clean_road PASSED [  9%]\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_analyzer_contract_pothole PASSED [ 18%]\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_1_clearly_clean_road PASSED [ 27%]\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_2_clear_pothole PASSED [ 36%]\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_3_repaired_road_patch PASSED [ 45%]\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_4_road_with_shadows PASSED [ 54%]\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_5_road_with_lane_markings PASSED [ 63%]\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_6_blurry_road_image PASSED [ 72%]\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_7_non_road_image PASSED [ 81%]\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_category_8_pothole_at_different_angle PASSED [ 90%]\nai_service\\tests\\test_clean_road_verification.py::TestCleanRoadAIVerification::test_comprehensive_metrics_benchmark PASSED [100%]\n\n============================= 11 passed in 19.11s =============================\n",
+          "raw_stderr": ""
+        },
+        {
+          "file": "ai_service\\tests\\test_nodes.py",
+          "returncode": 0,
+          "passed": 15,
+          "failed": 0,
+          "duration_sec": 12.806,
+          "test_details": [
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_analyze_detection_node_filter_full_frame",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_analyze_detection_node_metrics_and_multi",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_build_complaint_node",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_calculate_priority_node",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_calculate_severity_node_rules",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_classify_issue_node",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_explain_decision_node",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_human_review_node",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_preprocess_image_node",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_route_department_node",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_validate_confidence_bands",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_validate_image_node_empty",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_validate_image_node_invalid_signature",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_validate_image_node_valid",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_validate_result_node_rich_confirmed",
+              "status": "PASSED"
+            }
+          ],
+          "raw_stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\\Users\\prati\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\ncachedir: .pytest_cache\nrootdir: D:\\NAGARSETU\\NAGARSETU 3.1\\ai_service\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2, langsmith-0.14.4\ncollecting ... collected 15 items\n\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_analyze_detection_node_filter_full_frame PASSED [  6%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_analyze_detection_node_metrics_and_multi PASSED [ 13%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_build_complaint_node PASSED [ 20%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_calculate_priority_node PASSED [ 26%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_calculate_severity_node_rules PASSED [ 33%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_classify_issue_node PASSED [ 40%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_explain_decision_node PASSED [ 46%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_human_review_node PASSED [ 53%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_preprocess_image_node PASSED [ 60%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_route_department_node PASSED [ 66%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_validate_confidence_bands PASSED [ 73%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_validate_image_node_empty PASSED [ 80%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_validate_image_node_invalid_signature PASSED [ 86%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_validate_image_node_valid PASSED [ 93%]\nai_service\\tests\\test_nodes.py::TestCivicAIAgentNodes::test_validate_result_node_rich_confirmed PASSED [100%]\n\n============================= 15 passed in 8.91s ==============================\n",
+          "raw_stderr": ""
+        },
+        {
+          "file": "ai_service\\tests\\test_pipe_ai.py",
+          "returncode": 0,
+          "passed": 5,
+          "failed": 0,
+          "duration_sec": 12.193,
+          "test_details": [
+            {
+              "name": "ai_service\\tests\\test_pipe_ai.py::TestPipeAIIntegration::test_broken_pipe_detection_and_routing",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_pipe_ai.py::TestPipeAIIntegration::test_perfect_pipe_normal_behavior",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_pipe_ai.py::TestPipeAIIntegration::test_real_held_out_perfect_pipe_image",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_pipe_ai.py::TestPipeAIIntegration::test_unrelated_image_does_not_create_wtr_complaint",
+              "status": "PASSED"
+            },
+            {
+              "name": "ai_service\\tests\\test_pipe_ai.py::TestPipeAIIntegration::test_water_leakage_detection_and_routing",
+              "status": "PASSED"
+            }
+          ],
+          "raw_stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\\Users\\prati\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\ncachedir: .pytest_cache\nrootdir: D:\\NAGARSETU\\NAGARSETU 3.1\\ai_service\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2, langsmith-0.14.4\ncollecting ... collected 5 items\n\nai_service\\tests\\test_pipe_ai.py::TestPipeAIIntegration::test_broken_pipe_detection_and_routing PASSED [ 20%]\nai_service\\tests\\test_pipe_ai.py::TestPipeAIIntegration::test_perfect_pipe_normal_behavior PASSED [ 40%]\nai_service\\tests\\test_pipe_ai.py::TestPipeAIIntegration::test_real_held_out_perfect_pipe_image PASSED [ 60%]\nai_service\\tests\\test_pipe_ai.py::TestPipeAIIntegration::test_unrelated_image_does_not_create_wtr_complaint PASSED [ 80%]\nai_service\\tests\\test_pipe_ai.py::TestPipeAIIntegration::test_water_leakage_detection_and_routing PASSED [100%]\n\n============================== 5 passed in 8.64s ==============================\n",
+          "raw_stderr": ""
+        }
+      ]
+    },
+    "phase8_isolated_tests": {
+      "file": "ai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py",
+      "returncode": 0,
+      "passed": 9,
+      "failed": 0,
+      "duration_sec": 9.835,
+      "test_details": [
+        {
+          "name": "ai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_adapter_input_validation",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_prediction_output_schema",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_comparison_logic",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_error_handling_and_containment",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_timeout_behavior",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_fallback_behavior",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_shadow_logging_format",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_model_version_tracking",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_production_model_hash_verification",
+          "status": "PASSED"
+        }
+      ],
+      "raw_stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\\Users\\prati\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\ncachedir: .pytest_cache\nrootdir: D:\\NAGARSETU\\NAGARSETU 3.1\\ai_service\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2, langsmith-0.14.4\ncollecting ... collected 9 items\n\nai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_adapter_input_validation PASSED [ 11%]\nai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_prediction_output_schema PASSED [ 22%]\nai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_comparison_logic PASSED [ 33%]\nai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_error_handling_and_containment PASSED [ 44%]\nai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_timeout_behavior PASSED [ 55%]\nai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_fallback_behavior PASSED [ 66%]\nai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_shadow_logging_format PASSED [ 77%]\nai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_model_version_tracking PASSED [ 88%]\nai_service\\experiments\\phase8\\tests\\test_phase8_isolated_suite.py::test_production_model_hash_verification PASSED [100%]\n\n============================== 9 passed in 6.88s ==============================\n",
+      "raw_stderr": ""
+    },
+    "phase9_isolated_tests": {
+      "file": "ai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py",
+      "returncode": 0,
+      "passed": 9,
+      "failed": 0,
+      "duration_sec": 10.731,
+      "test_details": [
+        {
+          "name": "ai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_expanded_dataset_integrity",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_model_evaluation_reproducibility",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_inference_optimization_verification",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_concurrency_thread_safety",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_memory_stability_verification",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_failure_recovery_verification",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_shadow_evaluation_verification",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_code_protection_compliance",
+          "status": "PASSED"
+        },
+        {
+          "name": "ai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_production_model_sha256_invariance",
+          "status": "PASSED"
+        }
+      ],
+      "raw_stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0 -- C:\\Users\\prati\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\ncachedir: .pytest_cache\nrootdir: D:\\NAGARSETU\\NAGARSETU 3.1\\ai_service\nconfigfile: pyproject.toml\nplugins: anyio-4.14.2, langsmith-0.14.4\ncollecting ... collected 9 items\n\nai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_expanded_dataset_integrity PASSED [ 11%]\nai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_model_evaluation_reproducibility PASSED [ 22%]\nai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_inference_optimization_verification PASSED [ 33%]\nai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_concurrency_thread_safety PASSED [ 44%]\nai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_memory_stability_verification PASSED [ 55%]\nai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_failure_recovery_verification PASSED [ 66%]\nai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_shadow_evaluation_verification PASSED [ 77%]\nai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_code_protection_compliance PASSED [ 88%]\nai_service\\experiments\\phase9\\tests\\test_phase9_isolated_suite.py::test_production_model_sha256_invariance PASSED [100%]\n\n============================== 9 passed in 7.66s ==============================\n",
+      "raw_stderr": ""
+    }
+  }
+}

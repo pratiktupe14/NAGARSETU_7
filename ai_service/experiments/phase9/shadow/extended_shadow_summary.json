@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 9,
+  "total_shadow_requests": 500,
+  "agreement_rate_pct": 98.6,
+  "divergence_breakdown": {
+    "agreement": 493,
+    "candidate_superior_leak_detected": 0,
+    "baseline_superior_leak_detected": 0,
+    "candidate_false_positive": 7,
+    "baseline_false_positive": 0
+  },
+  "safety_audit": {
+    "candidate_crashes": 0,
+    "candidate_error_rate_pct": 0.0,
+    "user_response_invariance_violations": 0,
+    "database_write_attempts": 0,
+    "production_isolation_status": "VERIFIED_100_PERCENT_ISOLATED"
+  },
+  "latency_profiles": {
+    "authoritative_baseline": {
+      "mean_ms": 20.04,
+      "median_ms": 19.33,
+      "p95_ms": 31.13,
+      "p99_ms": 56.38
+    },
+    "shadow_candidate": {
+      "mean_ms": 8.62,
+      "median_ms": 0.0,
+      "p95_ms": 46.94,
+      "p99_ms": 64.92
+    }
+  }
+}

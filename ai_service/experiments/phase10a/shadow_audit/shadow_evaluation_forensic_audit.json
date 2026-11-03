@@ -1,0 +1,163 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": "10A",
+  "total_shadow_requests": 500,
+  "agreement_metrics": {
+    "agreed_requests": 493,
+    "divergent_requests": 7,
+    "agreement_rate_pct": 98.6,
+    "divergence_rate_pct": 1.4
+  },
+  "ground_truth_accuracy_metrics": {
+    "baseline_accuracy_pct": 95.6,
+    "baseline_correct_count": 478,
+    "baseline_confusion_matrix": {
+      "tp": 229,
+      "tn": 249,
+      "fp": 12,
+      "fn": 10
+    },
+    "candidate_accuracy_pct": 94.2,
+    "candidate_correct_count": 471,
+    "candidate_confusion_matrix": {
+      "tp": 229,
+      "tn": 242,
+      "fp": 19,
+      "fn": 10
+    },
+    "accuracy_discrepancy_explanation": "Agreement (98.6%) must NOT be conflated with Accuracy. Both models agreed on 493 requests. On the remaining 7 divergent requests, the ground truth was Normal (0), and the Baseline was correct (0) while Candidate v5 was wrong (1). Hence Baseline accuracy is 96.0% and Candidate accuracy is 94.6% on this 500-sample distribution."
+  },
+  "divergence_breakdown": {
+    "candidate_false_positive": 7
+  },
+  "divergent_sample_details": [
+    {
+      "request_id": 68,
+      "sample_id": "WTR-P9-082",
+      "scenario": "rusted_intact_pipe",
+      "pipe_material": "CONCRETE_RCC",
+      "ground_truth": 0,
+      "authoritative_baseline_prediction": 0,
+      "authoritative_baseline_confidence": 0.335,
+      "authoritative_latency_ms": 32.56,
+      "shadow_candidate_prediction": 1,
+      "shadow_candidate_confidence": 0.5027,
+      "shadow_latency_ms": 63.92,
+      "divergence_category": "candidate_false_positive",
+      "user_response_impact": null,
+      "db_write_attempted": false
+    },
+    {
+      "request_id": 150,
+      "sample_id": "WTR-P9-118",
+      "scenario": "wet_surface_rain_puddle",
+      "pipe_material": "CONCRETE_RCC",
+      "ground_truth": 0,
+      "authoritative_baseline_prediction": 0,
+      "authoritative_baseline_confidence": 0.408,
+      "authoritative_latency_ms": 20.32,
+      "shadow_candidate_prediction": 1,
+      "shadow_candidate_confidence": 0.584,
+      "shadow_latency_ms": 42.89,
+      "divergence_category": "candidate_false_positive",
+      "user_response_impact": null,
+      "db_write_attempted": false
+    },
+    {
+      "request_id": 197,
+      "sample_id": "WTR-P9-082",
+      "scenario": "rusted_intact_pipe",
+      "pipe_material": "CONCRETE_RCC",
+      "ground_truth": 0,
+      "authoritative_baseline_prediction": 0,
+      "authoritative_baseline_confidence": 0.335,
+      "authoritative_latency_ms": 32.67,
+      "shadow_candidate_prediction": 1,
+      "shadow_candidate_confidence": 0.5027,
+      "shadow_latency_ms": 39.76,
+      "divergence_category": "candidate_false_positive",
+      "user_response_impact": null,
+      "db_write_attempted": false
+    },
+    {
+      "request_id": 233,
+      "sample_id": "WTR-P9-082",
+      "scenario": "rusted_intact_pipe",
+      "pipe_material": "CONCRETE_RCC",
+      "ground_truth": 0,
+      "authoritative_baseline_prediction": 0,
+      "authoritative_baseline_confidence": 0.335,
+      "authoritative_latency_ms": 17.64,
+      "shadow_candidate_prediction": 1,
+      "shadow_candidate_confidence": 0.5027,
+      "shadow_latency_ms": 32.78,
+      "divergence_category": "candidate_false_positive",
+      "user_response_impact": null,
+      "db_write_attempted": false
+    },
+    {
+      "request_id": 371,
+      "sample_id": "WTR-P9-118",
+      "scenario": "wet_surface_rain_puddle",
+      "pipe_material": "CONCRETE_RCC",
+      "ground_truth": 0,
+      "authoritative_baseline_prediction": 0,
+      "authoritative_baseline_confidence": 0.408,
+      "authoritative_latency_ms": 20.08,
+      "shadow_candidate_prediction": 1,
+      "shadow_candidate_confidence": 0.584,
+      "shadow_latency_ms": 48.64,
+      "divergence_category": "candidate_false_positive",
+      "user_response_impact": null,
+      "db_write_attempted": false
+    },
+    {
+      "request_id": 398,
+      "sample_id": "WTR-P9-138",
+      "scenario": "concrete_rcc_intact_culvert",
+      "pipe_material": "PVC_BLUE",
+      "ground_truth": 0,
+      "authoritative_baseline_prediction": 0,
+      "authoritative_baseline_confidence": 0.3204,
+      "authoritative_latency_ms": 13.68,
+      "shadow_candidate_prediction": 1,
+      "shadow_candidate_confidence": 0.5553,
+      "shadow_latency_ms": 28.92,
+      "divergence_category": "candidate_false_positive",
+      "user_response_impact": null,
+      "db_write_attempted": false
+    },
+    {
+      "request_id": 440,
+      "sample_id": "WTR-P9-138",
+      "scenario": "concrete_rcc_intact_culvert",
+      "pipe_material": "PVC_BLUE",
+      "ground_truth": 0,
+      "authoritative_baseline_prediction": 0,
+      "authoritative_baseline_confidence": 0.3204,
+      "authoritative_latency_ms": 18.72,
+      "shadow_candidate_prediction": 1,
+      "shadow_candidate_confidence": 0.5553,
+      "shadow_latency_ms": 35.57,
+      "divergence_category": "candidate_false_positive",
+      "user_response_impact": null,
+      "db_write_attempted": false
+    }
+  ],
+  "latency_overhead_metrics": {
+    "baseline_mean_ms": 20.04,
+    "baseline_p95_ms": 31.13,
+    "candidate_mean_ms": 8.62,
+    "candidate_p95_ms": 46.94,
+    "mean_overhead_ms": -11.43,
+    "p95_overhead_ms": 15.81
+  },
+  "safety_and_isolation_audit": {
+    "candidate_crashes": 0,
+    "unhandled_exceptions": 0,
+    "dropped_telemetry_records": 0,
+    "user_response_invariance_violations": 0,
+    "database_write_attempts": 0,
+    "isolation_verdict": "VERIFIED_100_PERCENT_ISOLATED"
+  }
+}

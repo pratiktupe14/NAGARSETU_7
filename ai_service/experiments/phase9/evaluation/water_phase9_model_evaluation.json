@@ -1,0 +1,226 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 9,
+  "total_samples_evaluated": 150,
+  "overall_metrics": {
+    "production_baseline": {
+      "accuracy": 0.96,
+      "tp": 73,
+      "tn": 71,
+      "fp": 4,
+      "fn": 2,
+      "leak_precision": 0.9481,
+      "leak_recall": 0.9733,
+      "leak_f1": 0.9605,
+      "normal_precision": 0.9726,
+      "normal_recall": 0.9467,
+      "normal_f1": 0.9595,
+      "macro_f1": 0.96,
+      "fpr": 0.0533,
+      "fnr": 0.0267,
+      "latency_mean_ms": 10.89,
+      "latency_median_ms": 10.67,
+      "latency_p95_ms": 13.36,
+      "latency_p99_ms": 14.69,
+      "conf_mean": 0.5116,
+      "conf_std": 0.4337
+    },
+    "candidate_v5_fp32": {
+      "accuracy": 0.94,
+      "tp": 74,
+      "tn": 67,
+      "fp": 8,
+      "fn": 1,
+      "leak_precision": 0.9024,
+      "leak_recall": 0.9867,
+      "leak_f1": 0.9427,
+      "normal_precision": 0.9853,
+      "normal_recall": 0.8933,
+      "normal_f1": 0.9371,
+      "macro_f1": 0.9399,
+      "fpr": 0.1067,
+      "fnr": 0.0133,
+      "latency_mean_ms": 11.94,
+      "latency_median_ms": 11.1,
+      "latency_p95_ms": 16.87,
+      "latency_p99_ms": 26.31,
+      "conf_mean": 0.5441,
+      "conf_std": 0.4866
+    },
+    "candidate_v5_int8": {
+      "accuracy": 0.94,
+      "tp": 74,
+      "tn": 67,
+      "fp": 8,
+      "fn": 1,
+      "leak_precision": 0.9024,
+      "leak_recall": 0.9867,
+      "leak_f1": 0.9427,
+      "normal_precision": 0.9853,
+      "normal_recall": 0.8933,
+      "normal_f1": 0.9371,
+      "macro_f1": 0.9399,
+      "fpr": 0.1067,
+      "fnr": 0.0133,
+      "latency_mean_ms": 12.94,
+      "latency_median_ms": 12.63,
+      "latency_p95_ms": 17.75,
+      "latency_p99_ms": 19.23,
+      "conf_mean": 0.5442,
+      "conf_std": 0.4867
+    },
+    "calibrated_patch_v2": {
+      "accuracy": 0.94,
+      "tp": 73,
+      "tn": 68,
+      "fp": 7,
+      "fn": 2,
+      "leak_precision": 0.9125,
+      "leak_recall": 0.9733,
+      "leak_f1": 0.9419,
+      "normal_precision": 0.9714,
+      "normal_recall": 0.9067,
+      "normal_f1": 0.9379,
+      "macro_f1": 0.9399,
+      "fpr": 0.0933,
+      "fnr": 0.0267,
+      "latency_mean_ms": 15.7,
+      "latency_median_ms": 11.43,
+      "latency_p95_ms": 34.19,
+      "latency_p99_ms": 39.65,
+      "conf_mean": 0.5283,
+      "conf_std": 0.435
+    }
+  },
+  "scenario_breakdown": {
+    "concrete_rcc_intact_culvert": {
+      "total_samples": 15,
+      "ground_truth_class": "normal",
+      "baseline_correct": 13,
+      "candidate_fp32_correct": 13,
+      "patch_v2_correct": 12
+    },
+    "condensation_cold_pipe": {
+      "total_samples": 15,
+      "ground_truth_class": "normal",
+      "baseline_correct": 14,
+      "candidate_fp32_correct": 13,
+      "patch_v2_correct": 14
+    },
+    "dry_utility_trench": {
+      "total_samples": 15,
+      "ground_truth_class": "normal",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 14,
+      "patch_v2_correct": 15
+    },
+    "hairline_cracks_leak": {
+      "total_samples": 15,
+      "ground_truth_class": "leaking",
+      "baseline_correct": 13,
+      "candidate_fp32_correct": 14,
+      "patch_v2_correct": 13
+    },
+    "large_water_burst": {
+      "total_samples": 15,
+      "ground_truth_class": "leaking",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 15,
+      "patch_v2_correct": 15
+    },
+    "microscopic_pinhole_leak": {
+      "total_samples": 15,
+      "ground_truth_class": "leaking",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 15,
+      "patch_v2_correct": 15
+    },
+    "rusted_intact_pipe": {
+      "total_samples": 15,
+      "ground_truth_class": "normal",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 14,
+      "patch_v2_correct": 14
+    },
+    "slow_joint_trickle": {
+      "total_samples": 15,
+      "ground_truth_class": "leaking",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 15,
+      "patch_v2_correct": 15
+    },
+    "thin_vertical_water_spray": {
+      "total_samples": 15,
+      "ground_truth_class": "leaking",
+      "baseline_correct": 15,
+      "candidate_fp32_correct": 15,
+      "patch_v2_correct": 15
+    },
+    "wet_surface_rain_puddle": {
+      "total_samples": 15,
+      "ground_truth_class": "normal",
+      "baseline_correct": 14,
+      "candidate_fp32_correct": 13,
+      "patch_v2_correct": 13
+    }
+  },
+  "material_breakdown": {
+    "CAST_IRON": {
+      "total_samples": 25,
+      "baseline_accuracy": 0.96,
+      "patch_v2_accuracy": 0.96
+    },
+    "CONCRETE_RCC": {
+      "total_samples": 25,
+      "baseline_accuracy": 1.0,
+      "patch_v2_accuracy": 0.92
+    },
+    "DUCTILE_IRON": {
+      "total_samples": 25,
+      "baseline_accuracy": 0.92,
+      "patch_v2_accuracy": 0.92
+    },
+    "GALVANIZED_STEEL": {
+      "total_samples": 25,
+      "baseline_accuracy": 0.92,
+      "patch_v2_accuracy": 0.92
+    },
+    "PVC_BLUE": {
+      "total_samples": 25,
+      "baseline_accuracy": 1.0,
+      "patch_v2_accuracy": 0.96
+    },
+    "PVC_WHITE": {
+      "total_samples": 25,
+      "baseline_accuracy": 0.96,
+      "patch_v2_accuracy": 0.96
+    }
+  },
+  "lighting_breakdown": {
+    "ARTIFICIAL_TORCH": {
+      "total_samples": 30,
+      "baseline_accuracy": 0.9667,
+      "patch_v2_accuracy": 0.9667
+    },
+    "DIRECT_DAYLIGHT": {
+      "total_samples": 30,
+      "baseline_accuracy": 0.9667,
+      "patch_v2_accuracy": 0.9667
+    },
+    "LOW_LIGHT_DAWN": {
+      "total_samples": 30,
+      "baseline_accuracy": 0.9667,
+      "patch_v2_accuracy": 0.9333
+    },
+    "OVERCAST": {
+      "total_samples": 30,
+      "baseline_accuracy": 0.9333,
+      "patch_v2_accuracy": 0.9333
+    },
+    "SHADOWED_TRENCH": {
+      "total_samples": 30,
+      "baseline_accuracy": 0.9667,
+      "patch_v2_accuracy": 0.9
+    }
+  }
+}

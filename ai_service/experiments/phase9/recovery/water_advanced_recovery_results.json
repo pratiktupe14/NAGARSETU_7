@@ -1,0 +1,130 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": 9,
+  "total_scenarios": 12,
+  "passed_scenarios": 12,
+  "failed_scenarios": 0,
+  "overall_resilience_status": "PASS",
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "Missing Candidate Model File",
+      "injected_fault": "FileNotFoundError on candidate model path",
+      "expected_behavior": "Immediate graceful fallback to production baseline model",
+      "observed_behavior": "Baseline loaded and served request in 36.15 ms",
+      "recovery_time_ms": 36.15,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 2,
+      "name": "Corrupted Candidate Checkpoint File",
+      "injected_fault": "Corrupted/truncated binary file on checkpoint load",
+      "expected_behavior": "Catch unpickling error and fall back to baseline",
+      "observed_behavior": "Corrupt checkpoint caught; baseline fallback completed in 50.45 ms",
+      "recovery_time_ms": 50.45,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 3,
+      "name": "Inference Timeout Handling",
+      "injected_fault": "Candidate latency artificially delayed past timeout limit",
+      "expected_behavior": "Timeout aborts candidate branch and serves fast baseline result",
+      "observed_behavior": "Guarded execution returned valid baseline output in 11.36 ms",
+      "recovery_time_ms": 11.36,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 4,
+      "name": "Out-of-Memory Fallback",
+      "injected_fault": "MemoryError raised during memory-intensive patch extraction",
+      "expected_behavior": "Catch allocation error and execute low-memory whole-image fallback",
+      "observed_behavior": "OOM intercepted, low-memory fallback completed in 11.40 ms",
+      "recovery_time_ms": 11.4,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 5,
+      "name": "NaN/Inf Output Handling",
+      "injected_fault": "Simulated uncalibrated weights returning NaN/Inf tensors",
+      "expected_behavior": "Detect invalid numeric values, suppress output, fallback to baseline",
+      "observed_behavior": "NaN/Inf successfully quarantined, healthy baseline served in 18.63 ms",
+      "recovery_time_ms": 18.63,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 6,
+      "name": "Unexpected Input Dimensions & Color Formats",
+      "injected_fault": "1x1, 3000x3000, Grayscale 1-channel, and RGBA 4-channel images",
+      "expected_behavior": "Input adapter normalizes channels and resizes cleanly without error",
+      "observed_behavior": "All 4 anomalous formats normalized and evaluated in 102.38 ms",
+      "recovery_time_ms": 102.38,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 7,
+      "name": "Empty / Truncated Image File",
+      "injected_fault": "Zero-byte uploaded JPEG file",
+      "expected_behavior": "Reject payload with descriptive validation error; do not crash backend",
+      "observed_behavior": "Zero-byte file intercepted, sanitized rejection generated in 112.29 ms",
+      "recovery_time_ms": 112.29,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 8,
+      "name": "Disk Full During Shadow Logging",
+      "injected_fault": "OSError(28, 'No space left on device') during shadow write",
+      "expected_behavior": "Shadow logging errors must never fail the primary citizen request",
+      "observed_behavior": "Disk failure caught; primary response returned cleanly in 0.01 ms",
+      "recovery_time_ms": 0.01,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 9,
+      "name": "Rapid Consecutive Failures (Circuit Breaker)",
+      "injected_fault": "5 consecutive candidate inference runtime errors",
+      "expected_behavior": "Circuit breaker trips to OPEN; candidate bypassed with zero overhead",
+      "observed_behavior": "Circuit breaker tripped to OPEN; baseline bypass executed in 13.17 ms",
+      "recovery_time_ms": 13.17,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 10,
+      "name": "Dynamic Fallback to Baseline",
+      "injected_fault": "RuntimeError thrown inside candidate inference module",
+      "expected_behavior": "Transparent fallback to production baseline model",
+      "observed_behavior": "Baseline served request without client disruption in 16.86 ms",
+      "recovery_time_ms": 16.86,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 11,
+      "name": "Dual-Model Catastrophic Failure",
+      "injected_fault": "Both candidate and baseline models encounter runtime errors",
+      "expected_behavior": "Return structured degraded fallback response; flag ticket for manual review",
+      "observed_behavior": "Graceful degraded payload returned without crash in 0.01 ms",
+      "recovery_time_ms": 0.01,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    },
+    {
+      "scenario_id": 12,
+      "name": "Process Cold Start Recovery Time",
+      "injected_fault": "Fresh cold-start process instantiation simulating container restart",
+      "expected_behavior": "Model weights loaded and first inference served in < 500 ms",
+      "observed_behavior": "Cold start completed in 79.51 ms",
+      "recovery_time_ms": 79.51,
+      "data_integrity_verified": true,
+      "status": "PASS"
+    }
+  ]
+}

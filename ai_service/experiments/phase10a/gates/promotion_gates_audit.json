@@ -1,0 +1,63 @@
+{
+  "P1_statistical_performance": {
+    "status": "FAIL",
+    "acc_base": 96.0,
+    "acc_cand": 94.0,
+    "delta_pct": -2.0,
+    "p_val": 0.5049850750938459
+  },
+  "P2_multi_scenario_coverage": {
+    "status": "FAIL",
+    "violating_scenarios": [
+      {
+        "scenario": "condensation_cold_pipe",
+        "baseline_accuracy": 93.33333333333333,
+        "candidate_accuracy": 86.66666666666667,
+        "regression_delta": -6.67
+      },
+      {
+        "scenario": "dry_utility_trench",
+        "baseline_accuracy": 100.0,
+        "candidate_accuracy": 93.33333333333333,
+        "regression_delta": -6.67
+      },
+      {
+        "scenario": "rusted_intact_pipe",
+        "baseline_accuracy": 100.0,
+        "candidate_accuracy": 93.33333333333333,
+        "regression_delta": -6.67
+      },
+      {
+        "scenario": "wet_surface_rain_puddle",
+        "baseline_accuracy": 93.33333333333333,
+        "candidate_accuracy": 86.66666666666667,
+        "regression_delta": -6.67
+      }
+    ]
+  },
+  "P3_deterministic_latency": {
+    "status": "PASS",
+    "p95_ms": 14.72,
+    "headroom_pct": 90.18666666666667
+  },
+  "P4_memory_and_stability": {
+    "status": "PASS",
+    "rss_growth_per_100_mb": -0.0,
+    "handle_delta": 0
+  },
+  "P5_shadow_evaluation": {
+    "status": "PASS",
+    "total_requests": 500,
+    "crashes": 0,
+    "agreement_pct": 98.6
+  },
+  "P6_fault_tolerance": {
+    "status": "PASS",
+    "scenarios_passed": "12/12"
+  },
+  "P7_governance_and_rollback": {
+    "status": "FAIL_BLOCKED",
+    "rollback_verified": true,
+    "sign_off_granted": false
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "timestamp": "2026-11-03",
+  "phase": "10A",
+  "total_evaluation_samples": 150,
+  "true_independent_photographs": 0,
+  "unique_parent_source_photographs": 78,
+  "unique_leak_parent_photographs": 56,
+  "unique_normal_parent_photographs": 28,
+  "total_augmented_or_cropped_samples": 150,
+  "samples_reusing_recycled_parent_photo": 66,
+  "samples_with_synthetic_overlays": 75,
+  "exact_duplicate_sha256_count": 0,
+  "near_duplicate_pairs_hamming_le_5": 18,
+  "train_test_leakage_audit": {
+    "evaluation_parents_in_phase5_source_pool": 5,
+    "leakage_risk_classification": "HIGH_PARENT_POOL_OVERLAP",
+    "leakage_explanation": "Candidate v5 was trained on a 70% random split of the same folders (D:\\NAGARSETU\\leaking pipes and normal pipe images) from which the Phase 9 evaluation crops were derived. Although the crops and augmentations differ, they share underlying physical scenes and sensor noise distributions."
+  },
+  "provenance_breakdown": {
+    "leaks": {
+      "total_generated": 75,
+      "parent_source_images": 56,
+      "unique_parent_used": 56,
+      "recycled_crops": 19
+    },
+    "normals": {
+      "total_generated": 75,
+      "parent_source_images": 28,
+      "unique_parent_used": 28,
+      "recycled_crops": 47
+    }
+  },
+  "near_duplicate_examples": [
+    {
+      "sample_1": "WTR-P9-009",
+      "sample_2": "WTR-P9-065",
+      "hamming_distance": 4,
+      "parent_1": "WhatsApp Image 2026-10-09 at 12.20.49 AM.jpeg",
+      "parent_2": "WhatsApp Image 2026-10-09 at 12.20.49 AM.jpeg"
+    },
+    {
+      "sample_1": "WTR-P9-013",
+      "sample_2": "WTR-P9-072",
+      "hamming_distance": 3,
+      "parent_1": "WhatsApp Image 2026-10-09 at 12.32.25 AM.jpeg",
+      "parent_2": "WhatsApp Image 2026-10-09 at 12.34.45 AM.jpeg"
+    },
+    {
+      "sample_1": "WTR-P9-018",
+      "sample_2": "WTR-P9-074",
+      "hamming_distance": 3,
+      "parent_1": "burst-water-pipe.jpg",
+      "parent_2": "burst-water-pipe.jpg"
+    },
+    {
+      "sample_1": "WTR-P9-079",
+      "sample_2": "WTR-P9-107",
+      "hamming_distance": 0,
+      "parent_1": "Screenshot 2026-10-09 011533.png",
+      "parent_2": "Screenshot 2026-10-09 011533.png"
+    },
+    {
+      "sample_1": "WTR-P9-083",
+      "sample_2": "WTR-P9-111",
+      "hamming_distance": 5,
+      "parent_1": "Screenshot 2026-10-09 011630.png",
+      "parent_2": "Screenshot 2026-10-09 011630.png"
+    },
+    {
+      "sample_1": "WTR-P9-083",
+      "sample_2": "WTR-P9-139",
+      "hamming_distance": 1,
+      "parent_1": "Screenshot 2026-10-09 011630.png",
+      "parent_2": "Screenshot 2026-10-09 011630.png"
+    },
+    {
+      "sample_1": "WTR-P9-084",
+      "sample_2": "WTR-P9-112",
+      "hamming_distance": 3,
+      "parent_1": "Screenshot 2026-10-09 011706.png",
+      "parent_2": "Screenshot 2026-10-09 011706.png"
+    },
+    {
+      "sample_1": "WTR-P9-086",
+      "sample_2": "WTR-P9-100",
+      "hamming_distance": 4,
+      "parent_1": "Screenshot 2026-10-09 011809.png",
+      "parent_2": "istockphoto-1410643227-612x612.jpg"
+    },
+    {
+      "sample_1": "WTR-P9-086",
+      "sample_2": "WTR-P9-114",
+      "hamming_distance": 5,
+      "parent_1": "Screenshot 2026-10-09 011809.png",
+      "parent_2": "Screenshot 2026-10-09 011809.png"
+    },
+    {
+      "sample_1": "WTR-P9-087",
+      "sample_2": "WTR-P9-115",
+      "hamming_distance": 5,
+      "parent_1": "Screenshot 2026-10-09 011821.png",
+      "parent_2": "Screenshot 2026-10-09 011821.png"
+    }
+  ]
+}
