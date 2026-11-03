@@ -135,7 +135,7 @@ function getAuthedClientKey(req) {
  */
 function resolveRateLimitStore(prefix) {
   const redisUrl = process.env.REDIS_URL || process.env.KV_REST_API_URL;
-  if (!redisUrl) {
+  if (!redisUrl || redisUrl.includes('your-redis-host') || redisUrl.includes('example.com')) {
     if (process.env.NODE_ENV === 'production') {
       console.warn(`[RATE LIMIT WARNING] REDIS_URL is not set in production. Rate limits are degrading to process-local memory enforcement for ${prefix}. Configure REDIS_URL for distributed multi-instance synchronization.`);
     }

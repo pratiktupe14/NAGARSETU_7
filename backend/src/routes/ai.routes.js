@@ -15,7 +15,10 @@ router.get('/health', async (req, res) => {
   const defaultAiUrl = process.env.NODE_ENV === 'production'
     ? 'https://nagarsetu-ai-service-755578057105.asia-south1.run.app/analyze'
     : 'http://localhost:8000/analyze';
-  const raw = (process.env.PYTHON_AI_URL || process.env.AI_SERVICE_URL || defaultAiUrl).trim().replace(/\/+$/, '');
+  let raw = (process.env.PYTHON_AI_URL || process.env.AI_SERVICE_URL || defaultAiUrl).trim().replace(/\/+$/, '');
+  if (process.env.NODE_ENV === 'production' && (raw.includes('localhost') || raw.includes('127.0.0.1'))) {
+    raw = defaultAiUrl;
+  }
   const baseUrl = raw.endsWith('/analyze') ? raw.slice(0, -'/analyze'.length) : raw;
   const baseHealthUrl = `${baseUrl}/health`;
 
@@ -24,9 +27,9 @@ router.get('/health', async (req, res) => {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
     let headers = {};
-    headers = await attachGcpAuthHeaders(headers, baseHealthUrl);
+    headers = await attachGcpAuthHeaders(headers, baseHealthUrl, { req });
     const healthRes = await fetch(baseHealthUrl, { signal: controller.signal, headers });
     clearTimeout(timeoutId);
 
@@ -34,8 +37,12 @@ router.get('/health', async (req, res) => {
       const data = await healthRes.json();
       localAiReachable = true;
       if (data.models) modelsLoaded = data.models;
+    } else {
+      const errText = await healthRes.text().catch(() => '');
+      console.warn('[AI HEALTH] Remote health check returned status:', healthRes.status, errText);
     }
   } catch (e) {
+    console.error('[AI HEALTH] Failed to connect to AI health endpoint:', e.message);
     localAiReachable = false;
   }
 

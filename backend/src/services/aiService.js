@@ -91,7 +91,10 @@ function resolveAiAnalyzeUrl() {
   const defaultUrl = process.env.NODE_ENV === 'production'
     ? 'https://nagarsetu-ai-service-755578057105.asia-south1.run.app/analyze'
     : 'http://localhost:8000/analyze';
-  const raw = (process.env.PYTHON_AI_URL || process.env.AI_SERVICE_URL || defaultUrl).trim().replace(/\/+$/, '');
+  let raw = (process.env.PYTHON_AI_URL || process.env.AI_SERVICE_URL || defaultUrl).trim().replace(/\/+$/, '');
+  if (process.env.NODE_ENV === 'production' && (raw.includes('localhost') || raw.includes('127.0.0.1'))) {
+    raw = defaultUrl;
+  }
   return raw.endsWith('/analyze') ? raw : `${raw}/analyze`;
 }
 

@@ -68,7 +68,7 @@ function decodeJwtPayload(jwtToken) {
  * Retrieves the Vercel OIDC token from secure server-side runtime sources only.
  * Client-supplied tokens/headers are strictly rejected to prevent identity spoofing.
  */
-async function retrieveVercelOidcToken() {
+async function retrieveVercelOidcToken(options = {}) {
   // 1. Server-side Vercel runtime OIDC retrieval via official @vercel/oidc package
   try {
     const { getVercelOidcToken } = require('@vercel/oidc');
@@ -79,6 +79,11 @@ async function retrieveVercelOidcToken() {
   } catch (_) {
     // Falls through to server-side env/file if running outside Vercel function context
   }
+  // 1b. Check request context header if passed
+  if (options && options.req && options.req.headers && options.req.headers['x-vercel-oidc-token']) {
+    return options.req.headers['x-vercel-oidc-token'];
+  }
+
 
   // 2. Server-side environment variable (set securely in Vercel project dashboard / backend env)
   if (process.env.VERCEL_OIDC_TOKEN) {
@@ -171,7 +176,7 @@ async function generateServiceAccountIdToken(stsAccessToken, serviceAccountEmail
  * @param {object} options - Optional overrides or request context
  * @returns {Promise<string|null>} Bearer ID token or null if not applicable
  */
-async function getCloudRunIdToken(targetUrl) {
+async function getCloudRunIdToken(targetUrl, options = {}) {
   const audience = resolveCloudRunAudience(targetUrl || process.env.CLOUD_RUN_SERVICE_URL || process.env.AI_SERVICE_URL || process.env.PYTHON_AI_URL);
 
   // If communicating with localhost or no remote target, bypass
@@ -211,7 +216,7 @@ async function getCloudRunIdToken(targetUrl) {
         return null;
       }
 
-      const vercelToken = await retrieveVercelOidcToken();
+      const vercelToken = await retrieveVercelOidcToken(options);
       if (!vercelToken) {
         console.warn('[GCP AUTH] Vercel OIDC token not found in runtime or environment.');
         return null;
@@ -255,11 +260,11 @@ async function getCloudRunIdToken(targetUrl) {
 /**
  * Attaches both GCP Bearer ID token and internal API key to request headers.
  */
-async function attachGcpAuthHeaders(headers = {}, targetUrl) {
+async function attachGcpAuthHeaders(headers = {}, targetUrl, options = {}) {
   const finalHeaders = { ...headers };
 
   try {
-    const idToken = await getCloudRunIdToken(targetUrl);
+    const idToken = await getCloudRunIdToken(targetUrl, options);
     if (idToken) {
       finalHeaders['Authorization'] = `Bearer ${idToken}`;
     }
