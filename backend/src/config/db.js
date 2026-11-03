@@ -89,17 +89,17 @@ function initDatabase() {
       sslConfig = { rejectUnauthorized: true };
     }
 
+    const { getSupabase } = require('./supabaseStorage');
+    const supabase = getSupabase();
+
+    if (supabase && (process.env.DB_TYPE === 'supabase' || !dbUrl || dbUrl.includes('postgres:postgres@') || dbUrl.includes('placeholder') || (dbUrl.includes('localhost') && isProduction))) {
+      console.log('[DATABASE] Verified Supabase REST client active as primary production database adapter.');
+      pgPool = null;
+      isSupabaseActive = true;
+      return onInitSuccess();
+    }
+
     if (isPostgres && dbUrl) {
-      if (dbUrl.includes('postgres:postgres@') || dbUrl.includes('placeholder')) {
-        console.log('[DATABASE] Placeholder PostgreSQL credentials detected. Directing to verified Supabase REST client.');
-        const { getSupabase } = require('./supabaseStorage');
-        const supabase = getSupabase();
-        if (supabase) {
-          pgPool = null;
-          isSupabaseActive = true;
-          return onInitSuccess();
-        }
-      }
       console.log('Connecting to PostgreSQL database...');
       try {
         pgPool = new Pool({
@@ -152,8 +152,14 @@ function initDatabase() {
         setupSqlite(onInitSuccess, onInitSuccess);
       }
     } else {
+      if (supabase) {
+        console.log('[DATABASE] Verified Supabase REST client active (no DATABASE_URL required).');
+        pgPool = null;
+        isSupabaseActive = true;
+        return onInitSuccess();
+      }
       if (isProduction) {
-        const err = new Error('[DATABASE FATAL] DATABASE_URL missing or PostgreSQL unconfigured in production.');
+        const err = new Error('[DATABASE FATAL] No valid database configured in production.');
         console.error(err.message);
         return reject(err);
       }

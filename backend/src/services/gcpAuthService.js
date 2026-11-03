@@ -22,6 +22,43 @@ let cachedTokenData = {
   audience: null
 };
 
+let cachedInternalApiKey = {
+  key: null,
+  expiresAt: 0
+};
+
+async function fetchSecretManagerKey(stsAccessToken, projectNumber = '755578057105', secretName = 'nagarsetu-ai-internal-key') {
+  if (process.env.AI_INTERNAL_API_KEY) {
+    return process.env.AI_INTERNAL_API_KEY.trim();
+  }
+  const now = Date.now();
+  if (cachedInternalApiKey.key && cachedInternalApiKey.expiresAt > now) {
+    return cachedInternalApiKey.key;
+  }
+  try {
+    const url = `https://secretmanager.googleapis.com/v1/projects/${projectNumber}/secrets/${secretName}/versions/latest:access`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${stsAccessToken}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.payload && data.payload.data) {
+        const secretVal = Buffer.from(data.payload.data, 'base64').toString('utf8').trim();
+        cachedInternalApiKey = {
+          key: secretVal,
+          expiresAt: now + (30 * 60 * 1000) // Cache for 30 minutes
+        };
+        return secretVal;
+      }
+    } else {
+      console.warn('[GCP AUTH] Secret Manager access returned status:', res.status);
+    }
+  } catch (e) {
+    console.warn('[GCP AUTH] Error fetching secret from Secret Manager:', e.message);
+  }
+  return null;
+}
+
 let inFlightPromise = null;
 
 let lastDiagnostics = {
@@ -278,6 +315,13 @@ async function getCloudRunIdToken(targetUrl, options = {}) {
         throw stsErr;
       }
 
+      // Step A2: Retrieve internal API key from Secret Manager if not set in environment
+      if (!process.env.AI_INTERNAL_API_KEY && stsAccessToken) {
+        try {
+          await fetchSecretManagerKey(stsAccessToken, projectNumber);
+        } catch (_) {}
+      }
+
       // Step B: Generate Cloud Run ID token
       let idToken;
       try {
@@ -328,9 +372,15 @@ async function attachGcpAuthHeaders(headers = {}, targetUrl, options = {}) {
     console.warn('[GCP AUTH] Failed to attach GCP ID token:', err.message);
   }
 
-  const apiKey = process.env.AI_INTERNAL_API_KEY || process.env.AI_SERVICE_API_KEY || process.env.INTERNAL_AI_SECRET || process.env.AI_SECRET_KEY;
+  const apiKey = (
+    process.env.AI_INTERNAL_API_KEY ||
+    process.env.AI_SERVICE_API_KEY ||
+    process.env.INTERNAL_AI_SECRET ||
+    process.env.AI_SECRET_KEY ||
+    cachedInternalApiKey.key
+  );
   if (apiKey) {
-    finalHeaders['X-Internal-API-Key'] = apiKey;
+    finalHeaders['X-Internal-API-Key'] = apiKey.trim();
   }
 
   return finalHeaders;

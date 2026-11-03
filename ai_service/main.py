@@ -59,6 +59,12 @@ async def verify_internal_api_key(
     x_internal_api_key: Optional[str] = Header(None, alias="X-Internal-API-Key"),
     authorization: Optional[str] = Header(None, alias="Authorization"),
 ):
+    """
+    Dual-Layer Defense-in-Depth Authentication:
+    Layer 1: Google Cloud IAM Identity Token (Cloud Run perimeter + container verification)
+    Layer 2: Application-layer Internal API Key (validated against active/transitional secret)
+    Both layers are strictly required in production.
+    """
     expected_key = (
         os.getenv("AI_INTERNAL_API_KEY")
         or os.getenv("INTERNAL_AI_SECRET")
@@ -66,22 +72,46 @@ async def verify_internal_api_key(
         or os.getenv("AI_SERVICE_API_KEY")
     )
     previous_key = os.getenv("AI_INTERNAL_API_KEY_PREVIOUS")
-    is_prod = os.getenv("ENVIRONMENT") == "production" or os.getenv("NODE_ENV") == "production"
-
-    # 1. Authorized if invoked with verified Google Cloud IAM OIDC token (Cloud Run IAM Invoker)
-    if authorization and authorization.startswith("Bearer "):
-        return True
-
-    # 2. Authorized if matching active internal API key
-    if x_internal_api_key and expected_key and secrets.compare_digest(x_internal_api_key, expected_key):
-        return True
-
-    # 3. Authorized if matching transitional previous key during key rotation
-    if x_internal_api_key and previous_key and secrets.compare_digest(x_internal_api_key, previous_key):
-        return True
+    is_prod = (
+        os.getenv("ENVIRONMENT") == "production"
+        or os.getenv("NODE_ENV") == "production"
+        or bool(os.getenv("K_SERVICE"))
+    )
 
     if is_prod:
-        raise HTTPException(status_code=401, detail="Unauthorized: Invalid or missing authentication credentials")
+        # Layer 1 Verification: Google Cloud IAM Identity Token
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(
+                status_code=401,
+                detail="Unauthorized: Missing or invalid Google Cloud IAM identity token"
+            )
+
+        # Layer 2 Verification: X-Internal-API-Key Application Secret
+        if not x_internal_api_key:
+            raise HTTPException(
+                status_code=401,
+                detail="Unauthorized: Missing X-Internal-API-Key"
+            )
+
+        is_valid_active = bool(expected_key and secrets.compare_digest(x_internal_api_key, expected_key))
+        is_valid_previous = bool(previous_key and secrets.compare_digest(x_internal_api_key, previous_key))
+
+        if not (is_valid_active or is_valid_previous):
+            raise HTTPException(
+                status_code=401,
+                detail="Unauthorized: Invalid or revoked X-Internal-API-Key"
+            )
+
+        return True
+
+    # In local development / non-production:
+    if expected_key:
+        if not x_internal_api_key or not secrets.compare_digest(x_internal_api_key, expected_key):
+            raise HTTPException(
+                status_code=401,
+                detail="Unauthorized: Invalid internal API key"
+            )
+
     return True
 
 
