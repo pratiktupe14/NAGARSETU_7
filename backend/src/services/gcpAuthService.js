@@ -117,6 +117,8 @@ function getLastDiagnostics() {
       hasPythonAiUrl: Boolean(process.env.PYTHON_AI_URL),
       hasAiServiceUrl: Boolean(process.env.AI_SERVICE_URL),
       hasVercelOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
+      hasAiInternalApiKey: Boolean(process.env.AI_INTERNAL_API_KEY),
+      aiKeyPrefix: process.env.AI_INTERNAL_API_KEY ? process.env.AI_INTERNAL_API_KEY.substring(0, 5) : null,
       nodeEnv: process.env.NODE_ENV,
       vercelEnv: process.env.VERCEL_ENV,
       vercelUrl: process.env.VERCEL_URL

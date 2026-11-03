@@ -884,7 +884,7 @@ async function analyzeComplaintPhoto(fileInput, options = {}) {
       model: 'manual_fallback',
       category: fallbackCat,
       title: 'AI Analysis Unavailable',
-      description: 'AI analysis unavailable. Please enter complaint details manually.',
+      description: err.message || 'AI analysis unavailable. Please enter complaint details manually.',
       priority: 'Medium',
       severity: 'LOW',
       department: fallbackDept,
@@ -896,7 +896,8 @@ async function analyzeComplaintPhoto(fileInput, options = {}) {
       primaryDetection: null,
       detections: [],
       complaint: null,
-      message: 'AI analysis unavailable. Please enter complaint details manually.',
+      ai_reason: err.message,
+      message: err.message || 'AI analysis unavailable. Please enter complaint details manually.',
       risk: {
         human_safety: 1,
         public_disruption: 1,
