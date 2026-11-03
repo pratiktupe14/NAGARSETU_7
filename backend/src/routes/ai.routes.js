@@ -5,7 +5,7 @@ const path = require('path');
 const { upload } = require('../middleware/upload');
 const { analyzeComplaintPhoto, getCurrentModel } = require('../services/aiService');
 const { authenticateToken } = require('../middleware/auth');
-const { attachGcpAuthHeaders } = require('../services/gcpAuthService');
+const { attachGcpAuthHeaders, getLastDiagnostics } = require('../services/gcpAuthService');
 
 /**
  * Local AI Health Check Endpoint
@@ -33,13 +33,17 @@ router.get('/health', async (req, res) => {
     const healthRes = await fetch(baseHealthUrl, { signal: controller.signal, headers });
     clearTimeout(timeoutId);
 
+    let remoteHealthStatus = null;
+    let remoteHealthError = null;
+
     if (healthRes.ok) {
       const data = await healthRes.json();
       localAiReachable = true;
       if (data.models) modelsLoaded = data.models;
     } else {
-      const errText = await healthRes.text().catch(() => '');
-      console.warn('[AI HEALTH] Remote health check returned status:', healthRes.status, errText);
+      remoteHealthStatus = healthRes.status;
+      remoteHealthError = await healthRes.text().catch(() => '');
+      console.warn('[AI HEALTH] Remote health check returned status:', healthRes.status, remoteHealthError);
     }
   } catch (e) {
     console.error('[AI HEALTH] Failed to connect to AI health endpoint:', e.message);
@@ -56,7 +60,12 @@ router.get('/health', async (req, res) => {
     workflow: 'langgraph',
     models: modelsLoaded,
     model: getCurrentModel(),
-    gemini: false
+    gemini: false,
+    diagnostics: {
+      remoteStatus: typeof remoteHealthStatus !== 'undefined' ? remoteHealthStatus : null,
+      remoteError: typeof remoteHealthError !== 'undefined' && remoteHealthError ? remoteHealthError.slice(0, 300) : null,
+      gcpAuth: getLastDiagnostics()
+    }
   });
 });
 

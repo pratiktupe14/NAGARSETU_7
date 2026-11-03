@@ -24,6 +24,32 @@ let cachedTokenData = {
 
 let inFlightPromise = null;
 
+let lastDiagnostics = {
+  timestamp: null,
+  targetUrl: null,
+  oidc: null,
+  sts: null,
+  iam: null
+};
+
+function getLastDiagnostics() {
+  return {
+    ...lastDiagnostics,
+    env: {
+      hasProjectNumber: Boolean(process.env.GCP_PROJECT_NUMBER),
+      hasServiceAccountEmail: Boolean(process.env.GCP_SERVICE_ACCOUNT_EMAIL),
+      hasPool: Boolean(process.env.GCP_WORKLOAD_POOL),
+      hasProvider: Boolean(process.env.GCP_WORKLOAD_PROVIDER),
+      hasPythonAiUrl: Boolean(process.env.PYTHON_AI_URL),
+      hasAiServiceUrl: Boolean(process.env.AI_SERVICE_URL),
+      hasVercelOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
+      nodeEnv: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV,
+      vercelUrl: process.env.VERCEL_URL
+    }
+  };
+}
+
 /**
  * Normalizes the target audience to the root Cloud Run service origin.
  * Example: 'https://nagarsetu-ai-service-...run.app/analyze' -> 'https://nagarsetu-ai-service-...run.app'
@@ -216,27 +242,57 @@ async function getCloudRunIdToken(targetUrl, options = {}) {
         return null;
       }
 
+      lastDiagnostics.timestamp = new Date().toISOString();
+      lastDiagnostics.targetUrl = audience;
+
       const vercelToken = await retrieveVercelOidcToken(options);
       if (!vercelToken) {
+        lastDiagnostics.oidc = { retrieved: false, error: 'Vercel OIDC token not found in runtime or environment.' };
         console.warn('[GCP AUTH] Vercel OIDC token not found in runtime or environment.');
         return null;
       }
 
+      const decoded = decodeJwtPayload(vercelToken);
+      lastDiagnostics.oidc = {
+        retrieved: true,
+        claims: decoded ? {
+          iss: decoded.iss,
+          aud: decoded.aud,
+          sub: decoded.sub,
+          owner: decoded.owner,
+          project: decoded.project
+        } : null
+      };
+
       // Step A: STS token exchange
-      const stsAccessToken = await exchangeVercelTokenForStsAccessToken(vercelToken, {
-        projectNumber,
-        poolId,
-        providerId
-      });
+      let stsAccessToken;
+      try {
+        stsAccessToken = await exchangeVercelTokenForStsAccessToken(vercelToken, {
+          projectNumber,
+          poolId,
+          providerId
+        });
+        lastDiagnostics.sts = { success: true, status: 200 };
+      } catch (stsErr) {
+        lastDiagnostics.sts = { success: false, error: stsErr.message };
+        throw stsErr;
+      }
 
       // Step B: Generate Cloud Run ID token
-      const idToken = await generateServiceAccountIdToken(stsAccessToken, serviceAccountEmail, audience);
+      let idToken;
+      try {
+        idToken = await generateServiceAccountIdToken(stsAccessToken, serviceAccountEmail, audience);
+        lastDiagnostics.iam = { success: true, status: 200 };
+      } catch (iamErr) {
+        lastDiagnostics.iam = { success: false, error: iamErr.message };
+        throw iamErr;
+      }
 
       // Cache token with safe expiration
       let expiresAt = now + (50 * 60 * 1000); // Default to 50 minutes
-      const decoded = decodeJwtPayload(idToken);
-      if (decoded && decoded.exp) {
-        expiresAt = decoded.exp * 1000;
+      const decodedId = decodeJwtPayload(idToken);
+      if (decodedId && decodedId.exp) {
+        expiresAt = decodedId.exp * 1000;
       }
 
       cachedTokenData = {
@@ -293,6 +349,7 @@ function resetTokenCache() {
 }
 
 module.exports = {
+  getLastDiagnostics,
   getCloudRunIdToken,
   attachGcpAuthHeaders,
   resolveCloudRunAudience,
