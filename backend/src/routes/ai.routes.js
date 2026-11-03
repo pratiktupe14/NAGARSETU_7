@@ -5,6 +5,7 @@ const path = require('path');
 const { upload } = require('../middleware/upload');
 const { analyzeComplaintPhoto, getCurrentModel } = require('../services/aiService');
 const { authenticateToken } = require('../middleware/auth');
+const { attachGcpAuthHeaders } = require('../services/gcpAuthService');
 
 /**
  * Local AI Health Check Endpoint
@@ -20,12 +21,9 @@ router.get('/health', async (req, res) => {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
-    const headers = {};
-    const apiKey = process.env.AI_INTERNAL_API_KEY || process.env.AI_SERVICE_API_KEY || process.env.INTERNAL_AI_SECRET || process.env.AI_SECRET_KEY;
-    if (apiKey) {
-      headers['X-Internal-API-Key'] = apiKey;
-    }
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    let headers = {};
+    headers = await attachGcpAuthHeaders(headers, baseHealthUrl);
     const healthRes = await fetch(baseHealthUrl, { signal: controller.signal, headers });
     clearTimeout(timeoutId);
 

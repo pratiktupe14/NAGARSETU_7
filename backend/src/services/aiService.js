@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { clampScore, calculateRiskAssessment } = require('./riskMatrixService');
+const { attachGcpAuthHeaders } = require('./gcpAuthService');
 
 // Canonical Allowed Categories
 const ALLOWED_CATEGORIES = [
@@ -115,11 +116,8 @@ async function callLocalAiService(fileBuffer, mimeType, originalName, domain = n
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const headers = {};
-    const apiKey = process.env.AI_INTERNAL_API_KEY || process.env.AI_SERVICE_API_KEY || process.env.INTERNAL_AI_SECRET || process.env.AI_SECRET_KEY;
-    if (apiKey) {
-      headers['X-Internal-API-Key'] = apiKey;
-    }
+    let headers = {};
+    headers = await attachGcpAuthHeaders(headers, pythonUrl);
 
     const response = await fetch(pythonUrl, {
       method: 'POST',

@@ -8,6 +8,7 @@ const {
   directionsSchema,
   validateLocationSchema
 } = require('../schemas/maps.schemas');
+const { attachGcpAuthHeaders } = require('../services/gcpAuthService');
 
 function getAiBaseUrl() {
   const raw = (process.env.AI_SERVICE_URL || process.env.PYTHON_AI_URL || 'http://localhost:8000').trim();
@@ -20,11 +21,8 @@ async function postToPythonService(endpoint, body) {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${baseUrl}${cleanEndpoint}`;
 
-    const headers = { 'Content-Type': 'application/json' };
-    const apiKey = process.env.AI_INTERNAL_API_KEY || process.env.AI_SERVICE_API_KEY || process.env.INTERNAL_AI_SECRET || process.env.AI_SECRET_KEY;
-    if (apiKey) {
-      headers['X-Internal-API-Key'] = apiKey;
-    }
+    let headers = { 'Content-Type': 'application/json' };
+    headers = await attachGcpAuthHeaders(headers, url);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);

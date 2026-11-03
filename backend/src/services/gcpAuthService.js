@@ -1,0 +1,301 @@
+/**
+ * NAGARSETU 3.1 — Google Cloud Workload Identity Federation (WIF) Authentication Service
+ * 
+ * Authenticates Vercel Serverless Functions to Google Cloud Run using OpenID Connect (OIDC).
+ * 
+ * Flow:
+ * 1. Retrieve Vercel OIDC Token (via Vercel runtime / env / header).
+ * 2. Exchange Vercel OIDC token for Google STS Federated Access Token via sts.googleapis.com.
+ * 3. Generate a Google-signed ID Token for Cloud Run service via iamcredentials.googleapis.com
+ *    with target Cloud Run service URL as the audience.
+ * 4. Cache ID Token in-memory and refresh automatically prior to expiration.
+ * 
+ * ZERO hardcoded secrets: All credentials and project details are loaded from environment variables.
+ */
+
+const fs = require('fs');
+
+// In-memory token cache to prevent per-request STS overhead
+let cachedTokenData = {
+  idToken: null,
+  expiresAt: 0,
+  audience: null
+};
+
+let inFlightPromise = null;
+
+/**
+ * Normalizes the target audience to the root Cloud Run service origin.
+ * Example: 'https://nagarsetu-ai-service-...run.app/analyze' -> 'https://nagarsetu-ai-service-...run.app'
+ */
+function resolveCloudRunAudience(targetUrl) {
+  if (!targetUrl) return null;
+  try {
+    const parsed = new URL(targetUrl);
+    return parsed.origin;
+  } catch (err) {
+    return targetUrl.replace(/\/+$/, '');
+  }
+}
+
+/**
+ * Checks whether the target URL is a remote Cloud Run or HTTPS deployment requiring GCP auth.
+ */
+function isGoogleCloudRunTarget(targetUrl) {
+  if (!targetUrl) return false;
+  const lower = targetUrl.toLowerCase();
+  if (lower.includes('localhost') || lower.includes('127.0.0.1')) {
+    return false;
+  }
+  return lower.includes('.run.app') || lower.includes('google') || Boolean(process.env.GCP_SERVICE_ACCOUNT_EMAIL);
+}
+
+/**
+ * Safely decodes JWT payload to determine expiration without external dependencies.
+ */
+function decodeJwtPayload(jwtToken) {
+  try {
+    const parts = jwtToken.split('.');
+    if (parts.length !== 3) return null;
+    const payload = Buffer.from(parts[1], 'base64').toString('utf8');
+    return JSON.parse(payload);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Retrieves the Vercel OIDC token from secure server-side runtime sources only.
+ * Client-supplied tokens/headers are strictly rejected to prevent identity spoofing.
+ */
+async function retrieveVercelOidcToken() {
+  // 1. Server-side Vercel runtime OIDC retrieval via official @vercel/oidc package
+  try {
+    const { getVercelOidcToken } = require('@vercel/oidc');
+    if (typeof getVercelOidcToken === 'function') {
+      const token = await getVercelOidcToken();
+      if (token) return token;
+    }
+  } catch (_) {
+    // Falls through to server-side env/file if running outside Vercel function context
+  }
+
+  // 2. Server-side environment variable (set securely in Vercel project dashboard / backend env)
+  if (process.env.VERCEL_OIDC_TOKEN) {
+    return process.env.VERCEL_OIDC_TOKEN;
+  }
+
+  // 3. Server-side token file (e.g. mounted secure credentials file)
+  if (process.env.VERCEL_OIDC_TOKEN_FILE && fs.existsSync(process.env.VERCEL_OIDC_TOKEN_FILE)) {
+    try {
+      const fileContent = fs.readFileSync(process.env.VERCEL_OIDC_TOKEN_FILE, 'utf8').trim();
+      if (fileContent) return fileContent;
+    } catch (e) {
+      console.warn('[GCP AUTH] Failed to read VERCEL_OIDC_TOKEN_FILE:', e.message);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Exchanges Vercel OIDC token for Google Security Token Service (STS) federated access token.
+ */
+async function exchangeVercelTokenForStsAccessToken(vercelToken, config) {
+  const { projectNumber, poolId, providerId } = config;
+  const stsAudience = `//iam.googleapis.com/projects/${projectNumber}/locations/global/workloadIdentityPools/${poolId}/providers/${providerId}`;
+
+  const stsBody = {
+    audience: stsAudience,
+    grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+    requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+    scope: 'https://www.googleapis.com/auth/cloud-platform',
+    subjectTokenType: 'urn:ietf:params:oauth:token-type:jwt',
+    subjectToken: vercelToken
+  };
+
+  const stsResponse = await fetch('https://sts.googleapis.com/v1/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(stsBody)
+  });
+
+  if (!stsResponse.ok) {
+    const errText = await stsResponse.text().catch(() => '');
+    throw new Error(`Google STS token exchange failed with status ${stsResponse.status}: ${errText}`);
+  }
+
+  const stsData = await stsResponse.json();
+  if (!stsData.access_token) {
+    throw new Error('Google STS response missing access_token');
+  }
+
+  return stsData.access_token;
+}
+
+/**
+ * Generates a Google-signed ID token for Cloud Run by impersonating the target service account.
+ */
+async function generateServiceAccountIdToken(stsAccessToken, serviceAccountEmail, targetAudience) {
+  const impersonateUrl = `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${encodeURIComponent(serviceAccountEmail)}:generateIdToken`;
+
+  const response = await fetch(impersonateUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${stsAccessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      audience: targetAudience,
+      includeEmail: true
+    })
+  });
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    throw new Error(`Google IAM generateIdToken failed with status ${response.status}: ${errText}`);
+  }
+
+  const data = await response.json();
+  if (!data.token) {
+    throw new Error('Google IAM response missing ID token');
+  }
+
+  return data.token;
+}
+
+/**
+ * Main function to obtain a valid Google Cloud Run ID token.
+ * 
+ * @param {string} targetUrl - Target Cloud Run URL or endpoint
+ * @param {object} options - Optional overrides or request context
+ * @returns {Promise<string|null>} Bearer ID token or null if not applicable
+ */
+async function getCloudRunIdToken(targetUrl) {
+  const audience = resolveCloudRunAudience(targetUrl || process.env.CLOUD_RUN_SERVICE_URL || process.env.AI_SERVICE_URL || process.env.PYTHON_AI_URL);
+
+  // If communicating with localhost or no remote target, bypass
+  if (!isGoogleCloudRunTarget(audience)) {
+    return null;
+  }
+
+  // 1. Direct ID token override (useful for testing or direct env injection)
+  if (process.env.GCP_ID_TOKEN || process.env.CLOUD_RUN_ID_TOKEN) {
+    return process.env.GCP_ID_TOKEN || process.env.CLOUD_RUN_ID_TOKEN;
+  }
+
+  // 2. Check token cache
+  const now = Date.now();
+  if (
+    cachedTokenData.idToken &&
+    cachedTokenData.audience === audience &&
+    cachedTokenData.expiresAt > (now + 5 * 60 * 1000) // 5-minute safety buffer
+  ) {
+    return cachedTokenData.idToken;
+  }
+
+  // If a refresh is already in-flight for this audience, await it
+  if (inFlightPromise) {
+    return inFlightPromise;
+  }
+
+  inFlightPromise = (async () => {
+    try {
+      const projectNumber = process.env.GCP_PROJECT_NUMBER;
+      const poolId = process.env.GCP_WORKLOAD_POOL || 'vercel';
+      const providerId = process.env.GCP_WORKLOAD_PROVIDER || 'vercel';
+      const serviceAccountEmail = process.env.GCP_SERVICE_ACCOUNT_EMAIL;
+
+      if (!projectNumber || !serviceAccountEmail) {
+        // Workload Identity Federation not configured in environment
+        return null;
+      }
+
+      const vercelToken = await retrieveVercelOidcToken();
+      if (!vercelToken) {
+        console.warn('[GCP AUTH] Vercel OIDC token not found in runtime or environment.');
+        return null;
+      }
+
+      // Step A: STS token exchange
+      const stsAccessToken = await exchangeVercelTokenForStsAccessToken(vercelToken, {
+        projectNumber,
+        poolId,
+        providerId
+      });
+
+      // Step B: Generate Cloud Run ID token
+      const idToken = await generateServiceAccountIdToken(stsAccessToken, serviceAccountEmail, audience);
+
+      // Cache token with safe expiration
+      let expiresAt = now + (50 * 60 * 1000); // Default to 50 minutes
+      const decoded = decodeJwtPayload(idToken);
+      if (decoded && decoded.exp) {
+        expiresAt = decoded.exp * 1000;
+      }
+
+      cachedTokenData = {
+        idToken,
+        expiresAt,
+        audience
+      };
+
+      return idToken;
+    } catch (err) {
+      console.error('[GCP AUTH] Error acquiring Cloud Run ID token:', err.message);
+      return null;
+    } finally {
+      inFlightPromise = null;
+    }
+  })();
+
+  return inFlightPromise;
+}
+
+/**
+ * Attaches both GCP Bearer ID token and internal API key to request headers.
+ */
+async function attachGcpAuthHeaders(headers = {}, targetUrl) {
+  const finalHeaders = { ...headers };
+
+  try {
+    const idToken = await getCloudRunIdToken(targetUrl);
+    if (idToken) {
+      finalHeaders['Authorization'] = `Bearer ${idToken}`;
+    }
+  } catch (err) {
+    console.warn('[GCP AUTH] Failed to attach GCP ID token:', err.message);
+  }
+
+  const apiKey = process.env.AI_INTERNAL_API_KEY || process.env.AI_SERVICE_API_KEY || process.env.INTERNAL_AI_SECRET || process.env.AI_SECRET_KEY;
+  if (apiKey) {
+    finalHeaders['X-Internal-API-Key'] = apiKey;
+  }
+
+  return finalHeaders;
+}
+
+/**
+ * Resets token cache (useful for testing or forced renewal).
+ */
+function resetTokenCache() {
+  cachedTokenData = {
+    idToken: null,
+    expiresAt: 0,
+    audience: null
+  };
+  inFlightPromise = null;
+}
+
+module.exports = {
+  getCloudRunIdToken,
+  attachGcpAuthHeaders,
+  resolveCloudRunAudience,
+  isGoogleCloudRunTarget,
+  exchangeVercelTokenForStsAccessToken,
+  generateServiceAccountIdToken,
+  retrieveVercelOidcToken,
+  decodeJwtPayload,
+  resetTokenCache
+};
+
