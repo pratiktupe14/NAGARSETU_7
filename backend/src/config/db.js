@@ -1018,10 +1018,21 @@ async function querySupabase(sql, params = []) {
           return { rows: [] };
         }
 
-        if (cleanCitizenParams.length === 1) {
-          queryBuilder = queryBuilder.eq('citizen_id', cleanCitizenParams[0]);
+        // PostgREST complaints.citizen_id is a PostgreSQL UUID column.
+        // Filter parameters to valid UUID strings to prevent PostgreSQL 22P02 error.
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        const validUuids = cleanCitizenParams.filter(p => uuidRegex.test(p));
+
+        if (validUuids.length === 0) {
+          // FAIL CLOSED: A citizen query was requested, but no valid citizen UUID was resolved.
+          // Never run an unfiltered query or return other citizens' records.
+          return { rows: [] };
+        }
+
+        if (validUuids.length === 1) {
+          queryBuilder = queryBuilder.eq('citizen_id', validUuids[0]);
         } else {
-          queryBuilder = queryBuilder.in('citizen_id', cleanCitizenParams);
+          queryBuilder = queryBuilder.in('citizen_id', validUuids);
         }
       }
       // C. Department filtering
@@ -1042,10 +1053,16 @@ async function querySupabase(sql, params = []) {
         let fallbackBuilder = supabase.from('complaints').select('*');
         if (idParam) {
           fallbackBuilder = fallbackBuilder.or(`id.eq.${idParam},complaint_number.eq.${idParam}`);
-        } else if (isCitizenQuery && cleanCitizenParams.length === 1) {
-          fallbackBuilder = fallbackBuilder.eq('citizen_id', cleanCitizenParams[0]);
-        } else if (isCitizenQuery && cleanCitizenParams.length > 1) {
-          fallbackBuilder = fallbackBuilder.in('citizen_id', cleanCitizenParams);
+        } else if (isCitizenQuery) {
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+          const validUuids = cleanCitizenParams.filter(p => uuidRegex.test(p));
+          if (validUuids.length === 1) {
+            fallbackBuilder = fallbackBuilder.eq('citizen_id', validUuids[0]);
+          } else if (validUuids.length > 1) {
+            fallbackBuilder = fallbackBuilder.in('citizen_id', validUuids);
+          } else {
+            return { rows: [] };
+          }
         } else if (deptId) {
           fallbackBuilder = fallbackBuilder.eq('department_id', String(deptId));
         }
@@ -1054,7 +1071,12 @@ async function querySupabase(sql, params = []) {
         error = fbRes.error;
       }
 
-      if (!error && data) {
+      if (error) {
+        console.error('[SUPABASE COMPLAINTS QUERY ERROR] Query failed:', error.message || error);
+        throw new Error('Database query failure during complaint retrieval');
+      }
+
+      if (data) {
         const formatted = data.map(row => ({
           ...row,
           department_name: row.departments?.name || CANONICAL_DEPT_MAP[String(row.department_id)] || row.department_name || 'Municipal Services'

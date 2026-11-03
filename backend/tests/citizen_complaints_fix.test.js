@@ -1,10 +1,10 @@
 /**
- * Focused Verification Test for Citizen Complaints HTTP 500 Fix
- * Tests:
- * 1. resolveAuthorizedCitizenIds resilience (no NaN, proper Set returned)
- * 2. IDOR protection (strict citizen boundary enforcement)
- * 3. Supabase REST query handling with various ID types (UUID, numeric, legacy)
- * 4. Error recovery and fail-closed behavior
+ * Focused Verification Test for Citizen Complaints Visibility Fix
+ * Proves:
+ * 1. Numeric ID + valid UUID returns the correct citizen complaints
+ * 2. Invalid numeric IDs are excluded from UUID queries (preventing Postgres 22P02)
+ * 3. Another citizen's complaints remain strictly inaccessible (IDOR isolation)
+ * 4. Database failures are not silently reported as zero complaints (fail-safe error propagation)
  * 5. Database data integrity (zero data lost)
  */
 
@@ -12,104 +12,91 @@ require('dotenv').config({ path: '.env' });
 const assert = require('assert');
 
 async function runTests() {
-  console.log('--- STARTING CITIZEN COMPLAINTS FIX VERIFICATION ---');
+  console.log('--- STARTING CITIZEN COMPLAINTS VISIBILITY FIX VERIFICATION ---');
 
-  // 1. Test resolveAuthorizedCitizenIds & parameter sanitation
-  console.log('\n[TEST 1] Testing resolveAuthorizedCitizenIds parameter sanitation...');
   const { query } = require('../src/config/db');
   const { getSupabase } = require('../src/config/supabaseStorage');
-
-  // Simulate authenticated user with UUID
-  const testUserUuid = {
-    id: 'e2a4338c-5d49-4ae3-b766-40d99fb26f87',
-    role: 'citizen',
-    email: 'citizen8788@nagarsetu.gov.in',
-    mobile: '8788562103'
-  };
-
-  // We can test the helper logic directly
-  const rawId = String(testUserUuid.id).trim();
-  const ids = new Set();
-  if (rawId && rawId !== 'NaN') {
-    ids.add(rawId);
-    if (!isNaN(Number(rawId)) && !rawId.includes('-')) {
-      ids.add(Number(rawId));
-    }
-  }
-
-  const allowedIds = Array.from(ids).filter(
-    id => id !== null && id !== undefined && id !== '' && id !== 'NaN' && !Number.isNaN(id)
-  );
-
-  assert(!allowedIds.includes(NaN), 'allowedIds must NOT contain NaN');
-  assert(!allowedIds.includes('NaN'), 'allowedIds must NOT contain string NaN');
-  assert(allowedIds.includes('e2a4338c-5d49-4ae3-b766-40d99fb26f87'), 'allowedIds must contain valid UUID');
-  console.log('  PASS: allowedIds contains valid UUID and strictly excludes NaN/null/undefined.');
-
-  // 2. Test IDOR protection & fail-closed behavior
-  console.log('\n[TEST 2] Testing IDOR protection and fail-closed behavior...');
   const supabase = getSupabase();
-  if (supabase) {
-    // A. Query with Citizen A's UUID
-    const citizenA = 'e2a4338c-5d49-4ae3-b766-40d99fb26f87';
-    const { data: dataA, error: errA } = await supabase
-      .from('complaints')
-      .select('*')
-      .eq('citizen_id', citizenA);
+  assert(supabase, 'Supabase client must be initialized');
 
-    assert(!errA, `Citizen A query error: ${errA?.message}`);
-    console.log(`  Citizen A (${citizenA}) complaints found: ${dataA.length}`);
-    for (const c of dataA) {
-      assert.strictEqual(String(c.citizen_id), citizenA, 'IDOR VIOLATION: Record citizen_id must match citizen A');
-    }
-    console.log('  PASS: All records returned belong strictly to Citizen A.');
+  const citizenA = 'e2a4338c-5d49-4ae3-b766-40d99fb26f87';
+  process.env.DB_TYPE = 'supabase'; // Enforce Supabase adapter path
 
-    // B. Query with a non-existent or random citizen ID
-    const dummyCitizen = '00000000-0000-0000-0000-000000000000';
-    const { data: dataDummy, error: errDummy } = await supabase
-      .from('complaints')
-      .select('*')
-      .eq('citizen_id', dummyCitizen);
-
-    assert(!errDummy, `Dummy citizen query error: ${errDummy?.message}`);
-    assert.strictEqual(dataDummy.length, 0, 'Must return exactly 0 records for non-existent citizen');
-    console.log('  PASS: Fail-closed verified (0 records for non-existent citizen, no leakage).');
-
-    // C. Test query via db.js query adapter
-    console.log('\n[TEST 3] Testing db.js query() with sanitized citizen parameters...');
-    process.env.DB_TYPE = 'supabase'; // Force querySupabase path
-    const sql = `
-      SELECT c.*, d.name as department_name, f.rating, f.comment as feedback_comment
-      FROM complaints c
-      LEFT JOIN departments d ON (CAST(c.department_id AS TEXT) = CAST(d.id AS TEXT) OR c.department_id = d.code)
-      LEFT JOIN feedback f ON f.complaint_id = c.id
-      WHERE (c.citizen_id IN (?) OR CAST(c.citizen_id AS TEXT) IN (?))
-      ORDER BY c.created_at DESC
-    `;
-    const params = [citizenA, citizenA];
-    const res = await query(sql, params);
-    assert(res && Array.isArray(res.rows), 'Query result must contain rows array');
-    console.log(`  query() executed successfully, retrieved ${res.rows.length} rows.`);
-    for (const row of res.rows) {
-      assert.strictEqual(String(row.citizen_id), citizenA, 'IDOR VIOLATION: db.js returned unowned row');
-    }
-    console.log('  PASS: db.js querySupabase strictly enforces citizen boundary.');
-
-    // D. Test Supabase data integrity (complaints count)
-    console.log('\n[TEST 4] Verifying database data integrity...');
-    const { count, error: countErr } = await supabase
-      .from('complaints')
-      .select('*', { count: 'exact', head: true });
-
-    assert(!countErr, `Count query error: ${countErr?.message}`);
-    assert(count > 0, 'Database complaints must exist and be preserved');
-    console.log(`  Supabase complaints table total records: ${count} (intact and preserved).`);
-    console.log('  PASS: Supabase PostgreSQL database data integrity confirmed.');
-  } else {
-    console.log('  Supabase client not initialized; skipping live remote tests.');
+  // 1. Regression Test: Numeric ID + valid UUID returns the correct citizen complaints
+  console.log('\n[TEST 1] Testing Numeric ID + valid UUID parameter handling...');
+  const mixedParams = ['2', citizenA, '58', citizenA];
+  const sql = `
+    SELECT c.*, d.name as department_name, f.rating, f.comment as feedback_comment
+    FROM complaints c
+    LEFT JOIN departments d ON (CAST(c.department_id AS TEXT) = CAST(d.id AS TEXT) OR c.department_id = d.code)
+    LEFT JOIN feedback f ON f.complaint_id = c.id
+    WHERE (c.citizen_id IN (?, ?, ?, ?) OR CAST(c.citizen_id AS TEXT) IN (?, ?, ?, ?))
+    ORDER BY c.created_at DESC
+  `;
+  const mixedRes = await query(sql, mixedParams);
+  assert(mixedRes && Array.isArray(mixedRes.rows), 'Query result must contain rows array');
+  assert.strictEqual(mixedRes.rows.length, 34, `Expected exactly 34 complaints for Citizen A, got ${mixedRes.rows.length}`);
+  for (const row of mixedRes.rows) {
+    assert.strictEqual(String(row.citizen_id), citizenA, 'Record citizen_id must match citizen A');
   }
+  console.log(`  PASS: Mixed numeric ('2', '58') + valid UUID returned all 34 citizen complaints without 22P02 error.`);
 
-  console.log('\n=== ALL FOCUSED VERIFICATION TESTS PASSED SUCCESSFULLY ===');
+  // 2. Regression Test: Only invalid numeric IDs provided -> fails closed (0 complaints, never leaks)
+  console.log('\n[TEST 2] Testing numeric-only parameters fail-closed behavior...');
+  const numericOnlyParams = ['2', '58', '101'];
+  const numSql = `
+    SELECT c.*, d.name as department_name FROM complaints c
+    WHERE c.citizen_id IN (?, ?, ?)
+    ORDER BY c.created_at DESC
+  `;
+  const numRes = await query(numSql, numericOnlyParams);
+  assert(numRes && Array.isArray(numRes.rows), 'Query result must contain rows array');
+  assert.strictEqual(numRes.rows.length, 0, 'Must return exactly 0 complaints when no valid UUID exists');
+  console.log('  PASS: Numeric-only parameters safely failed closed with 0 complaints (no 22P02 crash, no leakage).');
+
+  // 3. Citizen Isolation & IDOR Protection: Query for Citizen B cannot see Citizen A's complaints
+  console.log('\n[TEST 3] Testing citizen isolation and IDOR boundaries...');
+  const citizenB = '89834ece-edd4-44c1-8a2e-b7b97bdcc4cf'; // Another actual citizen UUID in db
+  const bSql = `
+    SELECT c.*, d.name as department_name FROM complaints c
+    WHERE c.citizen_id = ?
+    ORDER BY c.created_at DESC
+  `;
+  const bRes = await query(bSql, [citizenB]);
+  assert(bRes && Array.isArray(bRes.rows), 'Query result must contain rows array');
+  console.log(`  Citizen B returned ${bRes.rows.length} complaints.`);
+  for (const row of bRes.rows) {
+    assert.strictEqual(String(row.citizen_id), citizenB, 'Citizen B records must strictly belong to Citizen B');
+    assert.notStrictEqual(String(row.citizen_id), citizenA, 'Citizen B must NEVER see Citizen A records');
+  }
+  console.log('  PASS: Strict IDOR isolation maintained between citizens.');
+
+  // 4. Test error propagation: Database failures are not silently converted to empty lists
+  console.log('\n[TEST 4] Testing database error propagation (not masking failures as empty lists)...');
+  // Trigger error path by passing query against non-existent table or broken query
+  let caughtError = false;
+  try {
+    // Force a synthetic failure by querying with null client or invalid table
+    const brokenSql = `SELECT * FROM non_existent_database_table_xyz_123 WHERE id = ?`;
+    await query(brokenSql, [1]);
+  } catch (err) {
+    caughtError = true;
+    console.log(`  Caught database error as expected: ${err.message}`);
+  }
+  assert(caughtError, 'Database query failure must throw/propagate and NOT silently return { rows: [] }');
+  console.log('  PASS: Database failures are safely propagated rather than masked as zero complaints.');
+
+  // 5. Database data integrity
+  console.log('\n[TEST 5] Confirming database data integrity...');
+  const { count, error: countErr } = await supabase
+    .from('complaints')
+    .select('*', { count: 'exact', head: true });
+  assert(!countErr, `Count query error: ${countErr?.message}`);
+  assert.strictEqual(count, 60, `Database complaints count must remain exactly 60, found ${count}`);
+  console.log(`  Supabase complaints table preserved with ${count} total records.`);
+  console.log('  PASS: Database data integrity confirmed (0 records lost).');
+
+  console.log('\n=== ALL FOCUSED REGRESSION TESTS PASSED SUCCESSFULLY ===');
 }
 
 runTests().catch(err => {
