@@ -1045,7 +1045,7 @@ async function querySupabase(sql, params = []) {
       const wherePart = whereIdx !== -1 ? upper.slice(whereIdx) : '';
 
       // A. Specific complaint by ID or complaint_number
-      if (wherePart.includes('C.ID =') || wherePart.includes('(C.ID =') || wherePart.includes('C.COMPLAINT_NUMBER =') || wherePart.includes('ID =')) {
+      if (wherePart.includes('C.ID =') || wherePart.includes('(C.ID =') || wherePart.includes('WHERE ID =') || wherePart.includes('WHERE (ID =') || wherePart.includes('C.COMPLAINT_NUMBER =') || wherePart.includes('COMPLAINT_NUMBER =')) {
         idParam = params[0];
         if (idParam && String(idParam) !== 'NaN') {
           queryBuilder = queryBuilder.or(`id.eq.${idParam},complaint_number.eq.${idParam}`);
