@@ -58,12 +58,13 @@ app.add_middleware(
 async def verify_internal_api_key(
     x_internal_api_key: Optional[str] = Header(None, alias="X-Internal-API-Key"),
     authorization: Optional[str] = Header(None, alias="Authorization"),
+    x_serverless_authorization: Optional[str] = Header(None, alias="X-Serverless-Authorization"),
 ):
     """
-    Dual-Layer Defense-in-Depth Authentication:
-    Layer 1: Google Cloud IAM Identity Token (Cloud Run perimeter + container verification)
-    Layer 2: Application-layer Internal API Key (validated against active/transitional secret)
-    Both layers are strictly required in production.
+    Dual-Layer Defense-in-Depth Authentication Policy:
+    Layer 1 (Perimeter): Google Cloud IAM Identity Token (Cloud Run perimeter enforces IAM invoker)
+    Layer 2 (Application): X-Internal-API-Key Application Secret (enforced by this validator)
+    Both layers must be satisfied. Valid IAM token alone without active internal key is rejected.
     """
     expected_key = (
         os.getenv("AI_INTERNAL_API_KEY")
@@ -78,15 +79,8 @@ async def verify_internal_api_key(
         or bool(os.getenv("K_SERVICE"))
     )
 
+    # In production (Cloud Run), Layer 2 is strictly required on every inference/maps request:
     if is_prod:
-        # Layer 1 Verification: Google Cloud IAM Identity Token
-        if not authorization or not authorization.startswith("Bearer "):
-            raise HTTPException(
-                status_code=401,
-                detail="Unauthorized: Missing or invalid Google Cloud IAM identity token"
-            )
-
-        # Layer 2 Verification: X-Internal-API-Key Application Secret
         if not x_internal_api_key:
             raise HTTPException(
                 status_code=401,

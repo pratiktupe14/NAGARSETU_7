@@ -37,6 +37,7 @@ async function fetchSecretManagerKey(stsAccessToken, projectNumber = '7555780571
   }
   try {
     const url = `https://secretmanager.googleapis.com/v1/projects/${projectNumber}/secrets/${secretName}/versions/latest:access`;
+    // Attempt 1: Direct access via federated STS token (bound to workloadIdentityUser subject)
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${stsAccessToken}` }
     });
@@ -48,13 +49,49 @@ async function fetchSecretManagerKey(stsAccessToken, projectNumber = '7555780571
           key: secretVal,
           expiresAt: now + (30 * 60 * 1000) // Cache for 30 minutes
         };
+        lastDiagnostics.secretManager = { success: true, method: 'sts' };
         return secretVal;
       }
-    } else {
-      console.warn('[GCP AUTH] Secret Manager access returned status:', res.status);
     }
+
+    // Attempt 2: Impersonate vercel-ai-invoker service account to generate access token
+    const serviceAccountEmail = (process.env.GCP_SERVICE_ACCOUNT_EMAIL || 'vercel-ai-invoker@project-578628ad-e6b6-4b3b-9f7.iam.gserviceaccount.com').trim();
+    const tokenUrl = `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${encodeURIComponent(serviceAccountEmail)}:generateAccessToken`;
+    const tokenRes = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${stsAccessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        scope: ['https://www.googleapis.com/auth/cloud-platform']
+      })
+    });
+
+    if (tokenRes.ok) {
+      const tokenData = await tokenRes.json();
+      if (tokenData.accessToken) {
+        const saSecRes = await fetch(url, {
+          headers: { Authorization: `Bearer ${tokenData.accessToken}` }
+        });
+        if (saSecRes.ok) {
+          const saData = await saSecRes.json();
+          if (saData.payload && saData.payload.data) {
+            const secretVal = Buffer.from(saData.payload.data, 'base64').toString('utf8').trim();
+            cachedInternalApiKey = {
+              key: secretVal,
+              expiresAt: now + (30 * 60 * 1000)
+            };
+            lastDiagnostics.secretManager = { success: true, method: 'impersonated_sa' };
+            return secretVal;
+          }
+        }
+      }
+    }
+    lastDiagnostics.secretManager = { success: false, status: res.status };
   } catch (e) {
     console.warn('[GCP AUTH] Error fetching secret from Secret Manager:', e.message);
+    lastDiagnostics.secretManager = { success: false, error: e.message };
   }
   return null;
 }
