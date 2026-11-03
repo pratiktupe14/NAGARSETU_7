@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://backend-teal-omega-46.vercel.app/api/$1"
+      "destination": "https://nagarsetu-backend.vercel.app/api/$1"
     },
     {
       "source": "/uploads/(.*)",
-      "destination": "https://backend-teal-omega-46.vercel.app/uploads/$1"
+      "destination": "https://nagarsetu-backend.vercel.app/uploads/$1"
     },
     {
       "source": "/(.*)",

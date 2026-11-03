@@ -61,10 +61,13 @@ router.get('/health', async (req, res) => {
     models: modelsLoaded,
     model: getCurrentModel(),
     gemini: false,
-    diagnostics: {
+    diagnostics: (process.env.DEBUG_AI_DIAGNOSTICS === 'true' || process.env.NODE_ENV !== 'production') ? {
       remoteStatus: typeof remoteHealthStatus !== 'undefined' ? remoteHealthStatus : null,
       remoteError: typeof remoteHealthError !== 'undefined' && remoteHealthError ? remoteHealthError.slice(0, 300) : null,
       gcpAuth: getLastDiagnostics()
+    } : {
+      remoteStatus: typeof remoteHealthStatus !== 'undefined' ? remoteHealthStatus : null,
+      remoteError: typeof remoteHealthError !== 'undefined' && remoteHealthError ? 'Remote AI health check failed' : null
     }
   });
 });

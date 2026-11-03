@@ -79,14 +79,22 @@ function initDatabase() {
     if (isSupabaseDb && typeof dbUrl === 'string') {
       dbUrl = dbUrl.replace(/([?&])sslmode=[^&]+(&|$)/g, '$1').replace(/[?&]$/, '');
     }
-    const rejectUnauthorized = false;
+    let sslConfig = { rejectUnauthorized: false };
+    if (process.env.PG_CA_CERT || process.env.SUPABASE_SSL_CA) {
+      const caCert = (process.env.PG_CA_CERT || process.env.SUPABASE_SSL_CA).replace(/\\n/g, '\n');
+      sslConfig = { rejectUnauthorized: true, ca: caCert };
+    } else if (process.env.PG_CA_CERT_PATH && fs.existsSync(process.env.PG_CA_CERT_PATH)) {
+      sslConfig = { rejectUnauthorized: true, ca: fs.readFileSync(process.env.PG_CA_CERT_PATH, 'utf8') };
+    } else if (process.env.PG_SSL_REJECT_UNAUTHORIZED === 'true') {
+      sslConfig = { rejectUnauthorized: true };
+    }
 
     if (isPostgres && dbUrl) {
       console.log('Connecting to PostgreSQL database...');
       try {
         pgPool = new Pool({
           connectionString: dbUrl,
-          ssl: { rejectUnauthorized },
+          ssl: sslConfig,
           connectionTimeoutMillis: 5000
         });
         pgPool.query('SELECT NOW()', (err, res) => {
@@ -983,6 +991,33 @@ async function querySupabase(sql, params = []) {
       }
     }
 
+    // 1c. Users insert (Registration & seed)
+    if (upper.startsWith('INSERT INTO USERS')) {
+      const match = trimmed.match(/INSERT\s+INTO\s+users\s*\(([\s\S]+?)\)\s*VALUES\s*\(([\s\S]+?)\)/i);
+      if (match) {
+        const columns = match[1].split(',').map(c => c.trim().toLowerCase());
+        const SUPABASE_USER_COLS = new Set([
+          'name', 'mobile', 'email', 'password_hash', 'role', 'language_pref',
+          'department_id', 'employee_id', 'designation', 'status', 'created_at', 'updated_at'
+        ]);
+        const record = {};
+        columns.forEach((col, idx) => {
+          if (SUPABASE_USER_COLS.has(col)) {
+            record[col] = params[idx];
+          }
+        });
+        if (!record.created_at) record.created_at = new Date().toISOString();
+        if (!record.updated_at) record.updated_at = new Date().toISOString();
+        const { data, error } = await supabase.from('users').insert([record]).select();
+        if (!error && data && data.length > 0) {
+          return { rows: data, rowCount: data.length };
+        }
+        if (error) {
+          console.warn('[SUPABASE USERS INSERT WARN]', error.message);
+        }
+      }
+    }
+
     // 2. Complaints queries
     if (upper.includes('FROM COMPLAINTS')) {
       if (upper.includes('SELECT COUNT')) {
@@ -1195,6 +1230,32 @@ async function querySupabase(sql, params = []) {
         q = q.eq('user_id', String(params[0]));
       }
       const { data, error } = await q.order('sent_at', { ascending: false });
+      if (!error && data) return { rows: data };
+    }
+
+    // 6. Feedback queries & insert
+    if (upper.startsWith('INSERT INTO FEEDBACK')) {
+      const match = trimmed.match(/INSERT\s+INTO\s+feedback\s*\(([\s\S]+?)\)\s*VALUES\s*\(([\s\S]+?)\)/i);
+      if (match) {
+        const columns = match[1].split(',').map(c => c.trim().toLowerCase());
+        const record = {};
+        columns.forEach((col, idx) => {
+          record[col] = params[idx];
+        });
+        if (!record.created_at) record.created_at = new Date().toISOString();
+        const { data, error } = await supabase.from('feedback').insert([record]).select();
+        if (!error && data && data.length > 0) {
+          return { rows: data, rowCount: data.length };
+        }
+      }
+    }
+    if (upper.includes('FROM FEEDBACK')) {
+      let q = supabase.from('feedback').select('*');
+      if (upper.includes('WHERE COMPLAINT_ID =') || upper.includes('COMPLAINT_ID = ?')) {
+        const cId = params.find(p => typeof p === 'number' || (typeof p === 'string' && /^\d+$/.test(p))) || params[0];
+        if (cId) q = q.eq('complaint_id', cId);
+      }
+      const { data, error } = await q.limit(10);
       if (!error && data) return { rows: data };
     }
   } catch (supaErr) {
