@@ -12,7 +12,10 @@ const { attachGcpAuthHeaders } = require('../services/gcpAuthService');
  * GET /api/ai/health
  */
 router.get('/health', async (req, res) => {
-  const raw = (process.env.PYTHON_AI_URL || process.env.AI_SERVICE_URL || 'http://localhost:8000/analyze').trim().replace(/\/+$/, '');
+  const defaultAiUrl = process.env.NODE_ENV === 'production'
+    ? 'https://nagarsetu-ai-service-755578057105.asia-south1.run.app/analyze'
+    : 'http://localhost:8000/analyze';
+  const raw = (process.env.PYTHON_AI_URL || process.env.AI_SERVICE_URL || defaultAiUrl).trim().replace(/\/+$/, '');
   const baseUrl = raw.endsWith('/analyze') ? raw.slice(0, -'/analyze'.length) : raw;
   const baseHealthUrl = `${baseUrl}/health`;
 

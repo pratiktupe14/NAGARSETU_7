@@ -88,7 +88,10 @@ function getCurrentModel() {
  * Resolves the Python AI microservice inference URL safely, preventing duplicate /analyze segments
  */
 function resolveAiAnalyzeUrl() {
-  const raw = (process.env.PYTHON_AI_URL || process.env.AI_SERVICE_URL || 'http://localhost:8000/analyze').trim().replace(/\/+$/, '');
+  const defaultUrl = process.env.NODE_ENV === 'production'
+    ? 'https://nagarsetu-ai-service-755578057105.asia-south1.run.app/analyze'
+    : 'http://localhost:8000/analyze';
+  const raw = (process.env.PYTHON_AI_URL || process.env.AI_SERVICE_URL || defaultUrl).trim().replace(/\/+$/, '');
   return raw.endsWith('/analyze') ? raw : `${raw}/analyze`;
 }
 

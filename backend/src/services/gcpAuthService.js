@@ -201,10 +201,10 @@ async function getCloudRunIdToken(targetUrl) {
 
   inFlightPromise = (async () => {
     try {
-      const projectNumber = process.env.GCP_PROJECT_NUMBER;
-      const poolId = process.env.GCP_WORKLOAD_POOL || 'vercel';
-      const providerId = process.env.GCP_WORKLOAD_PROVIDER || 'vercel';
-      const serviceAccountEmail = process.env.GCP_SERVICE_ACCOUNT_EMAIL;
+      const projectNumber = (process.env.GCP_PROJECT_NUMBER || '755578057105').trim();
+      const poolId = (process.env.GCP_WORKLOAD_POOL || 'vercel').trim();
+      const providerId = (process.env.GCP_WORKLOAD_PROVIDER || 'vercel').trim();
+      const serviceAccountEmail = (process.env.GCP_SERVICE_ACCOUNT_EMAIL || 'vercel-ai-invoker@project-578628ad-e6b6-4b3b-9f7.iam.gserviceaccount.com').trim();
 
       if (!projectNumber || !serviceAccountEmail) {
         // Workload Identity Federation not configured in environment

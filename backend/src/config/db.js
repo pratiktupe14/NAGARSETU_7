@@ -66,15 +66,18 @@ function initDatabase() {
       if (dbUrl.includes('your-project.supabase.co')) {
         dbUrl = dbUrl.replace('your-project.supabase.co', 'ozeiymkbxtrqqdoxtmhm.supabase.co');
       }
+      if (dbUrl.includes('pooler.supabase.com')) {
+        if (dbUrl.includes('://postgres:') && !dbUrl.includes('postgres.')) {
+          const projectRef = process.env.SUPABASE_PROJECT_REF || 'ozeiymkbxtrqqdoxtmhm';
+          dbUrl = dbUrl.replace('://postgres:', `://postgres.${projectRef}:`);
+        }
+      }
     }
 
-    // SSL rejectUnauthorized: production default is true unless connecting to Supabase pooler/direct
+    // SSL configuration: keep Node.js global TLS verification enabled (never set NODE_TLS_REJECT_UNAUTHORIZED = '0')
     const isSupabaseDb = dbUrl && (dbUrl.includes('supabase.co') || dbUrl.includes('pooler.supabase.com'));
-    if (isSupabaseDb) {
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-      if (typeof dbUrl === 'string') {
-        dbUrl = dbUrl.replace(/([?&])sslmode=[^&]+(&|$)/g, '$1').replace(/[?&]$/, '');
-      }
+    if (isSupabaseDb && typeof dbUrl === 'string') {
+      dbUrl = dbUrl.replace(/([?&])sslmode=[^&]+(&|$)/g, '$1').replace(/[?&]$/, '');
     }
     const rejectUnauthorized = false;
 
