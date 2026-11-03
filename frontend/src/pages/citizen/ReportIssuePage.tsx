@@ -314,6 +314,134 @@ export function validateCategoryMatchFE(selectedCategory: string | null, aiResul
   };
 }
 
+
+export interface CivicImageDecision {
+  outcome: 'VALID_CIVIC_ISSUE' | 'CIVIC_ISSUE_UNCERTAIN' | 'NO_CIVIC_ISSUE' | 'INVALID_IMAGE';
+  message: string;
+  detectedIssue?: string;
+  confidence?: number;
+  category?: string;
+  allowManualEntry: boolean;
+  acceptedAsEvidence: boolean;
+}
+
+export function evaluateCivicImageDecisionFE(aiResult: any, selectedCategory?: string | null, visualFeatures?: any): CivicImageDecision {
+  if (!aiResult) {
+    if (visualFeatures && visualFeatures.edgeDensity > 0.08 && visualFeatures.contrast > 25) {
+      return {
+        outcome: 'CIVIC_ISSUE_UNCERTAIN',
+        message: 'Civic issue detected but classification is uncertain. Manual details enabled for municipal verification.',
+        allowManualEntry: true,
+        acceptedAsEvidence: true
+      };
+    }
+    return {
+      outcome: 'INVALID_IMAGE',
+      message: 'The uploaded image is invalid.',
+      allowManualEntry: false,
+      acceptedAsEvidence: false
+    };
+  }
+
+  const aiStatus = String(aiResult.ai_status || aiResult.aiStatus || '').toLowerCase();
+  const roadCondition = String(aiResult.road_condition || '').toLowerCase();
+  const pipeCondition = String(aiResult.pipe_condition || '').toLowerCase();
+  const drainCondition = String(aiResult.drain_condition || '').toLowerCase();
+  const condition = String(aiResult.condition || '').toLowerCase();
+  const detected = Boolean(aiResult.detected);
+  const confidence = Number(aiResult.confidence || 0);
+  const title = String(aiResult.title || aiResult.issue_type || '').toLowerCase();
+  const detectedClass = String(aiResult.detected_class || aiResult.ai_detected_class || (aiResult.primaryDetection?.class) || '').toLowerCase();
+  const domain = String(aiResult.analysis_domain || aiResult.domain || selectedCategory || '').toLowerCase();
+  const roadAnalysis = aiResult.road_analysis || {};
+  const isRoad = roadAnalysis.is_road === true || (typeof roadAnalysis.road_surface_ratio === 'number' && roadAnalysis.road_surface_ratio >= 0.35);
+  const roadRatio = typeof roadAnalysis.road_surface_ratio === 'number' ? roadAnalysis.road_surface_ratio : 0;
+  const edgeDensity = typeof roadAnalysis.edge_density === 'number' ? roadAnalysis.edge_density : (visualFeatures?.edgeDensity || 0);
+
+  const allDetectedClasses = [
+    detectedClass,
+    ...(Array.isArray(aiResult.detections) ? aiResult.detections.map((d: any) => String(d?.class || d?.label || '').toLowerCase()) : [])
+  ].filter(Boolean);
+
+  // --- CASE 3: NO_CIVIC_ISSUE ---
+  // Normal, undamaged, clean civic infrastructure (clean undamaged road, normal dry road surface, clean functioning drain, undamaged water pipe, clean public space)
+  const isCleanRoad = roadCondition === 'clean' || aiStatus === 'confirmed_clean' || title.includes('no road defect') || title.includes('clean road');
+  const isNormalDrain = drainCondition === 'normal' || (domain.includes('drain') && (condition === 'normal' || aiStatus === 'confirmed_normal')) || title.includes('normal drainage');
+  const isNormalPipe = pipeCondition === 'normal' || ((domain.includes('pipe') || domain.includes('water')) && (condition === 'normal' || aiStatus === 'confirmed_normal')) || title.includes('normal pipe');
+  const isNormalGeneral = (aiStatus === 'confirmed_normal' || condition === 'normal') && !detected;
+  const isCleanInfrastructure = (isRoad && !detected && roadRatio >= 0.60 && edgeDensity < 0.08);
+
+  if (isCleanRoad || isNormalDrain || isNormalPipe || isNormalGeneral || isCleanInfrastructure) {
+    return {
+      outcome: 'NO_CIVIC_ISSUE',
+      message: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
+      allowManualEntry: false,
+      acceptedAsEvidence: false
+    };
+  }
+
+  // --- CASE 1: VALID_CIVIC_ISSUE ---
+  // AI confirms visible evidence of a civic issue with confidence >= 0.35
+  const civicDefectKeywords = [
+    'pothole', 'road damage', 'crack', 'asphalt damage',
+    'water leakage', 'broken pipe', 'leak', 'pipe rupture', 'burst pipe',
+    'blocked drain', 'damaged drain', 'drain overflow', 'sewage', 'gutter',
+    'biodegradable', 'cardboard', 'glass', 'metal', 'paper', 'plastic', 'garbage', 'waste', 'trash', 'litter'
+  ];
+  const hasRecognizedDefect = detected && (
+    allDetectedClasses.some((c) => civicDefectKeywords.some((kw) => c.includes(kw))) ||
+    roadCondition === 'defective' ||
+    pipeCondition === 'leakage' || pipeCondition === 'broken' ||
+    drainCondition === 'blocked' || drainCondition === 'damaged' || drainCondition === 'overflow'
+  );
+
+  if (hasRecognizedDefect && confidence >= 0.35) {
+    return {
+      outcome: 'VALID_CIVIC_ISSUE',
+      message: 'Civic issue verified and accepted.',
+      detectedIssue: aiResult.detected_class || aiResult.issue_type || aiResult.title || 'Civic Defect',
+      confidence: confidence,
+      category: aiResult.category,
+      allowManualEntry: false,
+      acceptedAsEvidence: true
+    };
+  }
+
+  // --- CASE 2: CIVIC ISSUE PRESENT, AI UNCERTAIN (CONTROLLED MANUAL FALLBACK) ---
+  // Civic infrastructure established (road surface, pipe, drain, waste area) AND plausible visible damage/irregularity,
+  // but AI cannot classify confidently.
+  // Note: Low confidence alone must NOT unlock manual entry unless the image is confirmed to contain civic infrastructure or visible civic damage.
+  const isCivicInfra = isRoad || roadRatio >= 0.25 ||
+    ['pipe', 'water', 'drain', 'drainage', 'sanitation', 'waste'].some((k) => domain.includes(k));
+
+  const hasPlausibleDefect = (
+    roadCondition === 'uncertain' || roadCondition === 'defective' ||
+    pipeCondition === 'uncertain' || drainCondition === 'uncertain' ||
+    edgeDensity >= 0.07 ||
+    (confidence >= 0.10 && confidence < 0.35) ||
+    (detected && confidence > 0)
+  );
+
+  if (isCivicInfra && hasPlausibleDefect) {
+    return {
+      outcome: 'CIVIC_ISSUE_UNCERTAIN',
+      message: 'Civic issue detected but classification is uncertain. Manual details enabled for municipal verification.',
+      detectedIssue: 'Uncertain Civic Issue',
+      confidence: confidence,
+      allowManualEntry: true,
+      acceptedAsEvidence: true
+    };
+  }
+
+  // --- CASE 4: INVALID IMAGE (NON-CIVIC SUBJECT) ---
+  return {
+    outcome: 'INVALID_IMAGE',
+    message: 'The uploaded image is invalid.',
+    allowManualEntry: false,
+    acceptedAsEvidence: false
+  };
+}
+
 export const ReportIssuePage: React.FC = () => {
   const { user } = useAuth();
   const { t, translateCategory, translatePriority, translateDepartment } = useLanguage();
@@ -374,10 +502,18 @@ export const ReportIssuePage: React.FC = () => {
   });
   const [unsupportedAlert, setUnsupportedAlert] = useState<{
     angle: ComplaintAngle;
+    title?: string;
     message: string;
     suggestedCategory?: string;
     detectedKey?: CivicCategory | null;
   } | null>(null);
+
+  const [slotDecisions, setSlotDecisions] = useState<Record<ComplaintAngle, CivicImageDecision | null>>({
+    front: null,
+    left: null,
+    right: null,
+    closeup: null
+  });
 
   // Form Field States
   const [forceManualReport, setForceManualReport] = useState<boolean>(false);
@@ -727,14 +863,55 @@ export const ReportIssuePage: React.FC = () => {
         analysisRes = null;
       }
 
-      // 2. Strict Category Validation Comparison
+      // Extract local visual features for fallback & verification
+      let localFeats: any = null;
+      try {
+        localFeats = await extractVisualFeatures(file);
+      } catch (e) {
+        console.warn('Local visual feature extraction skipped:', e);
+      }
+
+      // 2. Evaluate Centralized Civic Image Decision Gate
+      const decision = evaluateCivicImageDecisionFE(analysisRes, currentCategory, localFeats);
+
+      // CASE 3: NO_CIVIC_ISSUE — Clean, undamaged infrastructure
+      if (decision.outcome === 'NO_CIVIC_ISSUE') {
+        setValidatingSlot(null);
+        setSlotDecisions((prev) => ({ ...prev, [angle]: decision }));
+        setUnsupportedAlert({
+          angle,
+          title: 'No Civic Issue Found',
+          message: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
+          suggestedCategory: undefined,
+          detectedKey: null
+        });
+        toast.error('No civic issue found. The uploaded image does not show any visible damage or maintenance issue.');
+        return; // REJECT! Image is NOT accepted as evidence, NOT added to angleSlots.
+      }
+
+      // CASE 4: INVALID_IMAGE — Non-civic subjects (pets, selfies, indoor furniture, random textures)
+      if (decision.outcome === 'INVALID_IMAGE') {
+        setValidatingSlot(null);
+        setSlotDecisions((prev) => ({ ...prev, [angle]: decision }));
+        setUnsupportedAlert({
+          angle,
+          title: 'Invalid Image',
+          message: 'The uploaded image is invalid.',
+          suggestedCategory: undefined,
+          detectedKey: null
+        });
+        toast.error('The uploaded image is invalid.');
+        return; // REJECT! Image is NOT accepted as evidence, NOT added to angleSlots.
+      }
+
+      // Category Validation Comparison (only for valid civic images)
       const validation = validateCategoryMatchFE(currentCategory, analysisRes);
 
-      // Outcome 2: UNSUPPORTED — Reject explicit wrong-category uploads BEFORE they count toward 2-photo minimum
       if (validation.outcome === 'UNSUPPORTED') {
         setValidatingSlot(null);
         setUnsupportedAlert({
           angle,
+          title: 'Unsupported Image',
           message: 'Unsupported Image — This photograph does not match the selected issue category. Please upload a relevant image or select the correct category.',
           suggestedCategory: validation.suggestedCategory,
           detectedKey: validation.detectedCategory
@@ -743,11 +920,9 @@ export const ReportIssuePage: React.FC = () => {
         return; // REJECT! File is NOT added to angleSlots.
       }
 
-      // Outcome 1: SUPPORTED or Outcome 3: UNCERTAIN
-      setSlotValidationResults((prev) => ({
-        ...prev,
-        [angle]: validation
-      }));
+      // CASE 1: VALID_CIVIC_ISSUE or CASE 2: CIVIC_ISSUE_UNCERTAIN
+      setSlotDecisions((prev) => ({ ...prev, [angle]: decision }));
+      setSlotValidationResults((prev) => ({ ...prev, [angle]: validation }));
 
       const url = URL.createObjectURL(file);
       setAngleSlots((prev) => ({
@@ -755,8 +930,9 @@ export const ReportIssuePage: React.FC = () => {
         [angle]: { file, previewUrl: url }
       }));
 
-      if (validation.outcome === 'UNCERTAIN') {
-        toast.info('AI cannot reliably confirm this issue category. Photo accepted for manual municipal verification.');
+      if (decision.outcome === 'CIVIC_ISSUE_UNCERTAIN') {
+        setIsManuallyEdited(true);
+        toast.info('Civic issue detected but classification is uncertain. Manual details enabled for municipal verification.');
       } else {
         toast.success(`Photo verified and accepted for ${currentCategory ? translateCategory(currentCategory) : 'civic issue'}.`);
       }
@@ -848,6 +1024,7 @@ export const ReportIssuePage: React.FC = () => {
       [angle]: { file: null, previewUrl: '' }
     };
     setAngleSlots(nextSlots);
+    setSlotDecisions((prev) => ({ ...prev, [angle]: null }));
     if (angle === 'front') {
       setSelectedPhotoFile(null);
       setPhotoPreviewUrl('');
@@ -1284,7 +1461,11 @@ export const ReportIssuePage: React.FC = () => {
         ai_detected_class: aiResult?.explanation?.detectedIssue || (aiResult?.detected_objects?.[0] ?? null),
         ai_reason: aiResult?.explanation?.reason || aiResult?.description || '',
         ai_analyzed_at: new Date().toISOString(),
-        needs_manual_verification: !aiResult || aiResult.reviewRequired !== false || aiResult.confidence < 0.75
+        needs_manual_verification: !aiResult || aiResult.reviewRequired !== false || aiResult.confidence < 0.75,
+        road_condition: aiResult?.road_condition || null,
+        pipe_condition: (aiResult as any)?.pipe_condition || null,
+        drain_condition: (aiResult as any)?.drain_condition || null,
+        decision_outcome: slotDecisions.front?.outcome || (aiResult ? 'VALID_CIVIC_ISSUE' : null)
       };
 
       const created = await createComplaint(newComplaintData);
@@ -1766,7 +1947,7 @@ export const ReportIssuePage: React.FC = () => {
                                 <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-950 text-xs space-y-2 mb-3 text-left">
                                   <div className="flex items-center space-x-2 font-extrabold text-rose-900">
                                     <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-                                    <span>Unsupported Image</span>
+                                    <span>{unsupportedAlert.title || 'Unsupported Image'}</span>
                                   </div>
                                   <p className="text-rose-800 text-[11px] leading-relaxed">
                                     {unsupportedAlert.message}

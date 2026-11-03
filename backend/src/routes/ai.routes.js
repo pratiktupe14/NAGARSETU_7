@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const { upload } = require('../middleware/upload');
-const { analyzeComplaintPhoto, getCurrentModel } = require('../services/aiService');
+const { analyzeComplaintPhoto, getCurrentModel, evaluateCivicImageDecision } = require('../services/aiService');
 const { authenticateToken } = require('../middleware/auth');
 const { attachGcpAuthHeaders, getLastDiagnostics } = require('../services/gcpAuthService');
 
@@ -128,6 +128,8 @@ async function handlePhotoAnalysis(req, res) {
       aiAnalysis.photo_url = photoUrl;
     }
 
+    const decision = evaluateCivicImageDecision(aiAnalysis, domain);
+
     const riskObject = {
       human_safety: aiAnalysis.risk?.human_safety ?? aiAnalysis.human_safety ?? 0,
       public_disruption: aiAnalysis.risk?.public_disruption ?? aiAnalysis.public_disruption ?? 0,
@@ -187,6 +189,7 @@ async function handlePhotoAnalysis(req, res) {
       risk_assessment: aiAnalysis.risk_assessment,
       photo_url: photoUrl,
       ai: aiAnalysis,
+      decision: decision,
       message: aiAnalysis.message
     });
   } catch (err) {

@@ -1046,6 +1046,133 @@ function detectCivicDomainFromAnalysis(aiResult) {
   return null;
 }
 
+
+/**
+ * Centralized Civic Image Decision Gate
+ * Evaluates uploaded photo analysis into exactly one of FOUR authoritative outcomes:
+ * 1. VALID_CIVIC_ISSUE: AI confirms visible civic defect with confidence >= 0.35. Auto-fills complaint details and accepts into evidence.
+ * 2. CIVIC_ISSUE_UNCERTAIN: Civic infrastructure established and plausible defect present, but AI cannot classify confidently. Enables controlled manual entry and accepts into evidence.
+ * 3. NO_CIVIC_ISSUE: Civic infrastructure present with no visible damage/maintenance issue. Rejects image immediately with exact message.
+ * 4. INVALID_IMAGE: Non-civic subjects (pets, selfies, indoor furniture, random textures). Rejects image immediately with exact message.
+ */
+function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFeatures = null) {
+  if (!aiResult) {
+    if (visualFeatures && visualFeatures.edgeDensity > 0.08 && visualFeatures.contrast > 25) {
+      return {
+        outcome: 'CIVIC_ISSUE_UNCERTAIN',
+        message: 'Civic issue detected but classification is uncertain. Manual details enabled for municipal verification.',
+        allowManualEntry: true,
+        acceptedAsEvidence: true
+      };
+    }
+    return {
+      outcome: 'INVALID_IMAGE',
+      message: 'The uploaded image is invalid.',
+      allowManualEntry: false,
+      acceptedAsEvidence: false
+    };
+  }
+
+  const aiStatus = String(aiResult.ai_status || aiResult.aiStatus || '').toLowerCase();
+  const roadCondition = String(aiResult.road_condition || '').toLowerCase();
+  const pipeCondition = String(aiResult.pipe_condition || '').toLowerCase();
+  const drainCondition = String(aiResult.drain_condition || '').toLowerCase();
+  const condition = String(aiResult.condition || '').toLowerCase();
+  const detected = Boolean(aiResult.detected);
+  const confidence = Number(aiResult.confidence || 0);
+  const title = String(aiResult.title || aiResult.issue_type || '').toLowerCase();
+  const detectedClass = String(aiResult.detected_class || aiResult.ai_detected_class || (aiResult.primaryDetection?.class) || '').toLowerCase();
+  const domain = String(aiResult.analysis_domain || aiResult.domain || selectedCategory || '').toLowerCase();
+  const roadAnalysis = aiResult.road_analysis || {};
+  const isRoad = roadAnalysis.is_road === true || (typeof roadAnalysis.road_surface_ratio === 'number' && roadAnalysis.road_surface_ratio >= 0.35);
+  const roadRatio = typeof roadAnalysis.road_surface_ratio === 'number' ? roadAnalysis.road_surface_ratio : 0;
+  const edgeDensity = typeof roadAnalysis.edge_density === 'number' ? roadAnalysis.edge_density : (visualFeatures?.edgeDensity || 0);
+
+  // Collect all detected classes across primary detection and detections array
+  const allDetectedClasses = [
+    detectedClass,
+    ...(Array.isArray(aiResult.detections) ? aiResult.detections.map(d => String(d?.class || d?.label || '').toLowerCase()) : [])
+  ].filter(Boolean);
+
+  // --- CASE 3: NO_CIVIC_ISSUE ---
+  // Normal, undamaged, clean civic infrastructure (clean undamaged road, normal dry road surface, clean functioning drain, undamaged water pipe, clean public space)
+  const isCleanRoad = roadCondition === 'clean' || aiStatus === 'confirmed_clean' || title.includes('no road defect') || title.includes('clean road');
+  const isNormalDrain = drainCondition === 'normal' || (domain.includes('drain') && (condition === 'normal' || aiStatus === 'confirmed_normal')) || title.includes('normal drainage');
+  const isNormalPipe = pipeCondition === 'normal' || ((domain.includes('pipe') || domain.includes('water')) && (condition === 'normal' || aiStatus === 'confirmed_normal')) || title.includes('normal pipe');
+  const isNormalGeneral = (aiStatus === 'confirmed_normal' || condition === 'normal') && !detected;
+  const isCleanInfrastructure = (isRoad && !detected && roadRatio >= 0.60 && edgeDensity < 0.08);
+
+  if (isCleanRoad || isNormalDrain || isNormalPipe || isNormalGeneral || isCleanInfrastructure) {
+    return {
+      outcome: 'NO_CIVIC_ISSUE',
+      message: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
+      allowManualEntry: false,
+      acceptedAsEvidence: false
+    };
+  }
+
+  // --- CASE 1: VALID_CIVIC_ISSUE ---
+  // AI confirms visible evidence of a civic issue with confidence >= 0.35
+  const civicDefectKeywords = [
+    'pothole', 'road damage', 'crack', 'asphalt damage',
+    'water leakage', 'broken pipe', 'leak', 'pipe rupture', 'burst pipe',
+    'blocked drain', 'damaged drain', 'drain overflow', 'sewage', 'gutter',
+    'biodegradable', 'cardboard', 'glass', 'metal', 'paper', 'plastic', 'garbage', 'waste', 'trash', 'litter'
+  ];
+  const hasRecognizedDefect = detected && (
+    allDetectedClasses.some(c => civicDefectKeywords.some(kw => c.includes(kw))) ||
+    roadCondition === 'defective' ||
+    pipeCondition === 'leakage' || pipeCondition === 'broken' ||
+    drainCondition === 'blocked' || drainCondition === 'damaged' || drainCondition === 'overflow'
+  );
+
+  if (hasRecognizedDefect && confidence >= 0.35) {
+    return {
+      outcome: 'VALID_CIVIC_ISSUE',
+      message: 'Civic issue verified and accepted.',
+      detectedIssue: aiResult.detected_class || aiResult.issue_type || aiResult.title || 'Civic Defect',
+      confidence: confidence,
+      category: aiResult.category,
+      allowManualEntry: false,
+      acceptedAsEvidence: true
+    };
+  }
+
+  // --- CASE 2: CIVIC ISSUE PRESENT, AI UNCERTAIN (CONTROLLED MANUAL FALLBACK) ---
+  // Civic infrastructure established (road surface, pipe, drain, waste area) AND plausible visible damage/irregularity,
+  // but AI cannot classify confidently.
+  // Note: Low confidence alone must NOT unlock manual entry unless the image is confirmed to contain civic infrastructure or visible civic damage.
+  const isCivicInfra = isRoad || roadRatio >= 0.25 ||
+    ['pipe', 'water', 'drain', 'drainage', 'sanitation', 'waste'].some(k => domain.includes(k));
+
+  const hasPlausibleDefect = (
+    roadCondition === 'uncertain' || roadCondition === 'defective' ||
+    pipeCondition === 'uncertain' || drainCondition === 'uncertain' ||
+    edgeDensity >= 0.07 ||
+    (confidence >= 0.10 && confidence < 0.35) ||
+    (detected && confidence > 0)
+  );
+
+  if (isCivicInfra && hasPlausibleDefect) {
+    return {
+      outcome: 'CIVIC_ISSUE_UNCERTAIN',
+      message: 'Civic issue detected but classification is uncertain. Manual details enabled for municipal verification.',
+      detectedIssue: 'Uncertain Civic Issue',
+      confidence: confidence,
+      allowManualEntry: true,
+      acceptedAsEvidence: true
+    };
+  }
+
+  // --- CASE 4: INVALID IMAGE (NON-CIVIC SUBJECT) ---
+  return {
+    outcome: 'INVALID_IMAGE',
+    message: 'The uploaded image is invalid.',
+    allowManualEntry: false,
+    acceptedAsEvidence: false
+  };
+}
+
 function validateCategoryMatch(selectedCategory, aiResult) {
   const normSelected = normalizeCivicCategoryKey(selectedCategory);
   if (!normSelected) {
@@ -1125,6 +1252,7 @@ module.exports = {
   normalizePriority,
   generateProfessionalCivicDescription,
   validateCategoryMatch,
+  evaluateCivicImageDecision,
   normalizeCivicCategoryKey,
   detectCivicDomainFromAnalysis,
   CANONICAL_DOMAINS

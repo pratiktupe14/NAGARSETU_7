@@ -8,7 +8,7 @@ const validateInput = require('../middleware/validateInput');
 const { createComplaintSchema, addFeedbackSchema } = require('../schemas/complaint.schemas');
 const { query } = require('../config/db');
 const { resolveLocation, checkForDuplicates, calculateDistanceMeters, normalizeCategory } = require('../services/locationService');
-const { analyzeComplaintPhoto, validateCategoryMatch } = require('../services/aiService');
+const { analyzeComplaintPhoto, validateCategoryMatch, evaluateCivicImageDecision } = require('../services/aiService');
 const { notifyStatusChange } = require('../services/notificationService');
 const { resolveDepartmentByCode, resolveDepartmentByCodeSync } = require('../services/departmentService');
 
@@ -252,6 +252,8 @@ router.post('/analyze-upload', authenticateToken, uploadSingleImage('photo'), as
       ? validateCategoryMatch(req.body.category, aiAnalysis)
       : null;
 
+    const civicDecision = evaluateCivicImageDecision(aiAnalysis, req.body?.category);
+
     return res.json({
       step: 'review_and_confirm',
       photo_url: photoUrl,
@@ -262,6 +264,7 @@ router.post('/analyze-upload', authenticateToken, uploadSingleImage('photo'), as
       },
       ai: aiAnalysis,
       category_validation: categoryValidation,
+      decision: civicDecision,
       duplicates_found: duplicates
     });
   } catch (err) {
@@ -391,6 +394,24 @@ const submitComplaintHandler = async (req, res) => {
       ai_reason
     } = req.body;
 
+    // Idempotent retry: Return already-saved complaint if complaint_number was previously persisted
+    if (complaint_number) {
+      try {
+        const existingCheck = await query('SELECT * FROM complaints WHERE complaint_number = ? LIMIT 1', [complaint_number]);
+        if (existingCheck.rows && existingCheck.rows.length > 0) {
+          const existing = existingCheck.rows[0];
+          return res.status(200).json({
+            message: 'Complaint already submitted successfully',
+            complaint_id: existing.id,
+            complaint_number: existing.complaint_number,
+            complaint: existing
+          });
+        }
+      } catch (dupNumErr) {
+        console.warn('Idempotency check note:', dupNumErr.message);
+      }
+    }
+
     // Strict 3-Tier Geolocation Resolution & 100-Meter Validation
     const latNum = Number(latitude);
     const lngNum = Number(longitude);
@@ -420,25 +441,53 @@ const submitComplaintHandler = async (req, res) => {
       return res.status(400).json({ error: 'Device GPS accuracy is lower than 100m. Please confirm defect location on the map.' });
     }
 
-    // Strict Backend AI Category Validation (Prevents unsupported images from being saved as accepted evidence)
+    // Strict Backend AI Civic Issue Decision Gate & Category Validation
     if (category) {
-      const aiPayload = {
-        category: req.body.ai_category || category,
-        detected_class: ai_detected_class,
-        confidence: ai_confidence,
-        detected: Boolean(ai_detected_class),
-        aiStatus: ai_status,
-        road_condition: req.body.road_condition,
-        pipe_condition: req.body.pipe_condition,
-        drain_condition: req.body.drain_condition
-      };
-      const catValidation = validateCategoryMatch(category, aiPayload);
-      if (catValidation.outcome === 'UNSUPPORTED') {
-        return res.status(400).json({
-          error: catValidation.message,
-          unsupported_category: true,
-          suggested_category: catValidation.suggestedCategory
-        });
+      try {
+        const aiPayload = {
+          category: req.body.ai_category || category,
+          detected_class: ai_detected_class,
+          confidence: ai_confidence,
+          detected: Boolean(ai_detected_class),
+          aiStatus: ai_status,
+          road_condition: req.body.road_condition,
+          pipe_condition: req.body.pipe_condition,
+          drain_condition: req.body.drain_condition,
+          decision_outcome: req.body.decision_outcome
+        };
+
+        const hasAiSignals = Boolean(
+          ai_status || ai_detected_class || req.body.road_condition || 
+          req.body.pipe_condition || req.body.drain_condition || 
+          req.body.decision_outcome || ai_confidence !== undefined
+        );
+
+        if (hasAiSignals) {
+          const decision = evaluateCivicImageDecision(aiPayload, category);
+          if (req.body.decision_outcome === 'NO_CIVIC_ISSUE' || decision.outcome === 'NO_CIVIC_ISSUE') {
+            return res.status(400).json({
+              error: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
+              outcome: 'NO_CIVIC_ISSUE'
+            });
+          }
+          if (req.body.decision_outcome === 'INVALID_IMAGE' || decision.outcome === 'INVALID_IMAGE') {
+            return res.status(400).json({
+              error: 'The uploaded image is invalid.',
+              outcome: 'INVALID_IMAGE'
+            });
+          }
+        }
+
+        const catValidation = validateCategoryMatch(category, aiPayload);
+        if (catValidation && catValidation.outcome === 'UNSUPPORTED') {
+          return res.status(400).json({
+            error: catValidation.message,
+            unsupported_category: true,
+            suggested_category: catValidation.suggestedCategory
+          });
+        }
+      } catch (catErr) {
+        console.warn('AI validation non-fatal error:', catErr.message);
       }
     }
 
@@ -486,7 +535,21 @@ const submitComplaintHandler = async (req, res) => {
     const finalAnglePhotos = angle_photos ? (typeof angle_photos === 'string' ? angle_photos : JSON.stringify(angle_photos)) : null;
     const finalAdditionalPhotos = additional_photos ? (typeof additional_photos === 'string' ? additional_photos : JSON.stringify(additional_photos)) : null;
 
-    const citizenId = req.user?.id ? String(req.user.id) : (req.body?.citizen_id ? String(req.body.citizen_id) : '1');
+    let citizenId = req.user?.id ? String(req.user.id) : (req.body?.citizen_id ? String(req.body.citizen_id) : '1');
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidPattern.test(citizenId) && req.user) {
+      try {
+        const allowedIds = await resolveAuthorizedCitizenIds(req.user);
+        for (const id of allowedIds) {
+          if (typeof id === 'string' && uuidPattern.test(id)) {
+            citizenId = id;
+            break;
+          }
+        }
+      } catch (rErr) {
+        console.warn('Citizen UUID resolution note:', rErr.message);
+      }
+    }
 
     // Authoritative server-side SLA deadline calculation (ignores client-supplied deadline/response time)
     const { hours: slaHours, deadline: slaDeadline } = calculateSlaDeadline(
@@ -670,7 +733,7 @@ const submitComplaintHandler = async (req, res) => {
       ai_reason || null
     ]);
 
-    const complaintId = result.rows[0].id;
+    const complaintId = (result.rows && result.rows[0] && result.rows[0].id) ? result.rows[0].id : null;
 
     // Record initial status history
     try {
@@ -685,8 +748,8 @@ const submitComplaintHandler = async (req, res) => {
     }
 
     // Dual-write to Supabase so complaint persists across serverless lambda containers
-    let supaComplaintId = null;
-    if (process.env.NODE_ENV !== 'test') {
+    let supaComplaintId = (complaintId && uuidPattern.test(String(complaintId))) ? complaintId : null;
+    if (process.env.NODE_ENV !== 'test' && !supaComplaintId) {
       try {
         const { getSupabaseClient } = require('../middleware/auth');
         const supabase = getSupabaseClient();
