@@ -933,8 +933,8 @@ async function querySupabase(sql, params = []) {
         const mob = String(mobParam || '').trim();
         const rawDigits = mob.replace(/\D/g, '');
         const normMob = rawDigits.length >= 10 ? rawDigits.slice(-10) : rawDigits;
-        const variants = [normMob, `+91${normMob}`, `+91 ${normMob}`, `+91-${normMob}`, `0${normMob}`];
-        const orClause = variants.map(v => `mobile.eq."${v}"`).join(',');
+        const variants = [normMob, `+91${normMob}`, `0${normMob}`];
+        const orClause = variants.map(v => `mobile.eq.${v}`).join(',');
         const { data, error } = await supabase.from('users').select('*').or(orClause).limit(1);
         if (!error && data && data.length > 0) return { rows: data };
         if (!error && data && data.length === 0) return { rows: [] };
