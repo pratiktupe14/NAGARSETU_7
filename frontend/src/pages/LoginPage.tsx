@@ -1,337 +1,352 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { useAuth, getPortalForRole } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
-import { UserRole } from '../types/database.types';
-import { Navbar } from '../components/Navbar';
-import { Footer } from '../components/Footer';
-import { getApiUrl } from '../config/apiConfig';
-import { Shield, User, Building2, Wrench, Smartphone, Mail, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react';
-
-export const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
-  const { t } = useLanguage();
-
-  const [selectedRole, setSelectedRole] = useState<UserRole>('citizen');
-  const [identifier, setIdentifier] = useState('8788562103');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [useOtp, setUseOtp] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-
-  const handleRoleChange = (role: UserRole) => {
-    setSelectedRole(role);
-    setErrorMsg('');
-
-    if (role === 'citizen') {
-      setIdentifier('8788562103');
-    } else if (role === 'city_admin') {
-      setIdentifier('admin@nagarsetu.gov.in');
-    } else if (role === 'department_head') {
-      setIdentifier('rahul.kumar@nagarsetu.gov.in');
-    } else if (role === 'service_staff') {
-      setIdentifier('staff@nagarsetu.gov.in');
-    }
-    setPassword('');
-  };
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const roleParam = searchParams.get('role');
-    if (roleParam) {
-      let target: UserRole = 'citizen';
-      if (roleParam === 'city_admin' || roleParam === 'admin') target = 'city_admin';
-      else if (roleParam === 'department_head' || roleParam === 'dept_head') target = 'department_head';
-      else if (roleParam === 'service_staff' || roleParam === 'staff') target = 'service_staff';
-      handleRoleChange(target);
-    }
-  }, [location.search]);
-
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!identifier || identifier.length < 10) {
-      setErrorMsg('Please enter a valid 10-digit mobile number.');
-      return;
-    }
-    setErrorMsg('');
-    try {
-      const res = await fetch(`${getApiUrl()}/api/auth/otp-request`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: identifier.trim() })
-      });
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error || 'Failed to send OTP');
-      }
-      setOtpSent(true);
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Unable to send OTP');
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
-
-    try {
-      if (useOtp && selectedRole === 'citizen') {
-        const res = await fetch(`${getApiUrl()}/api/auth/otp-verify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mobile: identifier.trim(), otp: otpCode.trim() })
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          throw new Error(data.error || 'Invalid OTP code');
-        }
-        if (data.token && data.user) {
-          sessionStorage.setItem('nagarsetu_token', data.token);
-          sessionStorage.setItem('nagarsetu_user', JSON.stringify(data.user));
-          localStorage.setItem('nagarsetu_token', data.token);
-          localStorage.setItem('nagarsetu_user', JSON.stringify(data.user));
-          localStorage.setItem('nagarsetu_token_citizen', data.token);
-          localStorage.setItem('nagarsetu_user_citizen', JSON.stringify(data.user));
-          navigate('/citizen/portal');
-          return;
-        } else if (data.needsRegistration) {
-          navigate('/register?mobile=' + encodeURIComponent(identifier.trim()));
-          return;
-        }
-      }
-
-      // 1. Clear any stale session data in this tab before logging in
-      sessionStorage.removeItem('nagarsetu_token');
-      sessionStorage.removeItem('nagarsetu_user');
-      localStorage.removeItem('nagarsetu_token');
-      localStorage.removeItem('nagarsetu_user');
-
-      // 2. Authenticate strictly using entered credentials (never pass client selectedRole to override)
-      await login(identifier, password);
-
-      // 3. Obtain verified server-side role from authenticated user record
-      const currentUser = JSON.parse(sessionStorage.getItem('nagarsetu_user') || localStorage.getItem('nagarsetu_user') || '{}');
-      const verifiedRole = currentUser?.role;
-
-      if (!verifiedRole) {
-        throw new Error('Authentication role could not be verified. Please try again.');
-      }
-
-      // 4. Route strictly based on verified database role:
-      // CITIZEN -> /citizen/portal, CITY_ADMIN -> /admin/dashboard
-      const targetPortal = getPortalForRole(verifiedRole);
-      navigate(targetPortal);
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Login failed. Please check credentials.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans flex flex-col justify-between">
-      <Navbar />
-
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full flex-1 flex items-center">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full">
-          
-          {/* Left Column: Branding & AI Highlights */}
-          <div className="lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
-              <Shield className="w-4 h-4 text-emerald-600" />
-              <span>NAGARSETU — {t('tagline')}</span>
-            </div>
-
-            <div className="space-y-3">
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight font-outfit leading-tight">
-                {t('landingHeroTitle')}
-              </h1>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                {t('landingHeroSubtitle')}
-              </p>
-            </div>
-
-            {/* AI Feature Highlights */}
-            <div className="space-y-3 pt-2">
-              <div className="flex items-start space-x-3 text-xs text-gray-600">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span><strong>{t('aiVisionFeatureTitle')}:</strong> {t('aiVisionFeatureDesc')}</span>
-              </div>
-              <div className="flex items-start space-x-3 text-xs text-gray-600">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span><strong>{t('geoTaggingFeatureTitle')}:</strong> {t('geoTaggingFeatureDesc')}</span>
-              </div>
-              <div className="flex items-start space-x-3 text-xs text-gray-600">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span><strong>{t('slaTrackingFeatureTitle')}:</strong> {t('slaTrackingFeatureDesc')}</span>
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-gray-100 flex items-center space-x-4 text-xs text-gray-500 font-mono">
-              <span>Clean • Smart • Connected</span>
-            </div>
-          </div>
-
-          {/* Right Column: Pure White Login Card */}
-          <div className="lg:col-span-6">
-            <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-200 shadow-sm space-y-6">
-              
-              <div className="text-center space-y-1">
-                <h2 className="text-xl font-extrabold text-gray-900 font-outfit">{t('loginTitle')}</h2>
-                <p className="text-xs text-gray-500">{t('loginSubtitle')}</p>
-              </div>
-
-              {/* 4 Role Selection Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleRoleChange('citizen')}
-                  className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 ${
-                    selectedRole === 'citizen'
-                      ? 'bg-emerald-50 border-emerald-600 text-emerald-700 font-bold shadow-xs'
-                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <User className="w-5 h-5" />
-                  <span className="text-xs">{t('roleCitizen')}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleRoleChange('city_admin')}
-                  className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 ${
-                    selectedRole === 'city_admin'
-                      ? 'bg-emerald-50 border-emerald-600 text-emerald-700 font-bold shadow-xs'
-                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Building2 className="w-5 h-5" />
-                  <span className="text-xs">{t('roleAdmin')}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleRoleChange('department_head')}
-                  className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 ${
-                    selectedRole === 'department_head'
-                      ? 'bg-emerald-50 border-emerald-600 text-emerald-700 font-bold shadow-xs'
-                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Shield className="w-5 h-5" />
-                  <span className="text-xs">{t('roleDeptHead')}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleRoleChange('service_staff')}
-                  className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 ${
-                    selectedRole === 'service_staff'
-                      ? 'bg-emerald-50 border-emerald-600 text-emerald-700 font-bold shadow-xs'
-                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Wrench className="w-5 h-5" />
-                  <span className="text-xs">{t('roleStaff')}</span>
-                </button>
-              </div>
-
-              {errorMsg && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold text-center">
-                  {errorMsg}
-                </div>
-              )}
-
-              {/* Login Form */}
-              <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-                
-                {/* Identifier Input */}
-                <div>
-                  <label className="block font-bold text-gray-700 mb-1">
-                    {t('mobileOrEmail')}
-                  </label>
-                  <div className="relative">
-                    {selectedRole === 'citizen' ? (
-                      <Smartphone className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                    ) : (
-                      <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                    )}
-                    <input aria-label="identifier"
-                      type="text"
-                      required
-                      value={identifier}
-                      onChange={(e) => setIdentifier(e.target.value)}
-                      placeholder={t('enterMobileOrEmail')}
-                      className="w-full bg-white border border-gray-300 rounded-xl pl-9 pr-3 py-2.5 text-gray-900 focus:border-emerald-500 focus:ring-emerald-500 font-semibold"
-                    />
-                  </div>
-                </div>
-
-                {/* Password Input */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="font-bold text-gray-700">{t('password')}</label>
-                    <button type="button" onClick={(e) => { e.preventDefault(); alert('Please contact Municipal Admin to reset password.'); }} className="text-[11px] text-emerald-600 font-semibold hover:underline cursor-pointer">
-                      {t('forgotPassword')}
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                    <input aria-label="password"
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full bg-white border border-gray-300 rounded-xl pl-9 pr-10 py-2.5 text-gray-900 focus:border-emerald-500 focus:ring-emerald-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none p-0.5"
-                      title={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4 text-gray-500" /> : <Eye className="w-4 h-4 text-gray-500" />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase tracking-wider shadow-sm flex items-center justify-center space-x-2 transition-all mt-2 min-h-[44px]"
-                >
-                  <span>{loading ? t('loading') : t('login')}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
-
-              {/* Citizen Registration Link */}
-              {selectedRole === 'citizen' && (
-                <div className="pt-2 border-t border-gray-100">
-                  <div className="text-center text-xs text-gray-600">
-                    {t('dontHaveAccount')}{' '}
-                    <Link to="/register" className="text-emerald-700 font-bold hover:underline">
-                      {t('registerTitle')}
-                    </Link>
-                  </div>
-                </div>
-              )}
-
-            </div>
-          </div>
-
-        </div>
-      </main>
-
-      <Footer />
-    </div>
-  );
-};
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useAuth, getPortalForRole } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { UserRole } from '../types/database.types';
+import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
+import { getApiUrl } from '../config/apiConfig';
+import { Shield, User, Building2, Wrench, Smartphone, Mail, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+
+export const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+  const { t } = useLanguage();
+
+  const [selectedRole, setSelectedRole] = useState<UserRole>('citizen');
+  const [identifier, setIdentifier] = useState('8788562103');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [useOtp, setUseOtp] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleRoleChange = (role: UserRole) => {
+    setSelectedRole(role);
+    setErrorMsg('');
+
+    if (role === 'citizen') {
+      setIdentifier('8788562103');
+      setPassword('8788562103');
+    } else if (role === 'city_admin') {
+      setIdentifier('admin@nagarsetu.gov.in');
+      setPassword('admin@123');
+    } else if (role === 'department_head') {
+      setIdentifier('rahul.kumar@nagarsetu.gov.in');
+      setPassword('head@123');
+    } else if (role === 'service_staff') {
+      setIdentifier('staff@nagarsetu.gov.in');
+      setPassword('staff@123');
+    }
+  };
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const roleParam = searchParams.get('role');
+    if (roleParam) {
+      let target: UserRole = 'citizen';
+      if (roleParam === 'city_admin' || roleParam === 'admin') target = 'city_admin';
+      else if (roleParam === 'department_head' || roleParam === 'dept_head') target = 'department_head';
+      else if (roleParam === 'service_staff' || roleParam === 'staff') target = 'service_staff';
+      handleRoleChange(target);
+    }
+  }, [location.search]);
+
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!identifier || identifier.length < 10) {
+      setErrorMsg('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+    setErrorMsg('');
+    try {
+      const res = await fetch(`${getApiUrl()}/api/auth/otp-request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: identifier.trim() })
+      });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || 'Failed to send OTP');
+      }
+      setOtpSent(true);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Unable to send OTP');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      if (useOtp && selectedRole === 'citizen') {
+        const res = await fetch(`${getApiUrl()}/api/auth/otp-verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: identifier.trim(), otp: otpCode.trim() })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.error || 'Invalid OTP code');
+        }
+        if (data.token && data.user) {
+          sessionStorage.setItem('nagarsetu_token', data.token);
+          sessionStorage.setItem('nagarsetu_user', JSON.stringify(data.user));
+          localStorage.setItem('nagarsetu_token', data.token);
+          localStorage.setItem('nagarsetu_user', JSON.stringify(data.user));
+          localStorage.setItem('nagarsetu_token_citizen', data.token);
+          localStorage.setItem('nagarsetu_user_citizen', JSON.stringify(data.user));
+          navigate('/citizen/portal');
+          return;
+        } else if (data.needsRegistration) {
+          navigate('/register?mobile=' + encodeURIComponent(identifier.trim()));
+          return;
+        }
+      }
+
+      // 1. Clear any stale session data in this tab before logging in
+      sessionStorage.removeItem('nagarsetu_token');
+      sessionStorage.removeItem('nagarsetu_user');
+      localStorage.removeItem('nagarsetu_token');
+      localStorage.removeItem('nagarsetu_user');
+
+      // 2. Authenticate strictly using entered credentials (never pass client selectedRole to override)
+      await login(identifier, password);
+
+      // 3. Obtain verified server-side role from authenticated user record
+      const currentUser = JSON.parse(sessionStorage.getItem('nagarsetu_user') || localStorage.getItem('nagarsetu_user') || '{}');
+      const verifiedRole = currentUser?.role;
+
+      if (!verifiedRole) {
+        throw new Error('Authentication role could not be verified. Please try again.');
+      }
+
+      // 4. Route strictly based on verified database role:
+      // CITIZEN -> /citizen/portal, CITY_ADMIN -> /admin/dashboard
+      const targetPortal = getPortalForRole(verifiedRole);
+      navigate(targetPortal);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Login failed. Please check credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white text-gray-900 font-sans flex flex-col justify-between">
+      <Navbar />
+
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full flex-1 flex items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full">
+          
+          {/* Left Column: Branding & AI Highlights */}
+          <div className="lg:col-span-6 space-y-6">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
+              <Shield className="w-4 h-4 text-emerald-600" />
+              <span>NAGARSETU — {t('tagline')}</span>
+            </div>
+
+            <div className="space-y-3">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight font-outfit leading-tight">
+                {t('landingHeroTitle')}
+              </h1>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {t('landingHeroSubtitle')}
+              </p>
+            </div>
+
+            {/* AI Feature Highlights */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-start space-x-3 text-xs text-gray-600">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span><strong>{t('aiVisionFeatureTitle')}:</strong> {t('aiVisionFeatureDesc')}</span>
+              </div>
+              <div className="flex items-start space-x-3 text-xs text-gray-600">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span><strong>{t('geoTaggingFeatureTitle')}:</strong> {t('geoTaggingFeatureDesc')}</span>
+              </div>
+              <div className="flex items-start space-x-3 text-xs text-gray-600">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span><strong>{t('slaTrackingFeatureTitle')}:</strong> {t('slaTrackingFeatureDesc')}</span>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-gray-100 flex items-center space-x-4 text-xs text-gray-500 font-mono">
+              <span>Clean • Smart • Connected</span>
+            </div>
+          </div>
+
+          {/* Right Column: Pure White Login Card */}
+          <div className="lg:col-span-6">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-200 shadow-sm space-y-6">
+              
+              <div className="text-center space-y-1">
+                <h2 className="text-xl font-extrabold text-gray-900 font-outfit">{t('loginTitle')}</h2>
+                <p className="text-xs text-gray-500">{t('loginSubtitle')}</p>
+              </div>
+
+              {/* 4 Role Selection Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('citizen')}
+                  className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 ${
+                    selectedRole === 'citizen'
+                      ? 'bg-emerald-50 border-emerald-600 text-emerald-700 font-bold shadow-xs'
+                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <User className="w-5 h-5" />
+                  <span className="text-xs">{t('roleCitizen')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('city_admin')}
+                  className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 ${
+                    selectedRole === 'city_admin'
+                      ? 'bg-emerald-50 border-emerald-600 text-emerald-700 font-bold shadow-xs'
+                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Building2 className="w-5 h-5" />
+                  <span className="text-xs">{t('roleAdmin')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('department_head')}
+                  className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 ${
+                    selectedRole === 'department_head'
+                      ? 'bg-emerald-50 border-emerald-600 text-emerald-700 font-bold shadow-xs'
+                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Shield className="w-5 h-5" />
+                  <span className="text-xs">{t('roleDeptHead')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleRoleChange('service_staff')}
+                  className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1.5 ${
+                    selectedRole === 'service_staff'
+                      ? 'bg-emerald-50 border-emerald-600 text-emerald-700 font-bold shadow-xs'
+                      : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <Wrench className="w-5 h-5" />
+                  <span className="text-xs">{t('roleStaff')}</span>
+                </button>
+              </div>
+
+              {/* Demo Credentials Quick-Fill Banner */}
+              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-50/80 border border-emerald-200 text-[11px] text-emerald-800">
+                <span>Official Password: <strong className="font-mono">{selectedRole === 'department_head' ? 'head@123' : selectedRole === 'service_staff' ? 'staff@123' : selectedRole === 'city_admin' ? 'admin@123' : '8788562103'}</strong></span>
+                <button
+                  type="button"
+                  onClick={() => setPassword(selectedRole === 'department_head' ? 'head@123' : selectedRole === 'service_staff' ? 'staff@123' : selectedRole === 'city_admin' ? 'admin@123' : '8788562103')}
+                  className="text-emerald-700 font-bold hover:underline ml-2 cursor-pointer"
+                >
+                  Auto-fill
+                </button>
+              </div>
+
+              {errorMsg && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold text-center">
+                  {errorMsg}
+                </div>
+              )}
+
+              {/* Login Form */}
+              <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+                
+                {/* Identifier Input */}
+                <div>
+                  <label className="block font-bold text-gray-700 mb-1">
+                    {t('mobileOrEmail')}
+                  </label>
+                  <div className="relative">
+                    {selectedRole === 'citizen' ? (
+                      <Smartphone className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                    ) : (
+                      <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                    )}
+                    <input aria-label="identifier"
+                      type="text"
+                      required
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      placeholder={t('enterMobileOrEmail')}
+                      className="w-full bg-white border border-gray-300 rounded-xl pl-9 pr-3 py-2.5 text-gray-900 focus:border-emerald-500 focus:ring-emerald-500 font-semibold"
+                    />
+                  </div>
+                </div>
+
+                {/* Password Input */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-bold text-gray-700">{t('password')}</label>
+                    <button type="button" onClick={(e) => { e.preventDefault(); alert('Please contact Municipal Admin to reset password.'); }} className="text-[11px] text-emerald-600 font-semibold hover:underline cursor-pointer">
+                      {t('forgotPassword')}
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                    <input aria-label="password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-white border border-gray-300 rounded-xl pl-9 pr-10 py-2.5 text-gray-900 focus:border-emerald-500 focus:ring-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none p-0.5"
+                      title={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4 text-gray-500" /> : <Eye className="w-4 h-4 text-gray-500" />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase tracking-wider shadow-sm flex items-center justify-center space-x-2 transition-all mt-2 min-h-[44px]"
+                >
+                  <span>{loading ? t('loading') : t('login')}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
+
+              {/* Citizen Registration Link */}
+              {selectedRole === 'citizen' && (
+                <div className="pt-2 border-t border-gray-100">
+                  <div className="text-center text-xs text-gray-600">
+                    {t('dontHaveAccount')}{' '}
+                    <Link to="/register" className="text-emerald-700 font-bold hover:underline">
+                      {t('registerTitle')}
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
