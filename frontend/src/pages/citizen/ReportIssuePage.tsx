@@ -117,18 +117,37 @@ const ANGLE_CONFIGS: AngleConfig[] = [
 function buildConsolidatedCivicDescription(
   baseDescription: string,
   aiRes: AIVisionResult | null,
-  slots: Record<ComplaintAngle, AngleSlotData>
+  slots: Record<ComplaintAngle, AngleSlotData>,
+  targetCategory?: CivicCategory | string | null
 ): string {
-  if (!baseDescription && !aiRes) return '';
+  if (!baseDescription && !aiRes && !targetCategory) return '';
   
   let cleaned = (baseDescription || '').trim();
+  const activeCat = String(targetCategory || aiRes?.category || '').toLowerCase();
+  const descLower = cleaned.toLowerCase();
 
-  // If base description is under 5 sentences, generate the authoritative 5-sentence paragraph
+  // Detect category mismatch between existing description and active category
+  const hasMismatch = (
+    (activeCat.includes('water') && (descLower.includes('drainage') || descLower.includes('pothole') || descLower.includes('waste') || descLower.includes('refuse'))) ||
+    (activeCat.includes('drain') && (descLower.includes('water supply piping') || descLower.includes('pothole') || descLower.includes('waste') || descLower.includes('refuse'))) ||
+    (activeCat.includes('road') && (descLower.includes('piping infrastructure') || descLower.includes('drainage') || descLower.includes('waste') || descLower.includes('refuse'))) ||
+    (activeCat.includes('sanitat') && (descLower.includes('piping infrastructure') || descLower.includes('drainage') || descLower.includes('pothole')))
+  );
+
+  // If base description is under 5 sentences or has category mismatch, generate the authoritative 5-sentence paragraph
   const sentences = cleaned.split(/(?<=\.)\s+/).filter(s => s.trim().length > 10);
-  if (sentences.length < 5 && aiRes) {
-    const cat = (aiRes.category || '').toLowerCase();
-    const issue = (aiRes.issue_type || aiRes.title || '').toLowerCase();
-    const dept = aiRes.department || 'the responsible municipal department';
+  if ((sentences.length < 5 || hasMismatch || !cleaned) && (activeCat || aiRes)) {
+    const cat = activeCat;
+    const issue = (aiRes?.issue_type || aiRes?.title || '').toLowerCase();
+    const dept = activeCat.includes('water')
+      ? 'Water Supply & Sewerage Board'
+      : activeCat.includes('drain')
+      ? 'Drainage & Sewage Department'
+      : activeCat.includes('road')
+      ? 'Roads & Works Department'
+      : activeCat.includes('sanitat')
+      ? 'Sanitation & Waste Management'
+      : (aiRes?.department || 'the responsible municipal department');
     const conf = aiRes.confidence ? Math.round(Number(aiRes.confidence) * 100) : 92;
     const sev = (aiRes.severity || 'High').toLowerCase();
 
@@ -356,7 +375,9 @@ export function evaluateCivicImageDecisionFE(aiResult: any, selectedCategory?: s
   const roadAnalysis = aiResult.road_analysis || {};
   const isRoad = roadAnalysis.is_road === true || (typeof roadAnalysis.road_surface_ratio === 'number' && roadAnalysis.road_surface_ratio >= 0.35);
   const roadRatio = typeof roadAnalysis.road_surface_ratio === 'number' ? roadAnalysis.road_surface_ratio : 0;
-  const edgeDensity = typeof roadAnalysis.edge_density === 'number' ? roadAnalysis.edge_density : (visualFeatures?.edgeDensity || 0);
+  const edgeDensity = typeof roadAnalysis.edge_density === 'number'
+    ? roadAnalysis.edge_density
+    : (typeof aiResult?.edge_density === 'number' ? aiResult.edge_density : (visualFeatures?.edgeDensity || 0));
 
   const allDetectedClasses = [
     detectedClass,
@@ -416,8 +437,11 @@ export function evaluateCivicImageDecisionFE(aiResult: any, selectedCategory?: s
 
   const hasPlausibleDefect = (
     roadCondition === 'uncertain' || roadCondition === 'defective' ||
-    pipeCondition === 'uncertain' || drainCondition === 'uncertain' ||
+    pipeCondition === 'uncertain' || pipeCondition === 'leakage' || pipeCondition === 'broken' ||
+    drainCondition === 'uncertain' || drainCondition === 'blocked' || drainCondition === 'damaged' || drainCondition === 'overflow' ||
     edgeDensity >= 0.07 ||
+    aiStatus === 'manual_review' ||
+    aiResult.decision_outcome === 'CIVIC_ISSUE_UNCERTAIN' ||
     (confidence >= 0.10 && confidence < 0.35) ||
     (detected && confidence > 0)
   );
@@ -742,8 +766,21 @@ export const ReportIssuePage: React.FC = () => {
       setPriority('Medium');
     }
 
-    // Invalidate previous AI result immediately on domain change
-    setAiResult(null);
+    // Synchronize description to newly selected category if previous was auto-generated or mismatched
+    setDescription((prev) => buildConsolidatedCivicDescription(prev, aiResult, angleSlots, newCat));
+
+    // Update existing AI result domain and conditions rather than clearing completely
+    setAiResult((prev: any) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        category: newCat,
+        department: newDept,
+        pipe_condition: newCat === 'Water' ? (prev.pipe_condition || 'uncertain') : prev.pipe_condition,
+        drain_condition: newCat === 'Drainage' ? (prev.drain_condition || 'uncertain') : prev.drain_condition,
+        road_condition: newCat === 'Roads' ? (prev.road_condition || 'uncertain') : prev.road_condition
+      };
+    });
 
     const domainMap: Record<string, string> = {
       'Water': 'pipe',
@@ -961,7 +998,7 @@ export const ReportIssuePage: React.FC = () => {
             if (!isManuallyEdited || !description) {
               if (analysisRes.description) {
                 const nextSlots = { ...angleSlots, [angle]: { file, previewUrl: url } };
-                const consolidated = buildConsolidatedCivicDescription(analysisRes.description, analysisRes, nextSlots);
+                const consolidated = buildConsolidatedCivicDescription(analysisRes.description, analysisRes, nextSlots, currentCategory);
                 setDescription(consolidated);
               }
             }
@@ -1459,13 +1496,27 @@ export const ReportIssuePage: React.FC = () => {
         ai_model: (aiResult as any)?.model || 'civiclens-yolov8',
         ai_status: aiResult?.aiStatus || 'confirmed',
         ai_detected_class: aiResult?.explanation?.detectedIssue || (aiResult?.detected_objects?.[0] ?? null),
-        ai_reason: aiResult?.explanation?.reason || aiResult?.description || '',
+        ai_reason: aiResult?.explanation?.reason || aiResult?.description || description || '',
         ai_analyzed_at: new Date().toISOString(),
-        needs_manual_verification: !aiResult || aiResult.reviewRequired !== false || aiResult.confidence < 0.75,
-        road_condition: aiResult?.road_condition || null,
-        pipe_condition: (aiResult as any)?.pipe_condition || null,
-        drain_condition: (aiResult as any)?.drain_condition || null,
-        decision_outcome: slotDecisions.front?.outcome || (aiResult ? 'VALID_CIVIC_ISSUE' : null)
+        needs_manual_verification: !aiResult || aiResult.reviewRequired !== false || aiResult.confidence < 0.75 || slotDecisions.front?.outcome === 'CIVIC_ISSUE_UNCERTAIN',
+        road_condition: aiResult?.road_condition || (category === 'Roads' ? 'uncertain' : null),
+        pipe_condition: (aiResult as any)?.pipe_condition || (category === 'Water' ? 'uncertain' : null),
+        drain_condition: (aiResult as any)?.drain_condition || (category === 'Drainage' ? 'uncertain' : null),
+        road_analysis: (aiResult as any)?.road_analysis || null,
+        visual_features: primaryFeatures || null,
+        decision_outcome: (() => {
+          const activeSlots = (['front', 'left', 'right', 'closeup'] as ComplaintAngle[]).filter(
+            (a) => Boolean(angleSlots[a]?.file || angleSlots[a]?.previewUrl)
+          );
+          const activeDecisions = activeSlots.map((a) => slotDecisions[a]).filter(Boolean) as CivicImageDecision[];
+          const hasValidDefect = activeDecisions.some((d) => d.outcome === 'VALID_CIVIC_ISSUE');
+          const hasUncertainCivic = activeDecisions.some((d) => d.outcome === 'CIVIC_ISSUE_UNCERTAIN');
+          return hasValidDefect
+            ? 'VALID_CIVIC_ISSUE'
+            : hasUncertainCivic
+            ? 'CIVIC_ISSUE_UNCERTAIN'
+            : (slotDecisions.front?.outcome || (aiResult ? 'VALID_CIVIC_ISSUE' : 'CIVIC_ISSUE_UNCERTAIN'));
+        })()
       };
 
       const created = await createComplaint(newComplaintData);

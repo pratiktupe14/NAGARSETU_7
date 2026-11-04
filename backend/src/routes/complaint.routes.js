@@ -453,24 +453,28 @@ const submitComplaintHandler = async (req, res) => {
           road_condition: req.body.road_condition,
           pipe_condition: req.body.pipe_condition,
           drain_condition: req.body.drain_condition,
-          decision_outcome: req.body.decision_outcome
+          decision_outcome: req.body.decision_outcome,
+          road_analysis: req.body.road_analysis,
+          edge_density: req.body.edge_density || req.body.road_analysis?.edge_density || req.body.visual_features?.edgeDensity
         };
 
         const hasAiSignals = Boolean(
           ai_status || ai_detected_class || req.body.road_condition || 
           req.body.pipe_condition || req.body.drain_condition || 
-          req.body.decision_outcome || ai_confidence !== undefined
+          req.body.decision_outcome || ai_confidence !== undefined ||
+          req.body.road_analysis || req.body.visual_features
         );
 
         if (hasAiSignals) {
-          const decision = evaluateCivicImageDecision(aiPayload, category);
+          const decision = evaluateCivicImageDecision(aiPayload, category, req.body.visual_features);
           if (req.body.decision_outcome === 'NO_CIVIC_ISSUE' || decision.outcome === 'NO_CIVIC_ISSUE') {
             return res.status(400).json({
               error: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
               outcome: 'NO_CIVIC_ISSUE'
             });
           }
-          if (req.body.decision_outcome === 'INVALID_IMAGE' || decision.outcome === 'INVALID_IMAGE') {
+          if ((req.body.decision_outcome === 'INVALID_IMAGE' || decision.outcome === 'INVALID_IMAGE') &&
+              decision.outcome !== 'CIVIC_ISSUE_UNCERTAIN' && req.body.decision_outcome !== 'CIVIC_ISSUE_UNCERTAIN') {
             return res.status(400).json({
               error: 'The uploaded image is invalid.',
               outcome: 'INVALID_IMAGE'

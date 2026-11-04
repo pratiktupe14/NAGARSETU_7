@@ -1086,7 +1086,9 @@ function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFea
   const roadAnalysis = aiResult.road_analysis || {};
   const isRoad = roadAnalysis.is_road === true || (typeof roadAnalysis.road_surface_ratio === 'number' && roadAnalysis.road_surface_ratio >= 0.35);
   const roadRatio = typeof roadAnalysis.road_surface_ratio === 'number' ? roadAnalysis.road_surface_ratio : 0;
-  const edgeDensity = typeof roadAnalysis.edge_density === 'number' ? roadAnalysis.edge_density : (visualFeatures?.edgeDensity || 0);
+  const edgeDensity = typeof roadAnalysis.edge_density === 'number'
+    ? roadAnalysis.edge_density
+    : (typeof aiResult.edge_density === 'number' ? aiResult.edge_density : (visualFeatures?.edgeDensity || 0));
 
   // Collect all detected classes across primary detection and detections array
   const allDetectedClasses = [
@@ -1147,8 +1149,11 @@ function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFea
 
   const hasPlausibleDefect = (
     roadCondition === 'uncertain' || roadCondition === 'defective' ||
-    pipeCondition === 'uncertain' || drainCondition === 'uncertain' ||
+    pipeCondition === 'uncertain' || pipeCondition === 'leakage' || pipeCondition === 'broken' ||
+    drainCondition === 'uncertain' || drainCondition === 'blocked' || drainCondition === 'damaged' || drainCondition === 'overflow' ||
     edgeDensity >= 0.07 ||
+    aiStatus === 'manual_review' ||
+    aiResult.decision_outcome === 'CIVIC_ISSUE_UNCERTAIN' ||
     (confidence >= 0.10 && confidence < 0.35) ||
     (detected && confidence > 0)
   );
