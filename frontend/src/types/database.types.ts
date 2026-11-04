@@ -105,6 +105,7 @@ export interface AIVisionResult {
   drain_condition?: string | null;
   road_analysis?: any;
   decision?: any;
+  receipt?: any;
 }
 
 export interface UserProfile {

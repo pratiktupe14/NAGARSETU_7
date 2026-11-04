@@ -1284,7 +1284,56 @@ function validateCategoryMatch(selectedCategory, aiResult) {
   };
 }
 
+
+const EVIDENCE_SECRET = process.env.JWT_SECRET || process.env.AI_INTERNAL_KEY || 'nagarsetu-evidence-auth-secret';
+
+/**
+ * Generates a tamper-resistant validation receipt cryptographically signed with server secret.
+ * Binds the server-evaluated decision outcome to the exact SHA-256 hash of the image bytes.
+ */
+function createEvidenceValidationReceipt({ imageHash, outcome, category, domain, confidence, detectedClass, analysisId }) {
+  const timestamp = Date.now();
+  const payload = `${imageHash}:${outcome}:${category || ''}:${domain || ''}:${analysisId || ''}:${timestamp}`;
+  const signature = crypto.createHmac('sha256', EVIDENCE_SECRET).update(payload).digest('hex');
+  return {
+    image_hash: imageHash,
+    outcome,
+    category: category || null,
+    domain: domain || null,
+    confidence: Number(confidence || 0),
+    detected_class: detectedClass || null,
+    analysis_id: analysisId || null,
+    timestamp,
+    signature
+  };
+}
+
+/**
+ * Verifies a validation receipt for authenticity, expiration, and optional image hash binding.
+ */
+function verifyEvidenceValidationReceipt(receipt, expectedImageHash = null) {
+  if (!receipt || typeof receipt !== 'object' || !receipt.image_hash || !receipt.outcome || !receipt.timestamp || !receipt.signature) {
+    return { valid: false, reason: 'MALFORMED_RECEIPT' };
+  }
+  // Check max TTL (2 hours for an active session)
+  const age = Date.now() - Number(receipt.timestamp);
+  if (age < 0 || age > 2 * 60 * 60 * 1000) {
+    return { valid: false, reason: 'EXPIRED_RECEIPT' };
+  }
+  if (expectedImageHash && receipt.image_hash !== expectedImageHash) {
+    return { valid: false, reason: 'IMAGE_HASH_MISMATCH' };
+  }
+  const payload = `${receipt.image_hash}:${receipt.outcome}:${receipt.category || ''}:${receipt.domain || ''}:${receipt.analysis_id || ''}:${receipt.timestamp}`;
+  const expectedSig = crypto.createHmac('sha256', EVIDENCE_SECRET).update(payload).digest('hex');
+  if (receipt.signature !== expectedSig) {
+    return { valid: false, reason: 'INVALID_SIGNATURE' };
+  }
+  return { valid: true, receipt };
+}
+
 module.exports = {
+  createEvidenceValidationReceipt,
+  verifyEvidenceValidationReceipt,
   analyzeComplaintPhoto,
   computeImageHash,
   compareImagesForSamePhysicalIssue,

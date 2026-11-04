@@ -554,6 +554,13 @@ export const ReportIssuePage: React.FC = () => {
     closeup: null
   });
 
+  const [slotReceipts, setSlotReceipts] = useState<Record<ComplaintAngle, any | null>>({
+    front: null,
+    left: null,
+    right: null,
+    closeup: null
+  });
+
   // Form Field States
   const [forceManualReport, setForceManualReport] = useState<boolean>(false);
   const [category, setCategory] = useState<CivicCategory | null>(null);
@@ -827,6 +834,15 @@ export const ReportIssuePage: React.FC = () => {
       'Roads': 'road'
     };
     const targetDomain = domainMap[newCat] || 'road';
+    setSlotReceipts((prev) => {
+      const next = { ...prev };
+      for (const ang of ['front', 'left', 'right', 'closeup'] as ComplaintAngle[]) {
+        if (next[ang] && next[ang].domain && next[ang].domain !== targetDomain) {
+          next[ang] = null;
+        }
+      }
+      return next;
+    });
 
     // Revalidate previously attached images across all 4 slots
     const anglesToCheck = (['front', 'left', 'right', 'closeup'] as ComplaintAngle[]).filter(
@@ -946,8 +962,19 @@ export const ReportIssuePage: React.FC = () => {
         console.warn('Local visual feature extraction skipped:', e);
       }
 
-      // 2. Evaluate Centralized Civic Image Decision Gate
-      const decision = evaluateCivicImageDecisionFE(analysisRes, currentCategory, localFeats);
+      // Check if AI analysis encountered a technical failure
+      if (analysisRes && analysisRes.is_available === false && (analysisRes.error_code === 'AI_SERVICE_UNAVAILABLE' || analysisRes.error_message?.includes('Image analysis unavailable'))) {
+        setValidatingSlot(null);
+        toast.error('Image analysis unavailable. Please retry in a few moments.');
+        return;
+      }
+
+      // 2. Server-Authoritative Civic Image Decision Gate
+      const decision: CivicImageDecision = (analysisRes?.decision && analysisRes.decision.outcome)
+        ? analysisRes.decision
+        : evaluateCivicImageDecisionFE(analysisRes, currentCategory, localFeats);
+
+      const receipt = analysisRes?.receipt || null;
 
       // CASE 3: NO_CIVIC_ISSUE — Clean, undamaged infrastructure
       if (decision.outcome === 'NO_CIVIC_ISSUE') {
@@ -997,6 +1024,7 @@ export const ReportIssuePage: React.FC = () => {
 
       // CASE 1: VALID_CIVIC_ISSUE or CASE 2: CIVIC_ISSUE_UNCERTAIN
       setSlotDecisions((prev) => ({ ...prev, [angle]: decision }));
+      setSlotReceipts((prev) => ({ ...prev, [angle]: receipt }));
       setSlotValidationResults((prev) => ({ ...prev, [angle]: validation }));
 
       const url = URL.createObjectURL(file);
@@ -1109,6 +1137,7 @@ export const ReportIssuePage: React.FC = () => {
     };
     setAngleSlots(nextSlots);
     setSlotDecisions((prev) => ({ ...prev, [angle]: null }));
+    setSlotReceipts((prev) => ({ ...prev, [angle]: null }));
     if (angle === 'front') {
       setSelectedPhotoFile(null);
       setPhotoPreviewUrl('');
@@ -1550,6 +1579,9 @@ export const ReportIssuePage: React.FC = () => {
         drain_condition: (aiResult as any)?.drain_condition || (category === 'Drainage' ? 'uncertain' : null),
         road_analysis: (aiResult as any)?.road_analysis || null,
         visual_features: primaryFeatures || null,
+        evidence_receipt: slotReceipts.front || Object.values(slotReceipts).find(Boolean) || null,
+        evidence_receipts: Object.values(slotReceipts).filter(Boolean),
+        primary_image_hash: (slotReceipts.front || Object.values(slotReceipts).find(Boolean))?.image_hash || null,
         decision_outcome: (() => {
           const activeSlots = (['front', 'left', 'right', 'closeup'] as ComplaintAngle[]).filter(
             (a) => Boolean(angleSlots[a]?.file || angleSlots[a]?.previewUrl)

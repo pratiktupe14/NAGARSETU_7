@@ -924,7 +924,16 @@ export async function createComplaint(payload: Omit<Complaint, 'id' | 'created_a
       ai_evidence: (newComplaint as any).ai_evidence,
       ai_model: (newComplaint as any).ai_model,
       ai_analyzed_at: (newComplaint as any).ai_analyzed_at,
-      needs_manual_verification: (newComplaint as any).needs_manual_verification
+      needs_manual_verification: (newComplaint as any).needs_manual_verification,
+      evidence_receipt: (newComplaint as any).evidence_receipt,
+      evidence_receipts: (newComplaint as any).evidence_receipts,
+      primary_image_hash: (newComplaint as any).primary_image_hash,
+      decision_outcome: (newComplaint as any).decision_outcome,
+      road_condition: (newComplaint as any).road_condition,
+      pipe_condition: (newComplaint as any).pipe_condition,
+      drain_condition: (newComplaint as any).drain_condition,
+      road_analysis: (newComplaint as any).road_analysis,
+      visual_features: (newComplaint as any).visual_features
     };
 
     let res = await fetch(`${getApiUrl()}/api/complaints/submit`, {

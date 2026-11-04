@@ -905,6 +905,7 @@ export async function detectCivicIssue(
       drain_condition: rawRes.drain_condition || (category === 'Drainage' ? (rawRes.detected ? 'blocked' : 'uncertain') : null),
       road_analysis: rawRes.road_analysis || null,
       decision: rawRes.decision || null,
+      receipt: rawRes.receipt || null,
       ...((rawRes.risk_quadrants || rawRes.risk_score !== undefined) ? {
         risk_quadrants: rawRes.risk_quadrants,
         human_safety: rawRes.human_safety,
@@ -925,7 +926,10 @@ export async function detectCivicIssue(
   let errorCode = lastErrorObj?.errorCode || rawRes?.error || 'AI_TEMPORARY_ERROR';
   let errorMessage = lastErrorObj?.message || rawRes?.message || 'AI Vision analysis is temporarily unavailable.';
 
-  if (lastErrorObj?.statusCode === 429 || errorCode === 'AI_RATE_LIMITED' || errorCode === 'AI_QUOTA_EXCEEDED') {
+  if (rawRes?.error === 'AI_SERVICE_UNAVAILABLE' || lastErrorObj?.statusCode === 503 || rawRes?.message?.includes('Image analysis unavailable')) {
+    errorCode = 'AI_SERVICE_UNAVAILABLE';
+    errorMessage = 'Image analysis unavailable. Please retry in a few moments.';
+  } else if (lastErrorObj?.statusCode === 429 || errorCode === 'AI_RATE_LIMITED' || errorCode === 'AI_QUOTA_EXCEEDED') {
     errorCode = 'AI_RATE_LIMITED';
     errorMessage = 'Request rate limit reached. Please wait a moment before trying again.';
   } else if (lastErrorObj?.statusCode === 401 || errorCode === 'AI_AUTHENTICATION_ERROR') {

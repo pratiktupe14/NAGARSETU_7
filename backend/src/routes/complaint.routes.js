@@ -8,7 +8,7 @@ const validateInput = require('../middleware/validateInput');
 const { createComplaintSchema, addFeedbackSchema } = require('../schemas/complaint.schemas');
 const { query } = require('../config/db');
 const { resolveLocation, checkForDuplicates, calculateDistanceMeters, normalizeCategory } = require('../services/locationService');
-const { analyzeComplaintPhoto, validateCategoryMatch, evaluateCivicImageDecision } = require('../services/aiService');
+const { analyzeComplaintPhoto, validateCategoryMatch, evaluateCivicImageDecision, verifyEvidenceValidationReceipt } = require('../services/aiService');
 const { notifyStatusChange } = require('../services/notificationService');
 const { resolveDepartmentByCode, resolveDepartmentByCodeSync } = require('../services/departmentService');
 
@@ -465,8 +465,34 @@ const submitComplaintHandler = async (req, res) => {
           req.body.road_analysis || req.body.visual_features
         );
 
-        if (hasAiSignals) {
-          let decision = evaluateCivicImageDecision(aiPayload, category, req.body.visual_features);
+        if (hasAiSignals || req.body.evidence_receipt || (Array.isArray(req.body.evidence_receipts) && req.body.evidence_receipts.length > 0)) {
+          let decision = null;
+
+          // 1. Verify Tamper-Resistant Evidence Receipts from Server Analysis
+          const rawReceipts = [
+            req.body.evidence_receipt,
+            ...(Array.isArray(req.body.evidence_receipts) ? req.body.evidence_receipts : [])
+          ].filter(Boolean);
+
+          for (const rc of rawReceipts) {
+            const vRes = verifyEvidenceValidationReceipt(rc);
+            if (vRes.valid && (vRes.receipt.outcome === 'VALID_CIVIC_ISSUE' || vRes.receipt.outcome === 'CIVIC_ISSUE_UNCERTAIN')) {
+              decision = {
+                outcome: vRes.receipt.outcome,
+                detectedIssue: vRes.receipt.detected_class || 'Civic Defect',
+                confidence: vRes.receipt.confidence,
+                acceptedAsEvidence: true,
+                fromReceipt: true
+              };
+              ai_detected_class = vRes.receipt.detected_class || ai_detected_class;
+              ai_confidence = vRes.receipt.confidence !== undefined ? vRes.receipt.confidence : ai_confidence;
+              break;
+            }
+          }
+
+          if (!decision && hasAiSignals) {
+            decision = evaluateCivicImageDecision(aiPayload, category, req.body.visual_features);
+          }
 
           // Server-Authoritative Evidence Re-validation:
           // If metadata is incomplete, missing, or tentatively flagged as INVALID_IMAGE,

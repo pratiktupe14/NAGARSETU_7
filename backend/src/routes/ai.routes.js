@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const { upload } = require('../middleware/upload');
-const { analyzeComplaintPhoto, getCurrentModel, evaluateCivicImageDecision } = require('../services/aiService');
+const { analyzeComplaintPhoto, getCurrentModel, evaluateCivicImageDecision, createEvidenceValidationReceipt } = require('../services/aiService');
 const { authenticateToken } = require('../middleware/auth');
 const { attachGcpAuthHeaders, getLastDiagnostics } = require('../services/gcpAuthService');
 
@@ -129,6 +129,15 @@ async function handlePhotoAnalysis(req, res) {
     }
 
     const decision = evaluateCivicImageDecision(aiAnalysis, domain);
+    const receipt = createEvidenceValidationReceipt({
+      imageHash: aiAnalysis.image_hash || '',
+      outcome: decision.outcome,
+      category: aiAnalysis.category,
+      domain: aiAnalysis.analysis_domain || domain,
+      confidence: aiAnalysis.confidence,
+      detectedClass: aiAnalysis.detected_class || aiAnalysis.ai_detected_class,
+      analysisId: aiAnalysis.analysis_id
+    });
 
     const riskObject = {
       human_safety: aiAnalysis.risk?.human_safety ?? aiAnalysis.human_safety ?? 0,
@@ -193,16 +202,20 @@ async function handlePhotoAnalysis(req, res) {
       photo_url: photoUrl,
       ai: aiAnalysis,
       decision: decision,
+      receipt: receipt,
+      image_hash: aiAnalysis.image_hash || '',
       message: aiAnalysis.message
     });
   } catch (err) {
     console.error(`[${reqTime}] [NAGARSETU AI] Express analyze route error:`, err.message);
-    const statusCode = err.statusCode || 500;
-    const errorCode = err.errorCode || 'AI_PROCESSING_ERROR';
+    const isClientInvalid = err.errorCode === 'INVALID_IMAGE' && err.message?.includes('0 bytes');
+    const statusCode = isClientInvalid ? 400 : 503;
+    const errorCode = isClientInvalid ? 'INVALID_IMAGE' : 'AI_SERVICE_UNAVAILABLE';
+    const clientMessage = isClientInvalid ? 'The uploaded photo file is empty.' : 'Image analysis unavailable. Please retry in a few moments.';
     return res.status(statusCode).json({
       success: false,
       error: errorCode,
-      message: err.message || 'AI Vision analysis is temporarily unavailable.'
+      message: clientMessage
     });
   }
 }
