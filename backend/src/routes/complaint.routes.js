@@ -8,7 +8,7 @@ const validateInput = require('../middleware/validateInput');
 const { createComplaintSchema, addFeedbackSchema } = require('../schemas/complaint.schemas');
 const { query } = require('../config/db');
 const { resolveLocation, checkForDuplicates, calculateDistanceMeters, normalizeCategory } = require('../services/locationService');
-const { analyzeComplaintPhoto, validateCategoryMatch, evaluateCivicImageDecision, verifyEvidenceValidationReceipt } = require('../services/aiService');
+const { analyzeComplaintPhoto, validateCategoryMatch, evaluateCivicImageDecision } = require('../services/aiService');
 const { notifyStatusChange } = require('../services/notificationService');
 const { resolveDepartmentByCode, resolveDepartmentByCodeSync } = require('../services/departmentService');
 
@@ -453,94 +453,28 @@ const submitComplaintHandler = async (req, res) => {
           road_condition: req.body.road_condition,
           pipe_condition: req.body.pipe_condition,
           drain_condition: req.body.drain_condition,
-          decision_outcome: req.body.decision_outcome,
-          road_analysis: req.body.road_analysis,
-          edge_density: req.body.edge_density || req.body.road_analysis?.edge_density || req.body.visual_features?.edgeDensity
+          decision_outcome: req.body.decision_outcome
         };
 
         const hasAiSignals = Boolean(
           ai_status || ai_detected_class || req.body.road_condition || 
           req.body.pipe_condition || req.body.drain_condition || 
-          req.body.decision_outcome || ai_confidence !== undefined ||
-          req.body.road_analysis || req.body.visual_features
+          req.body.decision_outcome || ai_confidence !== undefined
         );
 
-        if (hasAiSignals || req.body.evidence_receipt || (Array.isArray(req.body.evidence_receipts) && req.body.evidence_receipts.length > 0)) {
-          let decision = null;
-
-          // 1. Verify Tamper-Resistant Evidence Receipts from Server Analysis
-          const rawReceipts = [
-            req.body.evidence_receipt,
-            ...(Array.isArray(req.body.evidence_receipts) ? req.body.evidence_receipts : [])
-          ].filter(Boolean);
-
-          for (const rc of rawReceipts) {
-            const vRes = verifyEvidenceValidationReceipt(rc);
-            if (vRes.valid && (vRes.receipt.outcome === 'VALID_CIVIC_ISSUE' || vRes.receipt.outcome === 'CIVIC_ISSUE_UNCERTAIN')) {
-              decision = {
-                outcome: vRes.receipt.outcome,
-                detectedIssue: vRes.receipt.detected_class || 'Civic Defect',
-                confidence: vRes.receipt.confidence,
-                acceptedAsEvidence: true,
-                fromReceipt: true
-              };
-              ai_detected_class = vRes.receipt.detected_class || ai_detected_class;
-              ai_confidence = vRes.receipt.confidence !== undefined ? vRes.receipt.confidence : ai_confidence;
-              break;
-            }
+        if (hasAiSignals) {
+          const decision = evaluateCivicImageDecision(aiPayload, category);
+          if (req.body.decision_outcome === 'NO_CIVIC_ISSUE' || decision.outcome === 'NO_CIVIC_ISSUE') {
+            return res.status(400).json({
+              error: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
+              outcome: 'NO_CIVIC_ISSUE'
+            });
           }
-
-          if (!decision && hasAiSignals) {
-            decision = evaluateCivicImageDecision(aiPayload, category, req.body.visual_features);
-          }
-
-          // Server-Authoritative Evidence Re-validation:
-          // If metadata is incomplete, missing, or tentatively flagged as INVALID_IMAGE,
-          // revalidate the actual photo evidence authoritatively using analyzeComplaintPhoto.
-          const candidatePhotoUrl = req.body.photo_before_url || req.body.photo_front_url || req.body.photo_url || 
-            (Array.isArray(req.body.angle_photos) && req.body.angle_photos[0]?.url);
-
-          if ((!decision || decision.outcome === 'INVALID_IMAGE') && candidatePhotoUrl && candidatePhotoUrl !== '/uploads/civic-default.jpg') {
-            try {
-              const domainMap = {
-                'Water': 'pipe',
-                'Water Supply': 'pipe',
-                'Roads': 'road',
-                'Roads & Works': 'road',
-                'Drainage': 'drainage',
-                'Drainage & Sewage': 'drainage',
-                'Sanitation': 'waste',
-                'Waste Management': 'waste'
-              };
-              const targetDomain = domainMap[category] || null;
-              const reanalysis = await analyzeComplaintPhoto(candidatePhotoUrl, { domain: targetDomain });
-              if (reanalysis) {
-                const authoritativeDecision = evaluateCivicImageDecision(reanalysis, category, reanalysis.road_analysis);
-                decision = authoritativeDecision;
-                if (authoritativeDecision.outcome === 'VALID_CIVIC_ISSUE' || authoritativeDecision.outcome === 'CIVIC_ISSUE_UNCERTAIN') {
-                  ai_detected_class = reanalysis.detected_class || ai_detected_class;
-                  ai_confidence = reanalysis.confidence !== undefined ? reanalysis.confidence : ai_confidence;
-                  ai_status = reanalysis.ai_status || reanalysis.aiStatus || ai_status;
-                }
-              }
-            } catch (reErr) {
-              console.warn('Authoritative photo re-validation note:', reErr.message);
-            }
-          }
-
-          if (decision) {
-            if (decision.outcome === 'NO_CIVIC_ISSUE') {
-              return res.status(400).json({
-                error: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
-                outcome: 'NO_CIVIC_ISSUE'
-              });
-            }
-            if (decision.outcome === 'INVALID_IMAGE' && req.body.decision_outcome !== 'CIVIC_ISSUE_UNCERTAIN') {
-              return res.status(400).json({
-                error: 'The uploaded image is invalid.',
-                outcome: 'INVALID_IMAGE'
-              });
-            }
+          if (req.body.decision_outcome === 'INVALID_IMAGE' || decision.outcome === 'INVALID_IMAGE') {
+            return res.status(400).json({
+              error: 'The uploaded image is invalid.',
+              outcome: 'INVALID_IMAGE'
+            });
           }
         }
 

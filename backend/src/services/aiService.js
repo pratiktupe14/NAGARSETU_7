@@ -249,47 +249,18 @@ async function analyzeComplaintPhoto(fileInput, options = {}) {
       else if (ext === '.webp') mimeType = 'image/webp';
     }
   } else if (typeof fileInput === 'string') {
-    const trimmedInput = fileInput.trim();
-    if (trimmedInput.startsWith('data:image/')) {
-      const commaIdx = trimmedInput.indexOf(',');
-      if (commaIdx !== -1) {
-        fileBuffer = Buffer.from(trimmedInput.slice(commaIdx + 1), 'base64');
-        const mimeMatch = trimmedInput.match(/^data:([^;]+);/);
-        if (mimeMatch) mimeType = mimeMatch[1];
-        originalName = 'upload.' + (mimeType.split('/')[1] || 'jpg');
-      }
-    } else {
-      let resolvedPath = trimmedInput;
-      if (resolvedPath.includes('/uploads/')) {
-        const sub = resolvedPath.slice(resolvedPath.indexOf('/uploads/') + 1);
-        const candidates = [
-          path.join(process.cwd(), sub),
-          path.join(process.cwd(), 'backend', sub),
-          path.join(__dirname, '../../', sub),
-          path.join(__dirname, '../', sub)
-        ];
-        for (const c of candidates) {
-          if (fs.existsSync(c)) {
-            resolvedPath = c;
-            break;
-          }
-        }
-      }
-      if (fs.existsSync(resolvedPath)) {
-        fileBuffer = fs.readFileSync(resolvedPath);
-        const ext = path.extname(resolvedPath).toLowerCase();
-        if (ext === '.png') mimeType = 'image/png';
-        if (ext === '.webp') mimeType = 'image/webp';
-        if (ext === '.avif') mimeType = 'image/avif';
-        originalName = path.basename(resolvedPath);
-      }
-    }
-    if (!fileBuffer) {
+    if (!fs.existsSync(fileInput)) {
       const errObj = new Error(`Image file not found at ${fileInput}`);
       errObj.statusCode = 400;
       errObj.errorCode = 'INVALID_IMAGE';
       throw errObj;
     }
+    fileBuffer = fs.readFileSync(fileInput);
+    const ext = path.extname(fileInput).toLowerCase();
+    if (ext === '.png') mimeType = 'image/png';
+    if (ext === '.webp') mimeType = 'image/webp';
+    if (ext === '.avif') mimeType = 'image/avif';
+    originalName = path.basename(fileInput);
   }
 
   if (!fileBuffer || fileBuffer.length === 0) {
@@ -704,9 +675,6 @@ async function analyzeComplaintPhoto(fileInput, options = {}) {
       const deptId = comp.departmentId || CANONICAL_DEPT_IDS[deptCode] || 1;
       const confidence = Number(comp.confidenceScore || pythonResult.confidence || 0.85);
       const isRoadDefect = (comp.category === 'Roads' || pythonResult.primaryDetection?.class === 'Pothole');
-      const detClassLower = String(pythonResult.primaryDetection?.class || comp.issueType || '').toLowerCase();
-      const isPipeDefect = (comp.category === 'Water Supply' || comp.category === 'Water' || detClassLower.includes('pipe') || detClassLower.includes('leak'));
-      const isDrainDefect = (comp.category === 'Drainage' || detClassLower.includes('drain') || detClassLower.includes('gutter'));
 
       const risk = pythonResult.risk || {
         human_safety: 2,
@@ -741,8 +709,6 @@ async function analyzeComplaintPhoto(fileInput, options = {}) {
         success: true,
         analysis_domain: options.domain || pythonResult.domain || (comp.category === 'Water Supply' ? 'pipe' : comp.category === 'Drainage' ? 'drainage' : comp.category === 'Sanitation' ? 'waste' : 'road'),
         road_condition: isRoadDefect ? 'defective' : (roadCondition || 'non_road'),
-        pipe_condition: isPipeDefect ? (detClassLower.includes('broken') ? 'broken' : (detClassLower.includes('leak') ? 'leakage' : 'uncertain')) : (pythonResult.pipe_condition || null),
-        drain_condition: isDrainDefect ? (detClassLower.includes('block') ? 'blocked' : (detClassLower.includes('damag') ? 'damaged' : (detClassLower.includes('overflow') ? 'overflow' : 'uncertain'))) : (pythonResult.drain_condition || null),
         detected: true,
         detected_class: pythonResult.primaryDetection?.class || comp.issueType,
         aiStatus: pythonResult.aiStatus,
@@ -1120,20 +1086,13 @@ function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFea
   const roadAnalysis = aiResult.road_analysis || {};
   const isRoad = roadAnalysis.is_road === true || (typeof roadAnalysis.road_surface_ratio === 'number' && roadAnalysis.road_surface_ratio >= 0.35);
   const roadRatio = typeof roadAnalysis.road_surface_ratio === 'number' ? roadAnalysis.road_surface_ratio : 0;
-  const edgeDensity = typeof roadAnalysis.edge_density === 'number'
-    ? roadAnalysis.edge_density
-    : (typeof aiResult.edge_density === 'number' ? aiResult.edge_density : (visualFeatures?.edgeDensity || 0));
+  const edgeDensity = typeof roadAnalysis.edge_density === 'number' ? roadAnalysis.edge_density : (visualFeatures?.edgeDensity || 0);
 
   // Collect all detected classes across primary detection and detections array
-  const rawClasses = [
+  const allDetectedClasses = [
     detectedClass,
     ...(Array.isArray(aiResult.detections) ? aiResult.detections.map(d => String(d?.class || d?.label || '').toLowerCase()) : [])
   ].filter(Boolean);
-  const allDetectedClasses = Array.from(new Set([
-    ...rawClasses,
-    ...rawClasses.map(c => c.replace(/[_-]/g, ' ')),
-    ...rawClasses.map(c => c.replace(/[ -]/g, '_'))
-  ]));
 
   // --- CASE 3: NO_CIVIC_ISSUE ---
   // Normal, undamaged, clean civic infrastructure (clean undamaged road, normal dry road surface, clean functioning drain, undamaged water pipe, clean public space)
@@ -1155,9 +1114,9 @@ function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFea
   // --- CASE 1: VALID_CIVIC_ISSUE ---
   // AI confirms visible evidence of a civic issue with confidence >= 0.35
   const civicDefectKeywords = [
-    'pothole', 'road damage', 'road_damage', 'crack', 'asphalt damage', 'asphalt_damage',
-    'water leakage', 'water_leakage', 'broken pipe', 'broken_pipe', 'leak', 'pipe rupture', 'pipe_rupture', 'burst pipe', 'burst_pipe',
-    'blocked drain', 'blocked_drain', 'damaged drain', 'damaged_drain', 'drain overflow', 'drain_overflow', 'sewage', 'gutter',
+    'pothole', 'road damage', 'crack', 'asphalt damage',
+    'water leakage', 'broken pipe', 'leak', 'pipe rupture', 'burst pipe',
+    'blocked drain', 'damaged drain', 'drain overflow', 'sewage', 'gutter',
     'biodegradable', 'cardboard', 'glass', 'metal', 'paper', 'plastic', 'garbage', 'waste', 'trash', 'litter'
   ];
   const hasRecognizedDefect = detected && (
@@ -1188,11 +1147,8 @@ function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFea
 
   const hasPlausibleDefect = (
     roadCondition === 'uncertain' || roadCondition === 'defective' ||
-    pipeCondition === 'uncertain' || pipeCondition === 'leakage' || pipeCondition === 'broken' ||
-    drainCondition === 'uncertain' || drainCondition === 'blocked' || drainCondition === 'damaged' || drainCondition === 'overflow' ||
+    pipeCondition === 'uncertain' || drainCondition === 'uncertain' ||
     edgeDensity >= 0.07 ||
-    aiStatus === 'manual_review' ||
-    aiResult.decision_outcome === 'CIVIC_ISSUE_UNCERTAIN' ||
     (confidence >= 0.10 && confidence < 0.35) ||
     (detected && confidence > 0)
   );
@@ -1284,56 +1240,7 @@ function validateCategoryMatch(selectedCategory, aiResult) {
   };
 }
 
-
-const EVIDENCE_SECRET = process.env.JWT_SECRET || process.env.AI_INTERNAL_KEY || 'nagarsetu-evidence-auth-secret';
-
-/**
- * Generates a tamper-resistant validation receipt cryptographically signed with server secret.
- * Binds the server-evaluated decision outcome to the exact SHA-256 hash of the image bytes.
- */
-function createEvidenceValidationReceipt({ imageHash, outcome, category, domain, confidence, detectedClass, analysisId }) {
-  const timestamp = Date.now();
-  const payload = `${imageHash}:${outcome}:${category || ''}:${domain || ''}:${analysisId || ''}:${timestamp}`;
-  const signature = crypto.createHmac('sha256', EVIDENCE_SECRET).update(payload).digest('hex');
-  return {
-    image_hash: imageHash,
-    outcome,
-    category: category || null,
-    domain: domain || null,
-    confidence: Number(confidence || 0),
-    detected_class: detectedClass || null,
-    analysis_id: analysisId || null,
-    timestamp,
-    signature
-  };
-}
-
-/**
- * Verifies a validation receipt for authenticity, expiration, and optional image hash binding.
- */
-function verifyEvidenceValidationReceipt(receipt, expectedImageHash = null) {
-  if (!receipt || typeof receipt !== 'object' || !receipt.image_hash || !receipt.outcome || !receipt.timestamp || !receipt.signature) {
-    return { valid: false, reason: 'MALFORMED_RECEIPT' };
-  }
-  // Check max TTL (2 hours for an active session)
-  const age = Date.now() - Number(receipt.timestamp);
-  if (age < 0 || age > 2 * 60 * 60 * 1000) {
-    return { valid: false, reason: 'EXPIRED_RECEIPT' };
-  }
-  if (expectedImageHash && receipt.image_hash !== expectedImageHash) {
-    return { valid: false, reason: 'IMAGE_HASH_MISMATCH' };
-  }
-  const payload = `${receipt.image_hash}:${receipt.outcome}:${receipt.category || ''}:${receipt.domain || ''}:${receipt.analysis_id || ''}:${receipt.timestamp}`;
-  const expectedSig = crypto.createHmac('sha256', EVIDENCE_SECRET).update(payload).digest('hex');
-  if (receipt.signature !== expectedSig) {
-    return { valid: false, reason: 'INVALID_SIGNATURE' };
-  }
-  return { valid: true, receipt };
-}
-
 module.exports = {
-  createEvidenceValidationReceipt,
-  verifyEvidenceValidationReceipt,
   analyzeComplaintPhoto,
   computeImageHash,
   compareImagesForSamePhysicalIssue,
