@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const { query } = require('../config/db');
 const { authenticateToken, requireRole, normalizeRole } = require('../middleware/auth');
 const { notifyStatusChange } = require('../services/notificationService');
+const { resolveDepartmentForComplaint, resolveDepartmentByCodeSync } = require('../services/departmentService');
 
 // No-cache middleware for dynamic department data
 router.use((req, res, next) => {
@@ -19,65 +20,14 @@ router.use((req, res, next) => {
  */
 function getCanonicalDepartment(val) {
   if (!val) return null;
-  const s = String(val).trim().toLowerCase();
-
-  // 1. PWD
-  if (
-    s === '1' || s === 'pwd' || s === 'dept-pwd' || s === 'dept-1' ||
-    s.includes('pwd') || s.includes('public works') || s.includes('road') || s.includes('pothole') || s.includes('8ed9f760')
-  ) {
-    return { id: 1, code: 'PWD', name: 'Public Works Department (PWD)', uuid: '8ed9f760-1314-427c-a515-c2a54d6df6d8' };
-  }
-  // 2. SAN
-  if (
-    s === '2' || s === 'san' || s === 'dept-san' || s === 'dept-2' ||
-    s.includes('san') || s.includes('waste') || s.includes('garbage') || s.includes('clean') || s.includes('9cabc1f2')
-  ) {
-    return { id: 2, code: 'SAN', name: 'Sanitation & Waste Management', uuid: '9cabc1f2-fd10-48dd-a5cb-01d05197de22' };
-  }
-  // 3. WTR
-  if (
-    s === '3' || s === 'wtr' || s === 'dept-wtr' || s === 'dept-3' ||
-    s.includes('wtr') || s.includes('water') || s.includes('pipeline') || s.includes('sewerage board') || s.includes('ead370cc')
-  ) {
-    return { id: 3, code: 'WTR', name: 'Water Supply & Sewerage Board', uuid: 'ead370cc-459c-44f0-899f-8a97f0928beb' };
-  }
-  // 4. DRN
-  if (
-    s === 'drn' || s === 'dept-drn' ||
-    s.includes('drn') || s.includes('drain') || s.includes('sewage') || s.includes('sewer') || s.includes('gutter') || s.includes('ee73cb82')
-  ) {
-    return { id: 4, code: 'DRN', name: 'Drainage & Sewage Department', uuid: 'ee73cb82-cc47-4333-b7d6-4491353c1354' };
-  }
-  // 5. ELE
-  if (
-    s === 'ele' || s === 'dept-ele' ||
-    s.includes('ele') || s.includes('electric') || s.includes('light') || s.includes('streetlight') || s.includes('31842723')
-  ) {
-    return { id: 5, code: 'ELE', name: 'Electrical & Street Lighting', uuid: '31842723-23ac-490b-912b-9f6d9afbdfb3' };
-  }
-  // 6. TRF
-  if (
-    s === 'trf' || s === 'tra' || s === 'dept-trf' || s === 'dept-tra' ||
-    s.includes('trf') || s.includes('tra') || s.includes('traffic') || s.includes('signal') || s.includes('ae5e4d0c')
-  ) {
-    return { id: 6, code: 'TRF', name: 'Traffic Management Department', uuid: 'ae5e4d0c-996f-4d81-9528-d642664c93ae' };
-  }
-  // 7. MNT
-  if (
-    s === 'mnt' || s === 'dept-mnt' ||
-    s.includes('mnt') || s.includes('maint') || s.includes('facility') || s.includes('park') || s.includes('71542723')
-  ) {
-    return { id: 7, code: 'MNT', name: 'Maintenance Department', uuid: '71542723-23ac-490b-912b-9f6d9afbdfb7' };
-  }
-
-  // Handle direct numeric IDs
-  if (s === '4') return { id: 4, code: 'DRN', name: 'Drainage & Sewage Department', uuid: 'ee73cb82-cc47-4333-b7d6-4491353c1354' };
-  if (s === '5') return { id: 5, code: 'ELE', name: 'Electrical & Street Lighting', uuid: '31842723-23ac-490b-912b-9f6d9afbdfb3' };
-  if (s === '6') return { id: 6, code: 'TRF', name: 'Traffic Management Department', uuid: 'ae5e4d0c-996f-4d81-9528-d642664c93ae' };
-  if (s === '7') return { id: 7, code: 'MNT', name: 'Maintenance Department', uuid: '71542723-23ac-490b-912b-9f6d9afbdfb7' };
-
-  return null;
+  const canonical = resolveDepartmentByCodeSync(val);
+  if (!canonical) return null;
+  return {
+    id: canonical.registry_id,
+    code: canonical.code,
+    name: canonical.name,
+    uuid: canonical.id
+  };
 }
 
 const DEPT_HEAD_EMAIL_MAP = {
@@ -90,16 +40,27 @@ const DEPT_HEAD_EMAIL_MAP = {
   'rohan.deshmukh@nagarsetu.gov.in': 'TRF'
 };
 
+function complaintMatchesDept(complaint, targetDept) {
+  if (!targetDept) return true;
+  if (!complaint) return false;
+
+  const authDept = resolveDepartmentForComplaint({
+    category: complaint.category,
+    title: complaint.title,
+    description: complaint.description,
+    department_id: complaint.department_id,
+    department_name: complaint.department_name,
+    department_code: complaint.department_code
+  });
+
+  return Boolean(authDept && authDept.code === targetDept.code);
+}
+
 function staffMatchesDept(staff, targetDept) {
   if (!targetDept) return true;
   if (!staff) return false;
 
-  const staffDept =
-    getCanonicalDepartment(staff.employee_id) ||
-    getCanonicalDepartment(staff.department_code) ||
-    getCanonicalDepartment(staff.department_name) ||
-    getCanonicalDepartment(staff.department_id) ||
-    getCanonicalDepartment(staff.department);
+  const staffDept = getCanonicalDepartment(staff.employee_id || staff.department_code || staff.department_name || staff.department_id || staff.department);
 
   if (staffDept && staffDept.code === targetDept.code) return true;
   if (String(staff.department_id) === String(targetDept.id)) return true;
@@ -238,7 +199,7 @@ router.get('/complaints', authenticateToken, async (req, res) => {
     let compRows = result.rows || [];
 
     if (filterDept) {
-      compRows = compRows.filter(c => staffMatchesDept(c, filterDept));
+      compRows = compRows.filter(c => complaintMatchesDept(c, filterDept));
     }
 
     // Enrich complaints with structured assigned_staff details
@@ -265,6 +226,12 @@ router.get('/complaints', authenticateToken, async (req, res) => {
     }
 
     compRows = compRows.map(c => {
+      const authDept = resolveDepartmentForComplaint(c);
+      if (authDept) {
+        c.department_id = authDept.id;
+        c.department_code = authDept.code;
+        c.department_name = authDept.name;
+      }
       const s = c.assigned_staff_id ? (staffMap[String(c.assigned_staff_id)] || staffMap[String(c.assigned_staff_name || '').toLowerCase()]) : null;
       const staffName = c.assigned_staff_name || s?.name || null;
       const empId = s?.employee_id || (c.assigned_staff_id ? (String(c.assigned_staff_id).startsWith('STF-') || String(c.assigned_staff_id).includes('-') ? c.assigned_staff_id : `STF-${c.assigned_staff_id}`) : null);
@@ -803,7 +770,7 @@ router.post('/assign', authenticateToken, requireRole(['department_head', 'admin
 
     // 4. Department Isolation Security Check
     if (!isAdmin) {
-      if (canonicalDept && !staffMatchesDept(complaint, canonicalDept)) {
+      if (canonicalDept && !complaintMatchesDept(complaint, canonicalDept)) {
         return res.status(403).json({ error: 'Forbidden: You cannot assign complaints outside your department.' });
       }
       if (canonicalDept && !staffMatchesDept(staff, canonicalDept)) {

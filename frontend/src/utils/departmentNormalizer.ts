@@ -35,24 +35,24 @@ export function normalizeDepartment(identifier?: string | number | null): Canoni
     return CANONICAL_DEPARTMENTS[str];
   }
 
-  // 2. Search by code or keyword match
-  if (lower.includes('pwd') || lower.includes('public works') || lower.includes('road') || lower.includes('pothole') || lower.includes('dept-1')) {
-    return CANONICAL_DEPARTMENTS['1'];
+  // 2. Search by code or keyword match - Water prioritized
+  if (lower.includes('wtr') || lower.includes('water') || lower.includes('pipeline') || lower.includes('leak') || lower.includes('dept-3')) {
+    return CANONICAL_DEPARTMENTS['3'];
+  }
+  if (lower.includes('drn') || lower.includes('drain') || lower.includes('sewage') || lower.includes('sewer') || lower.includes('monsoon') || lower.includes('dept-4')) {
+    return CANONICAL_DEPARTMENTS['4'];
   }
   if (lower.includes('san') || lower.includes('sanitation') || lower.includes('waste') || lower.includes('garbage') || lower.includes('dept-2')) {
     return CANONICAL_DEPARTMENTS['2'];
-  }
-  if (lower.includes('wtr') || lower.includes('water') || lower.includes('sewer') || lower.includes('pipeline') || lower.includes('dept-3')) {
-    return CANONICAL_DEPARTMENTS['3'];
-  }
-  if (lower.includes('drn') || lower.includes('drain') || lower.includes('sewage') || lower.includes('monsoon') || lower.includes('dept-4')) {
-    return CANONICAL_DEPARTMENTS['4'];
   }
   if (lower.includes('ele') || lower.includes('electric') || lower.includes('light') || lower.includes('pole') || lower.includes('dept-5')) {
     return CANONICAL_DEPARTMENTS['5'];
   }
   if (lower.includes('trf') || lower.includes('traffic') || lower.includes('signal') || lower.includes('signage') || lower.includes('dept-6')) {
     return CANONICAL_DEPARTMENTS['6'];
+  }
+  if (lower.includes('pwd') || lower.includes('public works') || lower.includes('road') || lower.includes('pothole') || lower.includes('dept-1')) {
+    return CANONICAL_DEPARTMENTS['1'];
   }
   if (lower.includes('mnt') || lower.includes('maintenance') || lower.includes('repair') || lower.includes('dept-7')) {
     return CANONICAL_DEPARTMENTS['7'];

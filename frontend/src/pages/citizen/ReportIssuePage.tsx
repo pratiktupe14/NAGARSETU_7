@@ -545,7 +545,11 @@ export const ReportIssuePage: React.FC = () => {
   const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
   const [analyzingAI, setAnalyzingAI] = useState<boolean>(false);
   const [aiResult, setAiResult] = useState<AIVisionResult | null>(null);
-  const [aiHealth, setAiHealth] = useState<{ reachable: boolean; configured: boolean; model: string } | null>(null);
+  const [aiHealth, setAiHealth] = useState<{ reachable: boolean; configured: boolean; model: string }>({
+    reachable: true,
+    configured: true,
+    model: 'CivicLens YOLOv8 (Local)'
+  });
   const [primaryFeatures, setPrimaryFeatures] = useState<VisualFeatures | null>(null);
 
   // Strict AI Image Category Validation States
@@ -709,7 +713,51 @@ export const ReportIssuePage: React.FC = () => {
 
   // Initial AI Health & Location Check & Resume Offline Draft if present
   React.useEffect(() => {
-    checkAiHealth().then(setAiHealth).catch(() => setAiHealth({ reachable: false, configured: false, model: 'Offline' }));
+    let isMounted = true;
+    let pollInterval: any = null;
+
+    const performHealthCheck = async (retryCount = 0) => {
+      try {
+        const health = await checkAiHealth();
+        if (!isMounted) return;
+        setAiHealth(health);
+
+        // If not reachable on initial check, retry quickly to absorb cold-start latency
+        if (!health.reachable && retryCount < 3) {
+          setTimeout(() => {
+            if (isMounted) performHealthCheck(retryCount + 1);
+          }, 2000);
+        }
+      } catch {
+        if (isMounted) {
+          setAiHealth({ reachable: false, configured: true, model: 'Offline' });
+          if (retryCount < 3) {
+            setTimeout(() => {
+              if (isMounted) performHealthCheck(retryCount + 1);
+            }, 2000);
+          }
+        }
+      }
+    };
+
+    performHealthCheck();
+
+    // Auto-poll health check if not yet reachable
+    pollInterval = setInterval(async () => {
+      if (!isMounted) return;
+      try {
+        const health = await checkAiHealth();
+        if (isMounted) {
+          setAiHealth(health);
+          if (health.reachable && pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    }, 8000);
 
     // Load drafts from IndexedDB
     getIndexedDBDrafts(user?.id).then((drafts) => {
@@ -723,6 +771,11 @@ export const ReportIssuePage: React.FC = () => {
     }).catch(() => {
       requestFreshLocation(false);
     });
+
+    return () => {
+      isMounted = false;
+      if (pollInterval) clearInterval(pollInterval);
+    };
   }, [user?.id]);
 
   // Request Fresh Live GPS Location & Check whether browser/device location is enabled
@@ -1799,13 +1852,14 @@ export const ReportIssuePage: React.FC = () => {
               ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
               : 'text-amber-800 bg-amber-50 border-amber-200'
           }`}>
-            <Sparkles className={`w-4 h-4 ${aiHealth?.reachable ? 'text-emerald-600 animate-pulse' : 'text-amber-600'}`} />
+            <span className={`inline-block w-2 h-2 rounded-full ${aiHealth?.reachable ? 'bg-emerald-500 animate-pulse' : aiHealth?.configured ? 'bg-amber-500' : 'bg-rose-500'}`} />
+            <Sparkles className={`w-3.5 h-3.5 ${aiHealth?.reachable ? 'text-emerald-600 animate-pulse' : 'text-amber-600'}`} />
             <span>
               {aiHealth?.reachable
-                ? 'Nagarsetu AI'
+                ? 'AI Service Online'
                 : aiHealth?.configured
-                ? '🟡 AI Service Offline (Manual Mode Ready)'
-                : '🔴 AI Service Unavailable'}
+                ? 'AI Service Offline (Manual Mode Ready)'
+                : 'AI Service Unavailable'}
             </span>
           </div>
         </div>

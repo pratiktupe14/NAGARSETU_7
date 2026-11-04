@@ -170,8 +170,14 @@ export async function computeImageHash(file: File): Promise<string> {
 export async function checkAiHealth(): Promise<{ configured: boolean; model: string; reachable: boolean; reply?: string; error?: string }> {
   try {
     const baseUrl = getApiUrl();
-    const endpoint = baseUrl ? `${baseUrl}/api/ai/health` : '/api/ai/health';
-    const res = await fetch(endpoint);
+    const endpoint = baseUrl ? `${baseUrl}/api/ai/health?_t=${Date.now()}` : `/api/ai/health?_t=${Date.now()}`;
+    const res = await fetch(endpoint, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
     if (res.ok) {
       const data = await res.json();
       const isConfigured = Boolean(data.configured ?? data.aiConfigured);

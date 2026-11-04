@@ -54,6 +54,9 @@ router.get('/health', async (req, res) => {
     localAiReachable = false;
   }
 
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   return res.status(200).json({
     status: 'ok',
     aiConfigured: true,
@@ -148,7 +151,10 @@ async function handlePhotoAnalysis(req, res) {
       severity: aiAnalysis.risk?.severity || aiAnalysis.severity || 'Medium'
     };
 
-    return res.status(200).json({
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  return res.status(200).json({
       success: true,
       road_condition: aiAnalysis.road_condition || null,
       pipe_condition: aiAnalysis.pipe_condition || null,

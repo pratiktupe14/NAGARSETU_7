@@ -178,8 +178,15 @@ def train_and_evaluate_drainage():
     for epoch in range(1, 26):
         model.train()
         running_loss = 0.0
+
+
+
         correct = 0
         total = 0
+
+
+
+
 
         for imgs, labels, _ in train_loader:
             optimizer.zero_grad()

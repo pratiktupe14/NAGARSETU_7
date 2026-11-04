@@ -16,7 +16,7 @@ export const LoginPage: React.FC = () => {
 
   const [selectedRole, setSelectedRole] = useState<UserRole>('citizen');
   const [identifier, setIdentifier] = useState('8788562103');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('8788562103');
   const [showPassword, setShowPassword] = useState(false);
   const [useOtp, setUseOtp] = useState(false);
   const [otpCode, setOtpCode] = useState('');
@@ -117,7 +117,7 @@ export const LoginPage: React.FC = () => {
       localStorage.removeItem('nagarsetu_user');
 
       // 2. Authenticate strictly using entered credentials (never pass client selectedRole to override)
-      await login(identifier, password);
+      await login(identifier.trim(), password.trim());
 
       // 3. Obtain verified server-side role from authenticated user record
       const currentUser = JSON.parse(sessionStorage.getItem('nagarsetu_user') || localStorage.getItem('nagarsetu_user') || '{}');
@@ -304,7 +304,7 @@ export const LoginPage: React.FC = () => {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
+                      placeholder={selectedRole === 'department_head' ? 'head@123' : selectedRole === 'service_staff' ? 'staff@123' : selectedRole === 'city_admin' ? 'admin@123' : '••••••••'}
                       className="w-full bg-white border border-gray-300 rounded-xl pl-9 pr-10 py-2.5 text-gray-900 focus:border-emerald-500 focus:ring-emerald-500"
                     />
                     <button

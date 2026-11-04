@@ -1,67 +1,17 @@
 const { query } = require('../config/db');
 const { notifyStatusChange } = require('./notificationService');
-
-/**
- * Determine the best eligible field staff member based on NagarSetu priority rules:
- * 1. Department match (strictly isolated)
- * 2. Staff with 0 active tasks
- * 3. Fair rotation among equally available staff (oldest last_assigned_at or id)
- * 4. If everyone has work: lowest active_task_count
- * 5. If tied: better performance metrics (SLA success rate, completed tasks, lower overdue)
- * 6. If still tied: oldest last_assigned_at / round-robin
- *
- * @param {Array} staffList - Array of staff objects with metrics
- * @param {string} [priority] - Complaint priority ('Low' | 'Medium' | 'High' | 'Critical')
- * @returns {Object|null} Selected staff member or null if none eligible
- */
-const CANONICAL_DEPARTMENTS = [
-  { id: 1, code: 'PWD', name: 'Public Works Department (PWD)', uuid: '8ed9f760-1314-427c-a515-c2a54d6df6d8' },
-  { id: 2, code: 'SAN', name: 'Sanitation & Waste Management', uuid: '9cabc1f2-fd10-48dd-a5cb-01d05197de22' },
-  { id: 3, code: 'WTR', name: 'Water Supply & Sewerage Board', uuid: 'ead370cc-459c-44f0-899f-8a97f0928beb' },
-  { id: 4, code: 'ELE', name: 'Electrical & Street Lighting', uuid: '31842723-23ac-490b-912b-9f6d9afbdfb3' },
-  { id: 5, code: 'TRF', name: 'Traffic Management Department', uuid: 'ae5e4d0c-996f-4d81-9528-d642664c93ae' },
-  { id: 6, code: 'MNT', name: 'Maintenance Department', uuid: '8ed9f760-1314-427c-a515-c2a54d6df6d8' },
-  { id: 7, code: 'DRN', name: 'Drainage & Sewage Department', uuid: 'ee73cb82-cc47-4333-b7d6-4491353c1354' }
-];
+const { resolveDepartmentByCodeSync } = require('./departmentService');
 
 function getCanonicalDepartment(val) {
   if (!val) return null;
-  const s = String(val).trim().toLowerCase();
-
-  for (const dept of CANONICAL_DEPARTMENTS) {
-    if (
-      String(dept.id) === s ||
-      dept.code.toLowerCase() === s ||
-      dept.uuid.toLowerCase() === s ||
-      s.includes(dept.uuid.toLowerCase())
-    ) {
-      return dept;
-    }
-  }
-
-  if (s === '1' || s.includes('pwd') || s.includes('public works') || s.includes('road') || s.includes('pothole') || s.includes('8ed9f760')) {
-    return CANONICAL_DEPARTMENTS[0];
-  }
-  if (s === '2' || s.includes('san') || s.includes('waste') || s.includes('garbage') || s.includes('clean') || s.includes('9cabc1f2')) {
-    return CANONICAL_DEPARTMENTS[1];
-  }
-  if (s === '3' || s.includes('wtr') || s.includes('water') || s.includes('pipeline') || s.includes('sewerage') || s.includes('ead370cc')) {
-    return CANONICAL_DEPARTMENTS[2];
-  }
-  if (s === '4' || s.includes('ele') || s.includes('electric') || s.includes('light') || s.includes('streetlight') || s.includes('31842723')) {
-    return CANONICAL_DEPARTMENTS[3];
-  }
-  if (s === '5' || s.includes('trf') || s.includes('traffic') || s.includes('signal') || s.includes('sign') || s.includes('ae5e4d0c')) {
-    return CANONICAL_DEPARTMENTS[4];
-  }
-  if (s === '6' || s.includes('mnt') || s.includes('maintenance') || s.includes('facility') || s.includes('park')) {
-    return CANONICAL_DEPARTMENTS[5];
-  }
-  if (s === '7' || s.includes('drn') || s.includes('drain') || s.includes('sewage') || s.includes('sewer') || s.includes('gutter') || s.includes('ee73cb82')) {
-    return CANONICAL_DEPARTMENTS[6];
-  }
-
-  return null;
+  const canonical = resolveDepartmentByCodeSync(val);
+  if (!canonical) return null;
+  return {
+    id: canonical.registry_id,
+    code: canonical.code,
+    name: canonical.name,
+    uuid: canonical.id
+  };
 }
 
 /**

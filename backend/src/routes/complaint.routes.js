@@ -10,7 +10,7 @@ const { query } = require('../config/db');
 const { resolveLocation, checkForDuplicates, calculateDistanceMeters, normalizeCategory } = require('../services/locationService');
 const { analyzeComplaintPhoto, validateCategoryMatch, evaluateCivicImageDecision } = require('../services/aiService');
 const { notifyStatusChange } = require('../services/notificationService');
-const { resolveDepartmentByCode, resolveDepartmentByCodeSync } = require('../services/departmentService');
+const { resolveDepartmentByCode, resolveDepartmentByCodeSync, resolveDepartmentForComplaint } = require('../services/departmentService');
 
 // No-cache middleware for dynamic complaint data
 router.use((req, res, next) => {
@@ -495,33 +495,17 @@ const submitComplaintHandler = async (req, res) => {
     const finalComplaintNumber = `NS-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
 
     // Authoritatively resolve canonical department via single canonical resolver
-    let resolvedDept = null;
-    const rawDeptInput = department_code || (department_id && String(department_id).length <= 4 ? String(department_id) : null) || department || department_name;
-
-    if (rawDeptInput) {
-      resolvedDept = await resolveDepartmentByCode(rawDeptInput);
-    } else if (department_id) {
-      resolvedDept = await resolveDepartmentByCode(department_id);
-    }
-
-    // Infer from category if not resolved
-    if (!resolvedDept && category) {
-      let deptCode = 'PWD';
-      const catLower = (category || '').toLowerCase();
-      if (catLower.includes('water') || catLower.includes('pipeline') || catLower.includes('leak')) deptCode = 'WTR';
-      else if (catLower.includes('garbage') || catLower.includes('waste') || catLower.includes('sanitat') || catLower.includes('clean')) deptCode = 'SAN';
-      else if (catLower.includes('drain') || catLower.includes('sewag') || catLower.includes('sewer') || catLower.includes('gutter')) deptCode = 'DRN';
-      else if (catLower.includes('street') || catLower.includes('electric') || catLower.includes('light')) deptCode = 'ELE';
-      else if (catLower.includes('traffic') || catLower.includes('signal') || catLower.includes('sign')) deptCode = 'TRF';
-      else if (catLower.includes('maintenance') || catLower.includes('park') || catLower.includes('facility')) deptCode = 'MNT';
-      else if (catLower.includes('pothole') || catLower.includes('road') || catLower.includes('bridge')) deptCode = 'PWD';
-
-      resolvedDept = await resolveDepartmentByCode(deptCode);
-    }
-
-    if (!resolvedDept) {
-      resolvedDept = await resolveDepartmentByCode('PWD');
-    }
+    const resolvedDept = resolveDepartmentForComplaint({
+      category,
+      title,
+      description,
+      department,
+      department_name,
+      department_code,
+      department_id,
+      ai_category: req.body?.ai_category,
+      ai_specific_issue: req.body?.ai_specific_issue
+    });
 
     const finalDeptCode = resolvedDept.code;
     const finalDeptName = resolvedDept.name;
@@ -771,7 +755,7 @@ const submitComplaintHandler = async (req, res) => {
           MNT: '71542723-23ac-490b-912b-9f6d9afbdfb7'
         };
         const canonicalResolvedDept = resolveDepartmentByCodeSync(String(finalDeptId)) || resolveDepartmentByCodeSync(String(department_id));
-        const supaDeptId = DEPT_UUID_MAP[String(finalDeptId)] || (canonicalResolvedDept ? canonicalResolvedDept.id : (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(department_id)) ? String(department_id) : '8ed9f760-1314-427c-a515-c2a54d6df6d8'));
+        const supaDeptId = (resolvedDept && resolvedDept.id) || DEPT_UUID_MAP[String(finalDeptId)] || (canonicalResolvedDept ? canonicalResolvedDept.id : '8ed9f760-1314-427c-a515-c2a54d6df6d8');
 
         let supaCitizenId = null;
         if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(citizenId))) {
@@ -1604,7 +1588,23 @@ router.get('/my', authenticateToken, async (req, res) => {
       }
     }
 
-    return res.json({ complaints: pgRows.map(c => normalizeComplaintPhotoUrls(c, req)) });
+    pgRows = pgRows.map(c => {
+      const authDept = resolveDepartmentForComplaint({
+        category: c.category,
+        title: c.title,
+        description: c.description,
+        department_id: c.department_id,
+        department_name: c.department_name
+      });
+      if (authDept) {
+        c.department_id = authDept.id;
+        c.department_code = authDept.code;
+        c.department_name = authDept.name;
+      }
+      return normalizeComplaintPhotoUrls(c, req);
+    });
+
+    return res.json({ complaints: pgRows });
   } catch (err) {
     console.error('Fetch my complaints error:', err);
     return res.status(500).json({ error: 'Failed to fetch complaints' });
@@ -1616,11 +1616,16 @@ router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const idParam = req.params.id;
     const sql = `
-      SELECT c.*, d.name as department_name,
+      SELECT c.*, d.name as department_name, d.code as department_code,
              u.name as citizen_name, u.mobile as citizen_mobile,
              f.rating, f.comment as feedback_comment, f.created_at as feedback_created_at
       FROM complaints c
-      LEFT JOIN departments d ON c.department_id = d.id
+      LEFT JOIN departments d ON (
+        c.department_id = d.id 
+        OR CAST(c.department_id AS TEXT) = CAST(d.id AS TEXT)
+        OR c.department_id = d.code
+        OR CAST(c.department_id AS TEXT) = CAST(d.registry_id AS TEXT)
+      )
       LEFT JOIN users u ON c.citizen_id = u.id
       LEFT JOIN feedback f ON f.complaint_id = c.id
       WHERE c.id = ? OR c.complaint_number = ? OR CAST(c.id AS TEXT) = ?
@@ -1630,6 +1635,20 @@ router.get('/:id', authenticateToken, async (req, res) => {
 
     if (!complaint) {
       return res.status(404).json({ error: 'Complaint not found' });
+    }
+
+    // Guarantee correct canonical department details in complaint payload
+    const authoritativeDept = resolveDepartmentForComplaint({
+      category: complaint.category,
+      title: complaint.title,
+      description: complaint.description,
+      department_id: complaint.department_id,
+      department_name: complaint.department_name
+    });
+    if (authoritativeDept) {
+      complaint.department_id = authoritativeDept.id;
+      complaint.department_code = authoritativeDept.code;
+      complaint.department_name = authoritativeDept.name;
     }
 
     const user = req.user;
