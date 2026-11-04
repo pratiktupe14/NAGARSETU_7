@@ -249,18 +249,47 @@ async function analyzeComplaintPhoto(fileInput, options = {}) {
       else if (ext === '.webp') mimeType = 'image/webp';
     }
   } else if (typeof fileInput === 'string') {
-    if (!fs.existsSync(fileInput)) {
+    const trimmedInput = fileInput.trim();
+    if (trimmedInput.startsWith('data:image/')) {
+      const commaIdx = trimmedInput.indexOf(',');
+      if (commaIdx !== -1) {
+        fileBuffer = Buffer.from(trimmedInput.slice(commaIdx + 1), 'base64');
+        const mimeMatch = trimmedInput.match(/^data:([^;]+);/);
+        if (mimeMatch) mimeType = mimeMatch[1];
+        originalName = 'upload.' + (mimeType.split('/')[1] || 'jpg');
+      }
+    } else {
+      let resolvedPath = trimmedInput;
+      if (resolvedPath.includes('/uploads/')) {
+        const sub = resolvedPath.slice(resolvedPath.indexOf('/uploads/') + 1);
+        const candidates = [
+          path.join(process.cwd(), sub),
+          path.join(process.cwd(), 'backend', sub),
+          path.join(__dirname, '../../', sub),
+          path.join(__dirname, '../', sub)
+        ];
+        for (const c of candidates) {
+          if (fs.existsSync(c)) {
+            resolvedPath = c;
+            break;
+          }
+        }
+      }
+      if (fs.existsSync(resolvedPath)) {
+        fileBuffer = fs.readFileSync(resolvedPath);
+        const ext = path.extname(resolvedPath).toLowerCase();
+        if (ext === '.png') mimeType = 'image/png';
+        if (ext === '.webp') mimeType = 'image/webp';
+        if (ext === '.avif') mimeType = 'image/avif';
+        originalName = path.basename(resolvedPath);
+      }
+    }
+    if (!fileBuffer) {
       const errObj = new Error(`Image file not found at ${fileInput}`);
       errObj.statusCode = 400;
       errObj.errorCode = 'INVALID_IMAGE';
       throw errObj;
     }
-    fileBuffer = fs.readFileSync(fileInput);
-    const ext = path.extname(fileInput).toLowerCase();
-    if (ext === '.png') mimeType = 'image/png';
-    if (ext === '.webp') mimeType = 'image/webp';
-    if (ext === '.avif') mimeType = 'image/avif';
-    originalName = path.basename(fileInput);
   }
 
   if (!fileBuffer || fileBuffer.length === 0) {
@@ -675,6 +704,9 @@ async function analyzeComplaintPhoto(fileInput, options = {}) {
       const deptId = comp.departmentId || CANONICAL_DEPT_IDS[deptCode] || 1;
       const confidence = Number(comp.confidenceScore || pythonResult.confidence || 0.85);
       const isRoadDefect = (comp.category === 'Roads' || pythonResult.primaryDetection?.class === 'Pothole');
+      const detClassLower = String(pythonResult.primaryDetection?.class || comp.issueType || '').toLowerCase();
+      const isPipeDefect = (comp.category === 'Water Supply' || comp.category === 'Water' || detClassLower.includes('pipe') || detClassLower.includes('leak'));
+      const isDrainDefect = (comp.category === 'Drainage' || detClassLower.includes('drain') || detClassLower.includes('gutter'));
 
       const risk = pythonResult.risk || {
         human_safety: 2,
@@ -709,6 +741,8 @@ async function analyzeComplaintPhoto(fileInput, options = {}) {
         success: true,
         analysis_domain: options.domain || pythonResult.domain || (comp.category === 'Water Supply' ? 'pipe' : comp.category === 'Drainage' ? 'drainage' : comp.category === 'Sanitation' ? 'waste' : 'road'),
         road_condition: isRoadDefect ? 'defective' : (roadCondition || 'non_road'),
+        pipe_condition: isPipeDefect ? (detClassLower.includes('broken') ? 'broken' : (detClassLower.includes('leak') ? 'leakage' : 'uncertain')) : (pythonResult.pipe_condition || null),
+        drain_condition: isDrainDefect ? (detClassLower.includes('block') ? 'blocked' : (detClassLower.includes('damag') ? 'damaged' : (detClassLower.includes('overflow') ? 'overflow' : 'uncertain'))) : (pythonResult.drain_condition || null),
         detected: true,
         detected_class: pythonResult.primaryDetection?.class || comp.issueType,
         aiStatus: pythonResult.aiStatus,
@@ -1091,10 +1125,15 @@ function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFea
     : (typeof aiResult.edge_density === 'number' ? aiResult.edge_density : (visualFeatures?.edgeDensity || 0));
 
   // Collect all detected classes across primary detection and detections array
-  const allDetectedClasses = [
+  const rawClasses = [
     detectedClass,
     ...(Array.isArray(aiResult.detections) ? aiResult.detections.map(d => String(d?.class || d?.label || '').toLowerCase()) : [])
   ].filter(Boolean);
+  const allDetectedClasses = Array.from(new Set([
+    ...rawClasses,
+    ...rawClasses.map(c => c.replace(/[_-]/g, ' ')),
+    ...rawClasses.map(c => c.replace(/[ -]/g, '_'))
+  ]));
 
   // --- CASE 3: NO_CIVIC_ISSUE ---
   // Normal, undamaged, clean civic infrastructure (clean undamaged road, normal dry road surface, clean functioning drain, undamaged water pipe, clean public space)
@@ -1116,9 +1155,9 @@ function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFea
   // --- CASE 1: VALID_CIVIC_ISSUE ---
   // AI confirms visible evidence of a civic issue with confidence >= 0.35
   const civicDefectKeywords = [
-    'pothole', 'road damage', 'crack', 'asphalt damage',
-    'water leakage', 'broken pipe', 'leak', 'pipe rupture', 'burst pipe',
-    'blocked drain', 'damaged drain', 'drain overflow', 'sewage', 'gutter',
+    'pothole', 'road damage', 'road_damage', 'crack', 'asphalt damage', 'asphalt_damage',
+    'water leakage', 'water_leakage', 'broken pipe', 'broken_pipe', 'leak', 'pipe rupture', 'pipe_rupture', 'burst pipe', 'burst_pipe',
+    'blocked drain', 'blocked_drain', 'damaged drain', 'damaged_drain', 'drain overflow', 'drain_overflow', 'sewage', 'gutter',
     'biodegradable', 'cardboard', 'glass', 'metal', 'paper', 'plastic', 'garbage', 'waste', 'trash', 'litter'
   ];
   const hasRecognizedDefect = detected && (

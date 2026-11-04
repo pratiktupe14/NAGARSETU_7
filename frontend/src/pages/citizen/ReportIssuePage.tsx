@@ -379,10 +379,15 @@ export function evaluateCivicImageDecisionFE(aiResult: any, selectedCategory?: s
     ? roadAnalysis.edge_density
     : (typeof aiResult?.edge_density === 'number' ? aiResult.edge_density : (visualFeatures?.edgeDensity || 0));
 
-  const allDetectedClasses = [
+  const rawClasses = [
     detectedClass,
     ...(Array.isArray(aiResult.detections) ? aiResult.detections.map((d: any) => String(d?.class || d?.label || '').toLowerCase()) : [])
   ].filter(Boolean);
+  const allDetectedClasses = Array.from(new Set([
+    ...rawClasses,
+    ...rawClasses.map((c) => c.replace(/[_-]/g, ' ')),
+    ...rawClasses.map((c) => c.replace(/[ -]/g, '_'))
+  ]));
 
   // --- CASE 3: NO_CIVIC_ISSUE ---
   // Normal, undamaged, clean civic infrastructure (clean undamaged road, normal dry road surface, clean functioning drain, undamaged water pipe, clean public space)
@@ -404,9 +409,9 @@ export function evaluateCivicImageDecisionFE(aiResult: any, selectedCategory?: s
   // --- CASE 1: VALID_CIVIC_ISSUE ---
   // AI confirms visible evidence of a civic issue with confidence >= 0.35
   const civicDefectKeywords = [
-    'pothole', 'road damage', 'crack', 'asphalt damage',
-    'water leakage', 'broken pipe', 'leak', 'pipe rupture', 'burst pipe',
-    'blocked drain', 'damaged drain', 'drain overflow', 'sewage', 'gutter',
+    'pothole', 'road damage', 'road_damage', 'crack', 'asphalt damage', 'asphalt_damage',
+    'water leakage', 'water_leakage', 'broken pipe', 'broken_pipe', 'leak', 'pipe rupture', 'pipe_rupture', 'burst pipe', 'burst_pipe',
+    'blocked drain', 'blocked_drain', 'damaged drain', 'damaged_drain', 'drain overflow', 'drain_overflow', 'sewage', 'gutter',
     'biodegradable', 'cardboard', 'glass', 'metal', 'paper', 'plastic', 'garbage', 'waste', 'trash', 'litter'
   ];
   const hasRecognizedDefect = detected && (
@@ -464,6 +469,16 @@ export function evaluateCivicImageDecisionFE(aiResult: any, selectedCategory?: s
     allowManualEntry: false,
     acceptedAsEvidence: false
   };
+}
+
+function mapToCivicCategory(catStr?: string | null): CivicCategory | null {
+  if (!catStr) return null;
+  const lower = catStr.toLowerCase();
+  if (lower.includes('water') || lower.includes('pipe') || lower.includes('leak')) return 'Water';
+  if (lower.includes('drain') || lower.includes('sewag') || lower.includes('gutter')) return 'Drainage';
+  if (lower.includes('sanitat') || lower.includes('waste') || lower.includes('garbage') || lower.includes('trash')) return 'Sanitation';
+  if (lower.includes('road') || lower.includes('pothole') || lower.includes('asphalt')) return 'Roads';
+  return null;
 }
 
 export const ReportIssuePage: React.FC = () => {
@@ -880,7 +895,7 @@ export const ReportIssuePage: React.FC = () => {
 
     // Resolve analysis domain corresponding to selected category
     let candidateDomain: string | undefined = undefined;
-    if (currentCategory === 'Water' || (!currentCategory && (filenameLower.includes('pipe') || filenameLower.includes('leak') || filenameLower.includes('water')))) {
+    if (currentCategory === 'Water' || (!currentCategory && (filenameLower.includes('pipe') || filenameLower.includes('leak') || filenameLower.includes('water') || filenameLower.includes('wtr')))) {
       candidateDomain = 'pipe';
       if (!currentCategory) {
         currentCategory = 'Water';
@@ -909,8 +924,8 @@ export const ReportIssuePage: React.FC = () => {
         setDepartment(normalizeDepartment('', 'Roads'));
         setHasSelectedCategory(true);
       }
-    } else if (!candidateDomain) {
-      candidateDomain = 'road';
+    } else {
+      candidateDomain = undefined;
     }
 
     try {
@@ -1013,6 +1028,15 @@ export const ReportIssuePage: React.FC = () => {
 
         // Apply analysis results to form if available
         if (analysisRes) {
+          if (!currentCategory && analysisRes.category) {
+            const normCat = mapToCivicCategory(analysisRes.category);
+            if (normCat) {
+              currentCategory = normCat;
+              setCategory(normCat);
+              setDepartment(normalizeDepartment('', normCat));
+              setHasSelectedCategory(true);
+            }
+          }
           setAiResult(analysisRes);
           if (analysisRes && analysisRes.is_available !== false && (analysisRes.confidence || 0) > 0) {
             if (!isManuallyEdited || !title) {

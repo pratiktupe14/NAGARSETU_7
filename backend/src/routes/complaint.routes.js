@@ -466,19 +466,55 @@ const submitComplaintHandler = async (req, res) => {
         );
 
         if (hasAiSignals) {
-          const decision = evaluateCivicImageDecision(aiPayload, category, req.body.visual_features);
-          if (req.body.decision_outcome === 'NO_CIVIC_ISSUE' || decision.outcome === 'NO_CIVIC_ISSUE') {
-            return res.status(400).json({
-              error: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
-              outcome: 'NO_CIVIC_ISSUE'
-            });
+          let decision = evaluateCivicImageDecision(aiPayload, category, req.body.visual_features);
+
+          // Server-Authoritative Evidence Re-validation:
+          // If metadata is incomplete, missing, or tentatively flagged as INVALID_IMAGE,
+          // revalidate the actual photo evidence authoritatively using analyzeComplaintPhoto.
+          const candidatePhotoUrl = req.body.photo_before_url || req.body.photo_front_url || req.body.photo_url || 
+            (Array.isArray(req.body.angle_photos) && req.body.angle_photos[0]?.url);
+
+          if ((!decision || decision.outcome === 'INVALID_IMAGE') && candidatePhotoUrl && candidatePhotoUrl !== '/uploads/civic-default.jpg') {
+            try {
+              const domainMap = {
+                'Water': 'pipe',
+                'Water Supply': 'pipe',
+                'Roads': 'road',
+                'Roads & Works': 'road',
+                'Drainage': 'drainage',
+                'Drainage & Sewage': 'drainage',
+                'Sanitation': 'waste',
+                'Waste Management': 'waste'
+              };
+              const targetDomain = domainMap[category] || null;
+              const reanalysis = await analyzeComplaintPhoto(candidatePhotoUrl, { domain: targetDomain });
+              if (reanalysis) {
+                const authoritativeDecision = evaluateCivicImageDecision(reanalysis, category, reanalysis.road_analysis);
+                decision = authoritativeDecision;
+                if (authoritativeDecision.outcome === 'VALID_CIVIC_ISSUE' || authoritativeDecision.outcome === 'CIVIC_ISSUE_UNCERTAIN') {
+                  ai_detected_class = reanalysis.detected_class || ai_detected_class;
+                  ai_confidence = reanalysis.confidence !== undefined ? reanalysis.confidence : ai_confidence;
+                  ai_status = reanalysis.ai_status || reanalysis.aiStatus || ai_status;
+                }
+              }
+            } catch (reErr) {
+              console.warn('Authoritative photo re-validation note:', reErr.message);
+            }
           }
-          if ((req.body.decision_outcome === 'INVALID_IMAGE' || decision.outcome === 'INVALID_IMAGE') &&
-              decision.outcome !== 'CIVIC_ISSUE_UNCERTAIN' && req.body.decision_outcome !== 'CIVIC_ISSUE_UNCERTAIN') {
-            return res.status(400).json({
-              error: 'The uploaded image is invalid.',
-              outcome: 'INVALID_IMAGE'
-            });
+
+          if (decision) {
+            if (decision.outcome === 'NO_CIVIC_ISSUE') {
+              return res.status(400).json({
+                error: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
+                outcome: 'NO_CIVIC_ISSUE'
+              });
+            }
+            if (decision.outcome === 'INVALID_IMAGE' && req.body.decision_outcome !== 'CIVIC_ISSUE_UNCERTAIN') {
+              return res.status(400).json({
+                error: 'The uploaded image is invalid.',
+                outcome: 'INVALID_IMAGE'
+              });
+            }
           }
         }
 

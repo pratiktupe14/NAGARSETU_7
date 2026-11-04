@@ -142,6 +142,9 @@ async function handlePhotoAnalysis(req, res) {
     return res.status(200).json({
       success: true,
       road_condition: aiAnalysis.road_condition || null,
+      pipe_condition: aiAnalysis.pipe_condition || null,
+      drain_condition: aiAnalysis.drain_condition || null,
+      decision_outcome: decision ? decision.outcome : null,
       detected: aiAnalysis.detected,
       detected_class: aiAnalysis.detected_class || aiAnalysis.ai_detected_class || null,
       aiStatus: aiAnalysis.aiStatus,
