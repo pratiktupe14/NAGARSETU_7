@@ -318,3 +318,4 @@ def train_civic_validator(epochs=12, batch_size=8, lr=3e-4):
 
 if __name__ == "__main__":
     train_civic_validator(epochs=10, batch_size=8, lr=3e-4)
+
