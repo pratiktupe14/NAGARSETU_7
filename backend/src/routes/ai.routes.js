@@ -129,15 +129,15 @@ async function handlePhotoAnalysis(req, res) {
     }
 
     const decision = evaluateCivicImageDecision(aiAnalysis, domain);
-    const receipt = createEvidenceValidationReceipt({
+    const receipt = typeof createEvidenceValidationReceipt === 'function' ? createEvidenceValidationReceipt({
       imageHash: aiAnalysis.image_hash || '',
-      outcome: decision.outcome,
+      outcome: decision ? decision.outcome : null,
       category: aiAnalysis.category,
       domain: aiAnalysis.analysis_domain || domain,
       confidence: aiAnalysis.confidence,
       detectedClass: aiAnalysis.detected_class || aiAnalysis.ai_detected_class,
       analysisId: aiAnalysis.analysis_id
-    });
+    }) : null;
 
     const riskObject = {
       human_safety: aiAnalysis.risk?.human_safety ?? aiAnalysis.human_safety ?? 0,
