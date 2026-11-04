@@ -537,7 +537,7 @@ def run_yolo_detection(
                     })
     except Exception as e:
         print(f"[AI] Inference error on {model_name}: {e}")
-        raise e
+        return []
 
     return detections
 

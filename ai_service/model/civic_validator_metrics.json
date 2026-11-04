@@ -1,10 +1,134 @@
 {
   "model_name": "CivicValidator (MobileNetV3-Small)",
-  "epochs": 10,
-  "train_samples": 242,
+  "training_completed_percentage": "100%",
+  "epochs_planned": 16,
+  "epochs_completed": 16,
+  "train_samples": 244,
   "val_samples": 44,
-  "best_val_accuracy": 0.9091,
-  "training_time_seconds": 66.2,
+  "total_images_used": 288,
+  "best_val_accuracy": 0.9545,
+  "held_out_test_accuracy": 0.8182,
+  "false_accepts": 2,
+  "false_rejects": 0,
+  "macro_precision": 0.8889,
+  "macro_recall": 0.7667,
+  "training_time_seconds": 24.5,
+  "held_out_evaluation": {
+    "total_held_out": 11,
+    "correct": 9,
+    "accuracy": 0.8182,
+    "false_accepts": 2,
+    "false_rejects": 0,
+    "macro_precision": 0.8889,
+    "macro_recall": 0.7667,
+    "class_stats": {
+      "0": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 1
+      },
+      "1": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 1
+      },
+      "2": {
+        "tp": 4,
+        "fp": 2,
+        "fn": 0
+      }
+    },
+    "details": [
+      {
+        "name": "GENUINE_CIVIC_ISSUE (Road Pothole)",
+        "path": "D:\\NAGARSETU\\road\\Pothole_01.jpg",
+        "expected": "GENUINE_CIVIC_ISSUE",
+        "predicted": "GENUINE_CIVIC_ISSUE",
+        "confidence": 0.8138,
+        "passed": true
+      },
+      {
+        "name": "GENUINE_CIVIC_ISSUE (Damaged Drain)",
+        "path": "D:\\NAGARSETU\\drainage images\\images (1).jpg",
+        "expected": "GENUINE_CIVIC_ISSUE",
+        "predicted": "GENUINE_CIVIC_ISSUE",
+        "confidence": 0.7029,
+        "passed": true
+      },
+      {
+        "name": "GENUINE_CIVIC_ISSUE (Pipe Leak)",
+        "path": "D:\\NAGARSETU\\leaking pipes\\water-leaking-hole-industrial-hose-260nw-2609724773.jpg",
+        "expected": "GENUINE_CIVIC_ISSUE",
+        "predicted": "GENUINE_CIVIC_ISSUE",
+        "confidence": 0.9834,
+        "passed": true
+      },
+      {
+        "name": "GENUINE_CIVIC_ISSUE (Garbage Accumulation)",
+        "path": "D:\\NAGARSETU\\garbage waste\\images.jpg",
+        "expected": "GENUINE_CIVIC_ISSUE",
+        "predicted": "GENUINE_CIVIC_ISSUE",
+        "confidence": 0.9998,
+        "passed": true
+      },
+      {
+        "name": "CIVIC_INFRASTRUCTURE_NO_ISSUE (Clean Road)",
+        "path": "D:\\NAGARSETU\\road\\16tvsbg03-City-17TVTV_ROAD.jpg.jpg",
+        "expected": "CIVIC_INFRASTRUCTURE_NO_ISSUE",
+        "predicted": "GENUINE_CIVIC_ISSUE",
+        "confidence": 0.9997,
+        "passed": false
+      },
+      {
+        "name": "CIVIC_INFRASTRUCTURE_NO_ISSUE (Normal Drain)",
+        "path": "D:\\NAGARSETU\\drainage images\\images (10).jpg",
+        "expected": "CIVIC_INFRASTRUCTURE_NO_ISSUE",
+        "predicted": "CIVIC_INFRASTRUCTURE_NO_ISSUE",
+        "confidence": 0.9757,
+        "passed": true
+      },
+      {
+        "name": "NON_CIVIC_IMAGE (Cat Animal)",
+        "path": "D:\\NAGARSETU\\NAGARSETU 3.1\\ai_service\\tests\\fixtures\\test_animal_cat.jpg",
+        "expected": "NON_CIVIC_IMAGE",
+        "predicted": "GENUINE_CIVIC_ISSUE",
+        "confidence": 0.6723,
+        "passed": false
+      },
+      {
+        "name": "NON_CIVIC_IMAGE (Vehicle)",
+        "path": "D:\\NAGARSETU\\NAGARSETU 3.1\\ai_service\\tests\\fixtures\\test_unrelated_vehicle.jpg",
+        "expected": "NON_CIVIC_IMAGE",
+        "predicted": "NON_CIVIC_IMAGE",
+        "confidence": 0.9469,
+        "passed": true
+      },
+      {
+        "name": "NON_CIVIC_IMAGE (Random Household 1)",
+        "path": "D:\\NAGARSETU\\random images\\WhatsApp Image 2026-11-04 at 5.40.49 AM (1).jpeg",
+        "expected": "NON_CIVIC_IMAGE",
+        "predicted": "NON_CIVIC_IMAGE",
+        "confidence": 0.9985,
+        "passed": true
+      },
+      {
+        "name": "NON_CIVIC_IMAGE (Random Household 2)",
+        "path": "D:\\NAGARSETU\\random images\\WhatsApp Image 2026-11-04 at 5.46.41 AM (1).jpeg",
+        "expected": "NON_CIVIC_IMAGE",
+        "predicted": "NON_CIVIC_IMAGE",
+        "confidence": 0.9994,
+        "passed": true
+      },
+      {
+        "name": "NON_CIVIC_IMAGE (Random Household 3)",
+        "path": "D:\\NAGARSETU\\random images\\WhatsApp Image 2026-11-04 at 5.47.10 AM.jpeg",
+        "expected": "NON_CIVIC_IMAGE",
+        "predicted": "NON_CIVIC_IMAGE",
+        "confidence": 0.8545,
+        "passed": true
+      }
+    ]
+  },
   "classes": {
     "0": "NON_CIVIC_IMAGE",
     "1": "CIVIC_INFRASTRUCTURE_NO_ISSUE",

@@ -36,16 +36,27 @@ def compute_surface_metrics(pil_img: Image.Image) -> Dict[str, Any]:
             "uniformity": 0.0
         }
 
-    # Normalize to RGB numpy array
-    rgb = np.array(pil_img.convert("RGB"))
+    # Normalize to RGB numpy array, downsample if large to optimize memory
+    if max(pil_img.size) > 512:
+        img_copy = pil_img.copy()
+        img_copy.thumbnail((512, 512), Image.Resampling.BILINEAR)
+        rgb = np.array(img_copy.convert("RGB"))
+    else:
+        rgb = np.array(pil_img.convert("RGB"))
     height, width, _ = rgb.shape
     total_pixels = float(height * width) if (height > 0 and width > 0) else 1.0
 
     if cv2 is not None:
-        bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-        gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
-        hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
-        laplacian_var = float(cv2.Laplacian(gray, cv2.CV_64F).var())
+        try:
+            bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+            gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+            hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
+            laplacian_var = float(cv2.Laplacian(gray, cv2.CV_32F).var())
+        except Exception:
+            gray = np.dot(rgb[..., :3], [0.2989, 0.5870, 0.1140]).astype(np.uint8)
+            gy, gx = np.gradient(gray.astype(float))
+            laplacian_var = float(np.var(gx) + np.var(gy))
+            hsv = np.zeros_like(rgb)
     else:
         # Fallback without OpenCV
         gray = np.dot(rgb[..., :3], [0.2989, 0.5870, 0.1140]).astype(np.uint8)
