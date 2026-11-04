@@ -582,6 +582,7 @@ export const ReportIssuePage: React.FC = () => {
   // Form Field States
   const [forceManualReport, setForceManualReport] = useState<boolean>(false);
   const [category, setCategory] = useState<CivicCategory | null>(null);
+  const [selectedDomain, setSelectedDomain] = useState<CivicCategory | null>(null);
   const [hasSelectedCategory, setHasSelectedCategory] = useState<boolean>(false);
   const aiRequestIdRef = React.useRef<number>(0);
   const [title, setTitle] = useState<string>('');
@@ -806,44 +807,134 @@ export const ReportIssuePage: React.FC = () => {
     }
   };
 
-  // Category Switch Handler with Automatic Revalidation of Previously Attached Images
+  // Issue Type Selection Handler (Routes to specialized AI domain without premature form auto-fill)
+  const handleIssueTypeSelect = async (newDomainCat: CivicCategory) => {
+    if (!newDomainCat) return;
+    setSelectedDomain(newDomainCat);
+    setHasSelectedCategory(true);
+
+    const hasAnyImage = Boolean(
+      angleSlots.front.file || angleSlots.left.file || angleSlots.right.file || angleSlots.closeup.file
+    );
+
+    // If NO photo is attached yet, all complaint-detail fields MUST remain completely blank!
+    if (!hasAnyImage) {
+      return;
+    }
+
+    // If photos ARE already attached and domain changed:
+    // Invalidate stale domain-specific AI result and clear stale AI-generated fields
+    setAiResult(null);
+    if (!isManuallyEdited) {
+      setTitle('');
+      setDescription('');
+      setDepartment('');
+      setCategory(null);
+    }
+
+    const domainMap: Record<string, string> = {
+      'Water': 'pipe',
+      'Drainage': 'drainage',
+      'Sanitation': 'waste',
+      'Roads': 'road'
+    };
+    const targetDomain = domainMap[newDomainCat] || 'road';
+
+    setSlotReceipts((prev) => {
+      const next = { ...prev };
+      for (const ang of ['front', 'left', 'right', 'closeup'] as ComplaintAngle[]) {
+        if (next[ang] && next[ang].domain && next[ang].domain !== targetDomain) {
+          next[ang] = null;
+        }
+      }
+      return next;
+    });
+
+    const anglesToCheck = (['front', 'left', 'right', 'closeup'] as ComplaintAngle[]).filter(
+      (a) => Boolean(angleSlots[a]?.file)
+    );
+
+    for (const angle of anglesToCheck) {
+      const slotFile = angleSlots[angle]?.file;
+      if (!slotFile) continue;
+
+      try {
+        const checkRes = await detectCivicIssue(slotFile, false, targetDomain);
+        const checkValidation = validateCategoryMatchFE(newDomainCat, checkRes);
+
+        if (checkValidation.outcome === 'UNSUPPORTED') {
+          setAngleSlots((prev) => ({
+            ...prev,
+            [angle]: { file: null, previewUrl: '' }
+          }));
+          setSlotValidationResults((prev) => ({
+            ...prev,
+            [angle]: null
+          }));
+          if (angle === 'front') {
+            setSelectedPhotoFile(null);
+            setPhotoPreviewUrl('');
+            setPrimaryFeatures(null);
+          }
+          toast.warning(
+            `Unsupported Image in ${angle.toUpperCase()} view removed — does not match ${newDomainCat}.`
+          );
+          setUnsupportedAlert({
+            angle,
+            message: 'Unsupported Image — This photograph does not match the selected issue category. Please upload a relevant image or select the correct category.',
+            suggestedCategory: checkValidation.suggestedCategory,
+            detectedKey: checkValidation.detectedCategory
+          });
+        } else {
+          setSlotValidationResults((prev) => ({
+            ...prev,
+            [angle]: checkValidation
+          }));
+          if (angle === 'front' && checkRes) {
+            const dec = (checkRes.decision && checkRes.decision.outcome)
+              ? checkRes.decision
+              : evaluateCivicImageDecisionFE(checkRes, newDomainCat);
+
+            if (dec.outcome === 'VALID_CIVIC_ISSUE') {
+              setAiResult(checkRes);
+              setCategory(newDomainCat);
+              setDepartment(normalizeDepartment(checkRes.department || '', newDomainCat));
+              if (!isManuallyEdited || !title) {
+                if (checkRes.title) setTitle(checkRes.title);
+              }
+              if (!isManuallyEdited || !description) {
+                if (checkRes.description) {
+                  setDescription(buildConsolidatedCivicDescription(checkRes.description, checkRes, angleSlots, newDomainCat));
+                }
+              }
+              if (!isManuallyEdited || !priority) {
+                if (checkRes.priority && (checkRes.priority as any) !== 'None') {
+                  setPriority(checkRes.priority as PriorityLevel);
+                }
+              }
+            } else if (dec.outcome === 'CIVIC_ISSUE_UNCERTAIN') {
+              setAiResult(checkRes);
+              setCategory(newDomainCat);
+              setForceManualReport(true);
+              setIsManuallyEdited(true);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn(`Category revalidation error on ${angle}:`, err);
+      }
+    }
+  };
+
+  // Category Switch Handler for manual category dropdown change
   const handleCategoryChange = async (newCat: CivicCategory) => {
     if (!newCat) return;
     setCategory(newCat);
+    setSelectedDomain(newCat);
     setHasSelectedCategory(true);
     const newDept = normalizeDepartment('', newCat);
     setDepartment(newDept);
     setIsManuallyEdited(true);
-
-    if (newCat === 'Water') {
-      setTitle('Water Pipe Leakage / Supply Issue');
-      setPriority('High');
-    } else if (newCat === 'Drainage') {
-      setTitle('Drainage Blockage / Overflow Issue');
-      setPriority('High');
-    } else if (newCat === 'Sanitation') {
-      setTitle('Garbage Accumulation / Waste Issue');
-      setPriority('Medium');
-    } else if (newCat === 'Roads') {
-      setTitle('Road Surface Damage / Pothole');
-      setPriority('Medium');
-    }
-
-    // Synchronize description to newly selected category if previous was auto-generated or mismatched
-    setDescription((prev) => buildConsolidatedCivicDescription(prev, aiResult, angleSlots, newCat));
-
-    // Update existing AI result domain and conditions rather than clearing completely
-    setAiResult((prev: any) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        category: newCat,
-        department: newDept,
-        pipe_condition: newCat === 'Water' ? (prev.pipe_condition || 'uncertain') : prev.pipe_condition,
-        drain_condition: newCat === 'Drainage' ? (prev.drain_condition || 'uncertain') : prev.drain_condition,
-        road_condition: newCat === 'Roads' ? (prev.road_condition || 'uncertain') : prev.road_condition
-      };
-    });
 
     const domainMap: Record<string, string> = {
       'Water': 'pipe',
@@ -925,42 +1016,27 @@ export const ReportIssuePage: React.FC = () => {
     setValidationStatusMsg('Validating civic issue category with AI...');
 
     const filenameLower = (file.name || '').toLowerCase();
-    let currentCategory = category;
+    const activeCategory = selectedDomain || category;
+    const domainMap: Record<string, string> = {
+      'Water': 'pipe',
+      'Drainage': 'drainage',
+      'Sanitation': 'waste',
+      'Roads': 'road'
+    };
 
-    // Resolve analysis domain corresponding to selected category
-    let candidateDomain: string | undefined = undefined;
-    if (currentCategory === 'Water' || (!currentCategory && (filenameLower.includes('pipe') || filenameLower.includes('leak') || filenameLower.includes('water') || filenameLower.includes('wtr')))) {
-      candidateDomain = 'pipe';
-      if (!currentCategory) {
-        currentCategory = 'Water';
-        setCategory('Water');
-        setDepartment(normalizeDepartment('', 'Water'));
-        setHasSelectedCategory(true);
+    let candidateDomain: string | undefined = activeCategory ? domainMap[activeCategory] : undefined;
+    if (!candidateDomain) {
+      if (filenameLower.includes('pipe') || filenameLower.includes('leak') || filenameLower.includes('water') || filenameLower.includes('wtr')) {
+        candidateDomain = 'pipe';
+      } else if (filenameLower.includes('drain') || filenameLower.includes('sewag') || filenameLower.includes('gutter')) {
+        candidateDomain = 'drainage';
+      } else if (filenameLower.includes('garbage') || filenameLower.includes('waste') || filenameLower.includes('trash')) {
+        candidateDomain = 'waste';
+      } else if (filenameLower.includes('road') || filenameLower.includes('pothole')) {
+        candidateDomain = 'road';
       }
-    } else if (currentCategory === 'Drainage' || (!currentCategory && (filenameLower.includes('drain') || filenameLower.includes('sewag') || filenameLower.includes('gutter')))) {
-      candidateDomain = 'drainage';
-      if (!currentCategory) {
-        currentCategory = 'Drainage';
-        setDepartment(normalizeDepartment('', 'Drainage'));
-        setHasSelectedCategory(true);
-      }
-    } else if (currentCategory === 'Sanitation' || (!currentCategory && (filenameLower.includes('garbage') || filenameLower.includes('waste') || filenameLower.includes('trash')))) {
-      candidateDomain = 'waste';
-      if (!currentCategory) {
-        currentCategory = 'Sanitation';
-        setDepartment(normalizeDepartment('', 'Sanitation'));
-        setHasSelectedCategory(true);
-      }
-    } else if (currentCategory === 'Roads' || (!currentCategory && (filenameLower.includes('road') || filenameLower.includes('pothole')))) {
-      candidateDomain = 'road';
-      if (!currentCategory) {
-        currentCategory = 'Roads';
-        setDepartment(normalizeDepartment('', 'Roads'));
-        setHasSelectedCategory(true);
-      }
-    } else {
-      candidateDomain = undefined;
     }
+    let currentCategory = activeCategory;
 
     try {
       // 1. Analyze image BEFORE adding to accepted evidence list
@@ -1052,6 +1128,7 @@ export const ReportIssuePage: React.FC = () => {
       }));
 
       if (decision.outcome === 'CIVIC_ISSUE_UNCERTAIN') {
+        setForceManualReport(true);
         setIsManuallyEdited(true);
         toast.info('Civic issue detected but classification is uncertain. Manual details enabled for municipal verification.');
       } else {
@@ -1072,15 +1149,16 @@ export const ReportIssuePage: React.FC = () => {
           console.warn('Local visual feature extraction skipped:', e);
         }
 
-        // Apply analysis results to form if available
-        if (analysisRes) {
-          if (!currentCategory && analysisRes.category) {
-            const normCat = mapToCivicCategory(analysisRes.category);
-            if (normCat) {
-              currentCategory = normCat;
-              setCategory(normCat);
-              setDepartment(normalizeDepartment('', normCat));
-              setHasSelectedCategory(true);
+        // Apply analysis results to form ONLY for VALID_CIVIC_ISSUE
+        if (decision.outcome === 'VALID_CIVIC_ISSUE' && analysisRes) {
+          const recognizedCat = mapToCivicCategory(analysisRes.category) || selectedDomain || currentCategory;
+          if (recognizedCat) {
+            currentCategory = recognizedCat;
+            setCategory(recognizedCat);
+            setSelectedDomain(recognizedCat);
+            setHasSelectedCategory(true);
+            if (!isManuallyEdited || !department) {
+              setDepartment(normalizeDepartment(analysisRes.department || '', recognizedCat));
             }
           }
           setAiResult(analysisRes);
@@ -1091,16 +1169,27 @@ export const ReportIssuePage: React.FC = () => {
             if (!isManuallyEdited || !description) {
               if (analysisRes.description) {
                 const nextSlots = { ...angleSlots, [angle]: { file, previewUrl: url } };
-                const consolidated = buildConsolidatedCivicDescription(analysisRes.description, analysisRes, nextSlots, currentCategory);
+                const consolidated = buildConsolidatedCivicDescription(analysisRes.description, analysisRes, nextSlots, currentCategory || undefined);
                 setDescription(consolidated);
               }
             }
             if (!isManuallyEdited || !priority) {
-              if (analysisRes.priority) setPriority(analysisRes.priority as PriorityLevel);
+              if (analysisRes.priority && analysisRes.priority !== 'None') {
+                setPriority(analysisRes.priority as PriorityLevel);
+              }
             }
             if (!isManuallyEdited || !department) {
               if (analysisRes.department) setDepartment(normalizeDepartment(analysisRes.department, analysisRes.category));
             }
+          }
+        } else if (decision.outcome === 'CIVIC_ISSUE_UNCERTAIN') {
+          // Manual entry unlocked: store aiResult but do NOT auto-fill title, description or priority
+          if (analysisRes) {
+            setAiResult(analysisRes);
+          }
+          if (selectedDomain && !category) {
+            setCategory(selectedDomain);
+            setDepartment(normalizeDepartment('', selectedDomain));
           }
         }
 
@@ -1156,11 +1245,33 @@ export const ReportIssuePage: React.FC = () => {
     setAngleSlots(nextSlots);
     setSlotDecisions((prev) => ({ ...prev, [angle]: null }));
     setSlotReceipts((prev) => ({ ...prev, [angle]: null }));
-    if (angle === 'front') {
+    setSlotValidationResults((prev) => ({ ...prev, [angle]: null }));
+
+    const remainingPhotos = (['front', 'left', 'right', 'closeup'] as ComplaintAngle[]).filter(
+      (a) => Boolean(nextSlots[a]?.file)
+    );
+
+    if (remainingPhotos.length === 0) {
+      // All photos removed — reset all AI-dependent and photo-dependent fields
       setSelectedPhotoFile(null);
       setPhotoPreviewUrl('');
       setPrimaryFeatures(null);
       setAiResult(null);
+      setSlotDecisions({ front: null, left: null, right: null, closeup: null });
+      setSlotReceipts({ front: null, left: null, right: null, closeup: null });
+      setSlotValidationResults({ front: null, left: null, right: null, closeup: null });
+      if (!isManuallyEdited) {
+        setTitle('');
+        setDescription('');
+        setCategory(null);
+        setDepartment('');
+      }
+    } else if (angle === 'front') {
+      const nextAngle = remainingPhotos[0];
+      const nextSlot = nextSlots[nextAngle];
+      setSelectedPhotoFile(nextSlot.file);
+      setPhotoPreviewUrl(nextSlot.previewUrl);
+      setPrimaryFeatures(null);
     } else if (!isManuallyEdited && aiResult) {
       setDescription((prev) => buildConsolidatedCivicDescription(aiResult.description || prev, aiResult, nextSlots));
     }
@@ -1905,13 +2016,13 @@ export const ReportIssuePage: React.FC = () => {
                         { id: 'Drainage', domain: 'drainage', icon: '🚰', label: 'Drainage', desc: 'Block / Overflow' },
                         { id: 'Sanitation', domain: 'waste', icon: '🗑️', label: 'Sanitation', desc: 'Garbage / Waste' },
                       ].map((item) => {
-                        const isSelected = category === item.id;
+                        const isSelected = (selectedDomain || category) === item.id;
                         return (
                           <button
                             key={item.id}
                             type="button"
                             onClick={() => {
-                              handleCategoryChange(item.id as CivicCategory);
+                              handleIssueTypeSelect(item.id as CivicCategory);
                             }}
                             className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
                               isSelected
@@ -2763,6 +2874,7 @@ export const ReportIssuePage: React.FC = () => {
                     }}
                     className="w-full bg-white border border-gray-300 rounded-xl p-2.5 font-bold text-gray-900 focus:border-emerald-500 min-h-[44px]"
                   >
+                    {!department && <option value="" disabled>Select Department...</option>}
                     <option value="Public Works Department">{translateDepartment('Public Works Department')}</option>
                     <option value="Sanitation & Waste Management">{translateDepartment('Sanitation & Waste Management')}</option>
                     <option value="Water Supply & Sewerage Board">{translateDepartment('Water Supply & Sewerage Board')}</option>
