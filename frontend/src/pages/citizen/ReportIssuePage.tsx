@@ -345,6 +345,24 @@ export interface CivicImageDecision {
 }
 
 export function evaluateCivicImageDecisionFE(aiResult: any, selectedCategory?: string | null, visualFeatures?: any): CivicImageDecision {
+  if (aiResult && (aiResult.decision_outcome || aiResult.outcome)) {
+    const decOutcome = aiResult.decision_outcome || aiResult.outcome;
+    let defMsg = 'Civic issue verified and accepted.';
+    if (decOutcome === 'INVALID_IMAGE') defMsg = 'This is not a civic issue. Please upload a valid civic image.';
+    else if (decOutcome === 'NO_CIVIC_ISSUE') defMsg = 'No civic issue found. Please upload an image showing a genuine civic problem.';
+    else if (decOutcome === 'CIVIC_ISSUE_UNCERTAIN') defMsg = 'Civic issue detected but classification is uncertain. Manual details enabled for municipal verification.';
+
+    return {
+      outcome: decOutcome,
+      message: aiResult.decision_message || aiResult.message || defMsg,
+      detectedIssue: aiResult.detected_class || aiResult.issue_type || aiResult.title || 'Civic Issue',
+      confidence: Number(aiResult.confidence || 0),
+      category: aiResult.category,
+      allowManualEntry: aiResult.allowManualEntry !== undefined ? aiResult.allowManualEntry : (aiResult.allow_manual !== undefined ? aiResult.allow_manual : (decOutcome === 'CIVIC_ISSUE_UNCERTAIN')),
+      acceptedAsEvidence: aiResult.acceptedAsEvidence !== undefined ? aiResult.acceptedAsEvidence : (aiResult.accepted_as_evidence !== undefined ? aiResult.accepted_as_evidence : (decOutcome === 'VALID_CIVIC_ISSUE' || decOutcome === 'CIVIC_ISSUE_UNCERTAIN'))
+    };
+  }
+
   if (!aiResult) {
     if (visualFeatures && visualFeatures.edgeDensity > 0.08 && visualFeatures.contrast > 25) {
       return {
@@ -356,7 +374,7 @@ export function evaluateCivicImageDecisionFE(aiResult: any, selectedCategory?: s
     }
     return {
       outcome: 'INVALID_IMAGE',
-      message: 'The uploaded image is invalid.',
+      message: 'This is not a civic issue. Please upload a valid civic image.',
       allowManualEntry: false,
       acceptedAsEvidence: false
     };
@@ -400,7 +418,7 @@ export function evaluateCivicImageDecisionFE(aiResult: any, selectedCategory?: s
   if (isCleanRoad || isNormalDrain || isNormalPipe || isNormalGeneral || isCleanInfrastructure) {
     return {
       outcome: 'NO_CIVIC_ISSUE',
-      message: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
+      message: 'No civic issue found. Please upload an image showing a genuine civic problem.',
       allowManualEntry: false,
       acceptedAsEvidence: false
     };
@@ -465,7 +483,7 @@ export function evaluateCivicImageDecisionFE(aiResult: any, selectedCategory?: s
   // --- CASE 4: INVALID IMAGE (NON-CIVIC SUBJECT) ---
   return {
     outcome: 'INVALID_IMAGE',
-    message: 'The uploaded image is invalid.',
+    message: 'This is not a civic issue. Please upload a valid civic image.',
     allowManualEntry: false,
     acceptedAsEvidence: false
   };
@@ -983,11 +1001,11 @@ export const ReportIssuePage: React.FC = () => {
         setUnsupportedAlert({
           angle,
           title: 'No Civic Issue Found',
-          message: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
+          message: 'No civic issue found. Please upload an image showing a genuine civic problem.',
           suggestedCategory: undefined,
           detectedKey: null
         });
-        toast.error('No civic issue found. The uploaded image does not show any visible damage or maintenance issue.');
+        toast.error('No civic issue found. Please upload an image showing a genuine civic problem.');
         return; // REJECT! Image is NOT accepted as evidence, NOT added to angleSlots.
       }
 
@@ -998,11 +1016,11 @@ export const ReportIssuePage: React.FC = () => {
         setUnsupportedAlert({
           angle,
           title: 'Invalid Image',
-          message: 'The uploaded image is invalid.',
+          message: 'This is not a civic issue. Please upload a valid civic image.',
           suggestedCategory: undefined,
           detectedKey: null
         });
-        toast.error('The uploaded image is invalid.');
+        toast.error('This is not a civic issue. Please upload a valid civic image.');
         return; // REJECT! Image is NOT accepted as evidence, NOT added to angleSlots.
       }
 

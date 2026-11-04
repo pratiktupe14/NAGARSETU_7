@@ -1,0 +1,13 @@
+{
+  "model_name": "CivicValidator (MobileNetV3-Small)",
+  "epochs": 10,
+  "train_samples": 242,
+  "val_samples": 44,
+  "best_val_accuracy": 0.9091,
+  "training_time_seconds": 66.2,
+  "classes": {
+    "0": "NON_CIVIC_IMAGE",
+    "1": "CIVIC_INFRASTRUCTURE_NO_ISSUE",
+    "2": "GENUINE_CIVIC_ISSUE"
+  }
+}

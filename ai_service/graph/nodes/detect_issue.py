@@ -16,7 +16,18 @@ def detect_issue_node(state: CivicVisionState) -> Dict[str, Any]:
     Otherwise runs both models safely and collects detections.
     """
     pil_image = state.get("pil_image")
-    domain = (state.get("domain") or "").strip().lower()
+    raw_domain = (state.get("domain") or "").strip().lower()
+    if raw_domain.startswith("road") or raw_domain.startswith("pothole"):
+        domain = "road"
+    elif raw_domain.startswith("waste") or raw_domain.startswith("garbag") or raw_domain.startswith("sanitat"):
+        domain = "waste"
+    elif raw_domain.startswith("pipe") or raw_domain.startswith("water") or "leak" in raw_domain:
+        domain = "pipe"
+    elif raw_domain.startswith("drain") or raw_domain.startswith("sewag") or "gutter" in raw_domain or "culvert" in raw_domain:
+        domain = "drainage"
+    else:
+        domain = raw_domain
+
     errors = list(state.get("errors") or [])
     warnings = list(state.get("warnings") or [])
 

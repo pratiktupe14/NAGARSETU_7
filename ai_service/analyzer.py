@@ -1,7 +1,10 @@
+import io
 import uuid
 import hashlib
 from typing import Dict, Any, Optional
+from PIL import Image
 from ai_service.graph.workflow import run_civic_vision_pipeline
+from ai_service.model_manager import evaluate_civic_image_gate
 
 
 def analyze_complaint_image(
@@ -10,12 +13,20 @@ def analyze_complaint_image(
     domain: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Analyzes complaint image using the compiled LangGraph YOLOv8 agent system.
+    Analyzes complaint image using the compiled LangGraph YOLOv8 agent system
+    and authoritative 4-outcome Civic Image Decision Gate.
     Completely removes Gemini Vision. Uses 100% local computer-vision inference.
     Returns both the standard rich LangGraph agent result and backward-compatible fields.
     """
     analysis_id = str(uuid.uuid4())
     image_hash = hashlib.sha256(image_bytes).hexdigest()
+
+    # Pre-parse PIL image for validation gate
+    pil_img = None
+    try:
+        pil_img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    except Exception:
+        pass
 
     result = run_civic_vision_pipeline(
         image_bytes=image_bytes,
@@ -31,6 +42,110 @@ def analyze_complaint_image(
     primary = result.get("primaryDetection")
     detections = result.get("detections") or []
     detected_features = [d.get("class") for d in detections if d.get("class")]
+
+    # Run Civic Image Decision Gate
+    gate = None
+    if pil_img is not None:
+        try:
+            gate = evaluate_civic_image_gate(pil_img, domain=domain, detections=detections)
+        except Exception as e:
+            gate = None
+
+    # CASE 4: NON-CIVIC SUBJECT -> Immediate Rejection
+    if gate and gate["outcome"] == "INVALID_IMAGE":
+        return {
+            "success": True,
+            "decision_outcome": "INVALID_IMAGE",
+            "decision_message": "This is not a civic issue. Please upload a valid civic image.",
+            "outcome": "INVALID_IMAGE",
+            "message": "This is not a civic issue. Please upload a valid civic image.",
+            "allow_manual": False,
+            "allowManualEntry": False,
+            "accepted_as_evidence": False,
+            "acceptedAsEvidence": False,
+            "aiStatus": "invalid_image",
+            "ai_status": "invalid_image",
+            "detected": False,
+            "is_civic_issue": False,
+            "category": None,
+            "issue_type": None,
+            "title": None,
+            "description": "This is not a civic issue. Please upload a valid civic image.",
+            "severity": "None",
+            "priority": "None",
+            "department": None,
+            "department_code": None,
+            "departmentCode": None,
+            "department_id": None,
+            "recommended_department": None,
+            "confidence": 0.0,
+            "civic_validation": gate.get("civic_validation"),
+            "surface_metrics": gate.get("surface_metrics"),
+            "road_condition": "non_road",
+            "primaryDetection": None,
+            "detections": [],
+            "analysis": {"visualImpactScore": 0.0, "detectionCount": 0, "hasMultipleDetections": False, "allDetections": []},
+            "complaint": None,
+            "explanation": "This is not a civic issue. Please upload a valid civic image.",
+            "explanation_details": {"reason": "This is not a civic issue. Please upload a valid civic image."},
+            "reviewRequired": False,
+            "review_required": False,
+            "analysis_id": analysis_id,
+            "image_hash": image_hash,
+            "model": "civic_validator.pt",
+            "detected_features": [],
+            "needs_manual_verification": False,
+            "warnings": [],
+            "errors": []
+        }
+
+    # CASE 3: CLEAN / UNDAMAGED INFRASTRUCTURE -> Immediate Rejection
+    if gate and gate["outcome"] == "NO_CIVIC_ISSUE":
+        return {
+            "success": True,
+            "decision_outcome": "NO_CIVIC_ISSUE",
+            "decision_message": "No civic issue found. Please upload an image showing a genuine civic problem.",
+            "outcome": "NO_CIVIC_ISSUE",
+            "message": "No civic issue found. Please upload an image showing a genuine civic problem.",
+            "allow_manual": False,
+            "allowManualEntry": False,
+            "accepted_as_evidence": False,
+            "acceptedAsEvidence": False,
+            "aiStatus": "confirmed_clean",
+            "ai_status": "confirmed_clean",
+            "detected": False,
+            "is_civic_issue": False,
+            "category": "Road Condition",
+            "issue_type": "No Road Defect",
+            "title": "No Road Defect",
+            "description": "No civic issue found. Please upload an image showing a genuine civic problem.",
+            "severity": "None",
+            "priority": "None",
+            "department": None,
+            "department_code": None,
+            "departmentCode": None,
+            "department_id": None,
+            "recommended_department": None,
+            "confidence": 0.92,
+            "civic_validation": gate.get("civic_validation"),
+            "surface_metrics": gate.get("surface_metrics"),
+            "road_condition": "clean",
+            "primaryDetection": None,
+            "detections": [],
+            "analysis": {"visualImpactScore": 0.0, "detectionCount": 0, "hasMultipleDetections": False, "allDetections": []},
+            "complaint": None,
+            "explanation": "No civic issue found. Please upload an image showing a genuine civic problem.",
+            "explanation_details": {"reason": "No civic issue found. Please upload an image showing a genuine civic problem."},
+            "reviewRequired": False,
+            "review_required": False,
+            "analysis_id": analysis_id,
+            "image_hash": image_hash,
+            "model": "civic_validator.pt",
+            "detected_features": [],
+            "needs_manual_verification": False,
+            "warnings": [],
+            "errors": []
+        }
     explanation_obj = result.get("explanation") or {}
     explanation_text = (
         explanation_obj.get("reason") if isinstance(explanation_obj, dict) and explanation_obj.get("reason")
@@ -148,7 +263,23 @@ def analyze_complaint_image(
         ai_status = "manual_review"
         has_valid_complaint = False
 
+    gate_outcome = gate.get("outcome") if gate else ("VALID_CIVIC_ISSUE" if has_valid_complaint else "CIVIC_ISSUE_UNCERTAIN")
+    gate_message = gate.get("message") if gate else ("Civic issue verified and accepted." if has_valid_complaint else "Civic issue detected but classification is uncertain. Manual details enabled for municipal verification.")
+    gate_allow_manual = gate.get("allow_manual") if gate else needs_manual
+    gate_accepted = gate.get("accepted") if gate else True
+
     response = {
+        # Decision Gate Outcomes
+        "decision_outcome": gate_outcome,
+        "decision_message": gate_message,
+        "outcome": gate_outcome,
+        "allow_manual": gate_allow_manual,
+        "allowManualEntry": gate_allow_manual,
+        "accepted_as_evidence": gate_accepted,
+        "acceptedAsEvidence": gate_accepted,
+        "civic_validation": gate.get("civic_validation") if gate else None,
+        "surface_metrics": gate.get("surface_metrics") if gate else None,
+
         # Standardized Local Civic AI Agent Schema
         "success": result.get("success", True),
         "road_condition": road_condition,

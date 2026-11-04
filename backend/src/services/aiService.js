@@ -286,6 +286,86 @@ async function analyzeComplaintPhoto(fileInput, options = {}) {
     const isUncertainPipe = (pythonResult.pipe_condition === 'uncertain' || (isPipeDomain && !pythonResult.detected && (aiStatus === 'manual_review' || roadCondition === 'uncertain') && !pythonResult.complaint));
     const hasValidComplaint = Boolean(pythonResult.detected || pythonResult.complaint || (pythonResult.detections && pythonResult.detections.length > 0));
 
+    // Fast-path decision outcomes from Python Local AI Decision Gate
+    if (pythonResult.decision_outcome === 'INVALID_IMAGE' || pythonResult.outcome === 'INVALID_IMAGE') {
+      return {
+        success: true,
+        decision_outcome: 'INVALID_IMAGE',
+        decision_message: 'This is not a civic issue. Please upload a valid civic image.',
+        outcome: 'INVALID_IMAGE',
+        message: 'This is not a civic issue. Please upload a valid civic image.',
+        allowManualEntry: false,
+        allow_manual: false,
+        acceptedAsEvidence: false,
+        accepted_as_evidence: false,
+        is_civic_issue: false,
+        detected: false,
+        detected_class: null,
+        confidence: Number(pythonResult.confidence || 0),
+        confidence_level: 'LOW',
+        ai_status: 'invalid_image',
+        aiStatus: 'invalid_image',
+        review_required: false,
+        reviewRequired: false,
+        category: null,
+        issue_type: null,
+        title: null,
+        description: 'This is not a civic issue. Please upload a valid civic image.',
+        severity: 'None',
+        priority: 'None',
+        department: null,
+        department_code: null,
+        departmentCode: null,
+        department_id: null,
+        analysis_id: analysisId,
+        image_hash: imageHash,
+        civic_validation: pythonResult.civic_validation,
+        surface_metrics: pythonResult.surface_metrics,
+        detections: [],
+        complaint: null
+      };
+    }
+
+    if (pythonResult.decision_outcome === 'NO_CIVIC_ISSUE' || pythonResult.outcome === 'NO_CIVIC_ISSUE') {
+      return {
+        success: true,
+        decision_outcome: 'NO_CIVIC_ISSUE',
+        decision_message: 'No civic issue found. Please upload an image showing a genuine civic problem.',
+        outcome: 'NO_CIVIC_ISSUE',
+        message: 'No civic issue found. Please upload an image showing a genuine civic problem.',
+        allowManualEntry: false,
+        allow_manual: false,
+        acceptedAsEvidence: false,
+        accepted_as_evidence: false,
+        is_civic_issue: false,
+        detected: false,
+        detected_class: null,
+        confidence: Number(pythonResult.confidence || 0.92),
+        confidence_level: 'HIGH',
+        ai_status: 'confirmed_clean',
+        aiStatus: 'confirmed_clean',
+        road_condition: pythonResult.road_condition || 'clean',
+        review_required: false,
+        reviewRequired: false,
+        category: 'Road Condition',
+        issue_type: 'No Road Defect',
+        title: 'No Road Defect',
+        description: 'No civic issue found. Please upload an image showing a genuine civic problem.',
+        severity: 'None',
+        priority: 'None',
+        department: null,
+        department_code: null,
+        departmentCode: null,
+        department_id: null,
+        analysis_id: analysisId,
+        image_hash: imageHash,
+        civic_validation: pythonResult.civic_validation,
+        surface_metrics: pythonResult.surface_metrics,
+        detections: [],
+        complaint: null
+      };
+    }
+
     if (isNormalDrain) {
       // CASE: NORMAL DRAIN - Clean, functional drainage, confirmed normal
       const confidence = Number(pythonResult.confidence || 0.95);
@@ -1056,6 +1136,24 @@ function detectCivicDomainFromAnalysis(aiResult) {
  * 4. INVALID_IMAGE: Non-civic subjects (pets, selfies, indoor furniture, random textures). Rejects image immediately with exact message.
  */
 function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFeatures = null) {
+  if (aiResult && (aiResult.decision_outcome || aiResult.outcome)) {
+    const decOutcome = aiResult.decision_outcome || aiResult.outcome;
+    let defMsg = 'Civic issue verified and accepted.';
+    if (decOutcome === 'INVALID_IMAGE') defMsg = 'This is not a civic issue. Please upload a valid civic image.';
+    else if (decOutcome === 'NO_CIVIC_ISSUE') defMsg = 'No civic issue found. Please upload an image showing a genuine civic problem.';
+    else if (decOutcome === 'CIVIC_ISSUE_UNCERTAIN') defMsg = 'Civic issue detected but classification is uncertain. Manual details enabled for municipal verification.';
+
+    return {
+      outcome: decOutcome,
+      message: aiResult.decision_message || aiResult.message || defMsg,
+      detectedIssue: aiResult.detected_class || aiResult.issue_type || aiResult.title || 'Civic Issue',
+      confidence: Number(aiResult.confidence || 0),
+      category: aiResult.category,
+      allowManualEntry: aiResult.allowManualEntry !== undefined ? aiResult.allowManualEntry : (aiResult.allow_manual !== undefined ? aiResult.allow_manual : (decOutcome === 'CIVIC_ISSUE_UNCERTAIN')),
+      acceptedAsEvidence: aiResult.acceptedAsEvidence !== undefined ? aiResult.acceptedAsEvidence : (aiResult.accepted_as_evidence !== undefined ? aiResult.accepted_as_evidence : (decOutcome === 'VALID_CIVIC_ISSUE' || decOutcome === 'CIVIC_ISSUE_UNCERTAIN'))
+    };
+  }
+
   if (!aiResult) {
     if (visualFeatures && visualFeatures.edgeDensity > 0.08 && visualFeatures.contrast > 25) {
       return {
@@ -1067,7 +1165,7 @@ function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFea
     }
     return {
       outcome: 'INVALID_IMAGE',
-      message: 'The uploaded image is invalid.',
+      message: 'This is not a civic issue. Please upload a valid civic image.',
       allowManualEntry: false,
       acceptedAsEvidence: false
     };
@@ -1105,7 +1203,7 @@ function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFea
   if (isCleanRoad || isNormalDrain || isNormalPipe || isNormalGeneral || isCleanInfrastructure) {
     return {
       outcome: 'NO_CIVIC_ISSUE',
-      message: 'No civic issue found. The uploaded image does not show any visible damage or maintenance issue.',
+      message: 'No civic issue found. Please upload an image showing a genuine civic problem.',
       allowManualEntry: false,
       acceptedAsEvidence: false
     };
@@ -1167,7 +1265,7 @@ function evaluateCivicImageDecision(aiResult, selectedCategory = null, visualFea
   // --- CASE 4: INVALID IMAGE (NON-CIVIC SUBJECT) ---
   return {
     outcome: 'INVALID_IMAGE',
-    message: 'The uploaded image is invalid.',
+    message: 'This is not a civic issue. Please upload a valid civic image.',
     allowManualEntry: false,
     acceptedAsEvidence: false
   };
