@@ -101,6 +101,10 @@ export interface AIVisionResult {
   analysis_domain?: string | null;
   model?: string | null;
   ai_model?: string | null;
+  pipe_condition?: string | null;
+  drain_condition?: string | null;
+  road_analysis?: any;
+  decision?: any;
 }
 
 export interface UserProfile {

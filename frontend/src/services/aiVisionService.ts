@@ -660,7 +660,10 @@ export async function detectCivicIssue(
           confidenceLevel: 'LOW',
           reason: uncPipeDesc
         },
-        analysis: rawRes.analysis
+        analysis: rawRes.analysis,
+        pipe_condition: rawRes.pipe_condition || 'uncertain',
+        road_analysis: rawRes.road_analysis || null,
+        decision: rawRes.decision || null
       };
 
       setAnalysisCache(cacheKey, pipeReviewResult);
@@ -898,6 +901,10 @@ export async function detectCivicIssue(
         reason: rawRes.ai_reason || 'Defect identified by local vision agent.'
       },
       analysis: rawRes.analysis,
+      pipe_condition: rawRes.pipe_condition || (category === 'Water' ? (rawRes.detected ? 'leakage' : 'uncertain') : null),
+      drain_condition: rawRes.drain_condition || (category === 'Drainage' ? (rawRes.detected ? 'blocked' : 'uncertain') : null),
+      road_analysis: rawRes.road_analysis || null,
+      decision: rawRes.decision || null,
       ...((rawRes.risk_quadrants || rawRes.risk_score !== undefined) ? {
         risk_quadrants: rawRes.risk_quadrants,
         human_safety: rawRes.human_safety,

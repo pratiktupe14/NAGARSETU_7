@@ -148,8 +148,8 @@ function buildConsolidatedCivicDescription(
       : activeCat.includes('sanitat')
       ? 'Sanitation & Waste Management'
       : (aiRes?.department || 'the responsible municipal department');
-    const conf = aiRes.confidence ? Math.round(Number(aiRes.confidence) * 100) : 92;
-    const sev = (aiRes.severity || 'High').toLowerCase();
+    const conf = (aiRes && typeof aiRes.confidence === 'number') ? Math.round(Number(aiRes.confidence) * 100) : 92;
+    const sev = ((aiRes && aiRes.severity) || 'High').toLowerCase();
 
     if (cat.includes('water') || issue.includes('pipe') || issue.includes('leak')) {
       const isRupture = issue.includes('broken');
@@ -691,6 +691,15 @@ export const ReportIssuePage: React.FC = () => {
       return true;
     }
 
+    // PRESERVE EXISTING LOCATION PRIORITY:
+    // Priority 1: Valid EXIF GPS coordinates from photo.
+    // Priority 2: HTML5 device geolocation.
+    // Priority 3: User-confirmed map pin.
+    // Do not force device GPS permission if valid coordinates have already been confirmed through EXIF or existing map pin.
+    if (!isUserAction && (locationSource === 'exif' || mapPinConfirmed)) {
+      return true;
+    }
+
     setDetectingLocation(true);
 
     // Fast-path permission check via navigator.permissions if supported
@@ -699,7 +708,10 @@ export const ReportIssuePage: React.FC = () => {
         const permStatus = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
         if (permStatus.state === 'denied') {
           setDetectingLocation(false);
-          setShowLocationPromptModal(true);
+          setShowLocationPromptModal(false);
+          if (isUserAction) {
+            toast.error('Location permission is blocked in your browser settings. Please allow location access or select your defect location on the map.');
+          }
           return false;
         }
       } catch {
@@ -709,21 +721,22 @@ export const ReportIssuePage: React.FC = () => {
 
     try {
       const gps = await requestFreshGpsLocation();
-      if (gps && gps.latitude && gps.longitude) {
+      if (gps && gps.latitude && gps.longitude && isValidCoordinate(gps.latitude, gps.longitude)) {
         const acc = gps.accuracyMeters ? Math.round(gps.accuracyMeters) : 10;
         setLat(gps.latitude);
         setLng(gps.longitude);
         setLocationAccuracy(acc);
+        setLocationSource('device_gps');
+        setShowLocationPromptModal(false);
 
         if (acc <= 100) {
-          setLocationSource('device_gps'); // setLocationSource('live_gps')
           setLocationStatusText(`Live GPS verified (±${acc}m)`);
-          setShowLocationPromptModal(false);
+          if (isUserAction) {
+            toast.success(`Location detected successfully (±${acc}m accuracy).`);
+          }
         } else {
-          setLocationSource('device_gps');
           setLocationStatusText('GPS accuracy low — please confirm on map');
-          toast.warning(`Device GPS accuracy is low (±${acc}m). Please confirm defect location on the map.`);
-          setShowLocationPromptModal(true);
+          toast.warning(`Device GPS accuracy is low (±${acc}m). You may confirm or adjust the marker on the map.`);
         }
         runDuplicateCheck(gps.latitude, gps.longitude);
 
@@ -731,12 +744,22 @@ export const ReportIssuePage: React.FC = () => {
         if (addr) setLocationAddress(addr);
         return true;
       } else {
-        setShowLocationPromptModal(true);
+        setShowLocationPromptModal(false);
+        if (isUserAction) {
+          if (gps?.status === 'permission_denied') {
+            toast.error(gps.message || 'Location permission was denied. Please select your defect location manually on the map.');
+          } else {
+            toast.warning(gps?.message || 'Could not detect device GPS. Please mark the defect location manually on the map.');
+          }
+        }
         return false;
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn('GPS detection failed:', e);
-      setShowLocationPromptModal(true);
+      setShowLocationPromptModal(false);
+      if (isUserAction) {
+        toast.warning(e?.message || 'GPS location detection failed. Please mark the location manually on the map.');
+      }
       return false;
     } finally {
       setDetectingLocation(false);
@@ -991,7 +1014,7 @@ export const ReportIssuePage: React.FC = () => {
         // Apply analysis results to form if available
         if (analysisRes) {
           setAiResult(analysisRes);
-          if (analysisRes.is_available !== false && analysisRes.confidence > 0) {
+          if (analysisRes && analysisRes.is_available !== false && (analysisRes.confidence || 0) > 0) {
             if (!isManuallyEdited || !title) {
               if (analysisRes.title) setTitle(analysisRes.title);
             }
@@ -1201,7 +1224,7 @@ export const ReportIssuePage: React.FC = () => {
       setAiResult(res);
       setPrimaryFeatures(res.visual_features || null);
 
-      if (res.is_available !== false && res.confidence > 0) {
+      if (res && res.is_available !== false && (res.confidence || 0) > 0) {
         if (res.road_condition === 'clean' || res.aiStatus === 'confirmed_clean') {
           // Clean road confirmed: Do NOT pre-fill PWD / Road Damage / High Priority
           setCategory('Roads');
@@ -1397,7 +1420,6 @@ export const ReportIssuePage: React.FC = () => {
 
       if (locationSource === 'device_gps' && locationAccuracy && locationAccuracy > 100 && !mapPinConfirmed) {
         toast.warning('Device GPS accuracy is lower than 100m. Please confirm defect location on the map.');
-        setShowLocationPromptModal(true);
         isSubmittingRef.current = false;
         setSubmitting(false);
         return;
@@ -1467,7 +1489,7 @@ export const ReportIssuePage: React.FC = () => {
         photo_closeup_url: uploadedUrls.closeup || '',
         angle_photos: anglePhotos,
         additional_photos: additionalUrls,
-        ai_vision_metadata: (aiResult && aiResult.confidence > 0) ? {
+        ai_vision_metadata: (aiResult && (aiResult.confidence ?? 0) > 0) ? {
           category: aiResult.category,
           confidence: aiResult.confidence,
           confidence_level: aiResult.confidence_level,
@@ -1479,7 +1501,7 @@ export const ReportIssuePage: React.FC = () => {
         title: title || `${category || 'Civic'} Issue Reported`,
         description: description || `Civic issue reported via NAGARSETU at ${locationAddress}`,
         priority,
-        status: (aiResult && aiResult.confidence < 0.80) ? ('NEEDS_VERIFICATION' as const) : ('Submitted' as const),
+        status: (aiResult && typeof aiResult.confidence === 'number' && aiResult.confidence < 0.80) ? ('NEEDS_VERIFICATION' as const) : ('Submitted' as const),
         department_id: resolvedDept.id,
         department_name: resolvedDept.fullName,
         latitude: lat,
@@ -1489,7 +1511,7 @@ export const ReportIssuePage: React.FC = () => {
         location_address: locationAddress,
         ai_category: aiResult?.category || category || 'Roads',
         ai_specific_issue: aiResult?.issue_type || category || 'Civic Issue',
-        ai_confidence: aiResult?.confidence ?? 0.0,
+        ai_confidence: typeof aiResult?.confidence === 'number' ? aiResult.confidence : 0.0,
         ai_severity: aiResult?.severity || aiResult?.priority || priority,
         ai_urgency: aiResult?.priority || priority,
         ai_evidence: aiResult?.description || description,
@@ -1498,7 +1520,7 @@ export const ReportIssuePage: React.FC = () => {
         ai_detected_class: aiResult?.explanation?.detectedIssue || (aiResult?.detected_objects?.[0] ?? null),
         ai_reason: aiResult?.explanation?.reason || aiResult?.description || description || '',
         ai_analyzed_at: new Date().toISOString(),
-        needs_manual_verification: !aiResult || aiResult.reviewRequired !== false || aiResult.confidence < 0.75 || slotDecisions.front?.outcome === 'CIVIC_ISSUE_UNCERTAIN',
+        needs_manual_verification: !aiResult || aiResult.reviewRequired !== false || (typeof aiResult.confidence === 'number' && aiResult.confidence < 0.75) || slotDecisions.front?.outcome === 'CIVIC_ISSUE_UNCERTAIN',
         road_condition: aiResult?.road_condition || (category === 'Roads' ? 'uncertain' : null),
         pipe_condition: (aiResult as any)?.pipe_condition || (category === 'Water' ? 'uncertain' : null),
         drain_condition: (aiResult as any)?.drain_condition || (category === 'Drainage' ? 'uncertain' : null),
@@ -2215,7 +2237,7 @@ export const ReportIssuePage: React.FC = () => {
                     <span>{aiResult.road_condition === 'clean' || aiResult.aiStatus === 'confirmed_clean' ? '✓ ROAD CONDITION: CLEAN' : '✓ INFRASTRUCTURE: NORMAL & INTACT'}</span>
                   </span>
                   <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded border text-emerald-800 bg-white border-emerald-300">
-                    AI confidence: {Math.round(aiResult.confidence * 100)}%
+                    AI confidence: {aiResult?.confidence != null ? Math.round(Number(aiResult.confidence) * 100) : 0}%
                   </span>
                 </div>
 
@@ -2303,7 +2325,7 @@ export const ReportIssuePage: React.FC = () => {
                         <span>{reviewTitle}</span>
                       </span>
                       <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded border text-amber-800 bg-white border-amber-300">
-                        Confidence: {Math.round(aiResult.confidence * 100)}%
+                        Confidence: {aiResult?.confidence != null ? Math.round(Number(aiResult.confidence) * 100) : 0}%
                       </span>
                     </div>
 
@@ -2380,7 +2402,7 @@ export const ReportIssuePage: React.FC = () => {
                         : 'text-rose-800 bg-rose-50 border-rose-300'
                     }`}
                   >
-                    {aiResult.confidence_level === 'High' ? '🟢 Confident' : aiResult.confidence_level === 'Medium' ? '🟡 Suggestion' : '⚪ Review'} (Confidence: {Math.round(aiResult.confidence * 100)}% • Level: {aiResult.confidence_level?.toUpperCase() || 'HIGH'})
+                    {aiResult?.confidence_level === 'High' ? '🟢 Confident' : aiResult?.confidence_level === 'Medium' ? '🟡 Suggestion' : '⚪ Review'} (Confidence: {aiResult?.confidence != null ? Math.round(Number(aiResult.confidence) * 100) : 0}% • Level: {aiResult?.confidence_level?.toUpperCase() || 'HIGH'})
                   </span>
                 </div>
 
@@ -2424,13 +2446,13 @@ export const ReportIssuePage: React.FC = () => {
                 {/* Explainability Block: Why */}
                 <div className="p-2.5 rounded-lg bg-emerald-100/60 border border-emerald-200 text-emerald-950 text-[11px]">
                   <span className="font-extrabold text-emerald-900 block mb-0.5">Why:</span>
-                  <span>{aiResult.explanation?.reason || `${aiResult.issue_type || aiResult.title} detected with ${Math.round(aiResult.confidence * 100)}% confidence.`}</span>
+                  <span>{aiResult?.explanation?.reason || `${aiResult?.issue_type || aiResult?.title || 'Civic Issue'} detected with ${aiResult?.confidence != null ? Math.round(Number(aiResult.confidence) * 100) : 0}% confidence.`}</span>
                 </div>
 
                 {/* Transparency Notice */}
                 <div className="flex items-center justify-between text-[10px] text-gray-500 pt-0.5 border-t border-emerald-200/50">
                   <span className="italic">
-                    {aiResult.transparencyNotice || (aiResult.confidence >= 0.75 ? 'AI-generated — please review before submitting.' : 'AI suggestion — please verify.')}
+                    {aiResult?.transparencyNotice || ((aiResult?.confidence ?? 0) >= 0.75 ? 'AI-generated — please review before submitting.' : 'AI suggestion — please verify.')}
                   </span>
                   <span className="text-emerald-700 font-mono font-medium">All fields editable</span>
                 </div>
@@ -2917,7 +2939,7 @@ export const ReportIssuePage: React.FC = () => {
               {aiResult && (
                 <div className="pt-1.5 border-t border-gray-200 text-[10px] text-emerald-700 font-mono flex items-center space-x-1">
                   <Sparkles className="w-3 h-3" />
-                  <span>AI Confidence: {Math.round(aiResult.confidence * 100)}% ({aiResult.confidence_level})</span>
+                  <span>AI Confidence: {aiResult?.confidence != null ? Math.round(Number(aiResult.confidence) * 100) : 0}% ({aiResult?.confidence_level || 'N/A'})</span>
                 </div>
               )}
             </div>
